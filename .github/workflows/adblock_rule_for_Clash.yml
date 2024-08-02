@@ -1,4 +1,4 @@
-name: Run AdBlock Rule Generator
+name: Run AdBlock Rule Generator_YAML
 
 on:
   schedule:
