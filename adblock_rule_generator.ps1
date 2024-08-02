@@ -1,4 +1,4 @@
-# AdBlock Rule Generator
+# AdBlock Rule For Clash
 # 这个脚本用于生成广告拦截规则，并将其保存为YAML格式
 
 # 定义广告过滤器URL列表
