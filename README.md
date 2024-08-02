@@ -133,13 +133,23 @@ https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/fil
 
 五、特别感谢
 1、anti-AD (https://github.com/privacy-protection-tools/anti-AD)
+
 2、easylist (https://github.com/easylist/easylist)
+
 3、cjxlist (https://github.com/cjx82630/cjxlist)
+
 4、uniartisan (https://github.com/uniartisan/adblock_list)
+
 5、Cats-Team (https://github.com/Cats-Team/AdRules)
+
 6、217heidai (https://github.com/217heidai/adblockfilters)
+
 7、GOODBYEADS (https://github.com/8680/GOODBYEADS)
+
 8、AWAvenue-Ads-Rule (https://github.com/TG-Twilight/AWAvenue-Ads-Rule)
+
 9、Bibaiji (https://github.com/Bibaiji/ad-rules/)
+
 10、uBlockOrigin (https://github.com/uBlockOrigin/uAssets)
+
 11、ADguardTeam (https://github.com/AdguardTeam/AdGuardFilters)
