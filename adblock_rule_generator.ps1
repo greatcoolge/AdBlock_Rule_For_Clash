@@ -81,7 +81,7 @@ $($formattedRules -join "`n")
 "@  # 生成YAML文件内容
 
 # 第五步：保存生成的YAML文件
-$outputPath = "C:\Users\26343\.config\clash\providers\rule\adblock_reject.yaml"  # 设置YAML文件的输出路径
+$outputPath = "$PSScriptRoot\adblock_reject.yaml"  # 设置YAML文件的输出路径为脚本所在目录
 $yamlContent | Out-File -FilePath $outputPath -Encoding utf8  # 将YAML内容保存到文件中，使用UTF8编码
 
 # 第六步：统计生成的规则条目数量
