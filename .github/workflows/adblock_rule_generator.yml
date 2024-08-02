@@ -1,40 +1,29 @@
 name: Schedule AdBlock Rule Generator
-
 on:
   schedule:
     - cron: '*/20 * * * *'  # 每20分钟运行一次
   push:
     branches:
       - main  # 在main分支上有新的push时运行
-
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Set up PowerShell
-      uses: actions/setup-python@v4  # 设置Python环境
-      with:
-        python-version: '3.x'
-
     - name: Install PowerShell
       run: |
-        choco install powershell-core -y  # 使用chocolatey安装PowerShell
-
+        choco install powershell-core -y
     - name: Run PowerShell Script
       shell: pwsh
       run: |
-        pwsh ./adblock_rule_generator.ps1  # 运行脚本
-
+        pwsh ./adblock_rule_generator.ps1
     - name: Commit and Push YAML file
       run: |
-        git config --global user.name 'your-username'
-        git config --global user.email 'your-email@example.com'
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
         git add adblock_reject.yaml
         git commit -m "Update adblock_reject.yaml"
-        git push origin main
+        git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
