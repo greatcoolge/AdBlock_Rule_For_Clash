@@ -21,7 +21,7 @@
                 interval: 120
                 
                 
-           rules:
+            rules:
               - RULE-SET,adblock,REJECT
 
 
