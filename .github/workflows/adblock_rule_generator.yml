@@ -1,45 +1,33 @@
-# 工作流的名称
 name: Schedule AdBlock Rule Generator
 
-# 定义触发工作流的事件
 on:
-  # 使用cron表达式设置定时触发
   schedule:
-    - cron: '*/20 * * * *'  # 每20分钟运行一次
-  # 当有推送到main分支时也触发工作流
+    - cron: '*/20 * * * *'
   push:
     branches:
       - main
-  # 添加手动触发选项
   workflow_dispatch:
 
-# 定义工作流中的作业
 jobs:
-  # 定义一个名为"build"的作业
   build:
-    # 指定作业运行的环境为最新版本的Windows
     runs-on: windows-latest
     
-    # 定义作业的步骤
     steps:
-    # 步骤1：检出仓库代码
+    # 手动实现 checkout
     - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0  # 获取完整的Git历史
+      run: |
+        git clone https://github.com/${{ github.repository }}.git .
+        git checkout ${{ github.ref }}
 
-    # 步骤2：安装PowerShell Core
     - name: Install PowerShell
       run: |
         choco install powershell-core -y
 
-    # 步骤3：运行PowerShell脚本
     - name: Run PowerShell Script
       shell: pwsh
       run: |
         pwsh ./adblock_rule_generator.ps1
 
-    # 步骤4：提交并推送生成的YAML文件
     - name: Commit and Push YAML file
       run: |
         git config --global user.name 'github-actions[bot]'
@@ -50,7 +38,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.PAT }}
 
-    # 步骤5：错误处理和日志输出
     - name: Error Handling
       if: failure()
       run: |
