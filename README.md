@@ -10,11 +10,11 @@
 
 四、关于本项目使用方式：
 
-使用方式一：下载release中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yanl配置中的rules字段下
+  使用方式一：下载release中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yanl配置中的rules字段下
 
 
 
-使用方式二：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件中，需要特别注意yaml文件的缩进和对齐。
+  使用方式二：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件中，需要特别注意yaml文件的缩进和对齐。
 
 
 
