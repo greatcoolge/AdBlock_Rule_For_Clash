@@ -12,7 +12,7 @@
 
 
             rule-providers:
-              AdBlock_Rule_For_Clash:
+                adblock:
                 type: http
                 behavior: domain
                 format: yaml
@@ -22,7 +22,7 @@
                 
                 
             rules:
-              - RULE-SET,AdBlock_Rule_For_Clash,REJECT
+              - RULE-SET,adblock,REJECT
 
 
 
