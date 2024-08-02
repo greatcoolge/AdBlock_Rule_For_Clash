@@ -11,19 +11,27 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        persist-credentials: false  # 使用我们提供的令牌
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git
+        git clone https://github.com/${{ github.repository }}.git
+        cd $(basename "${{ github.repository }}")
 
-    - name: Set up PowerShell
-      uses: actions/setup-powershell@v2
+    - name: Install PowerShell
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget apt-transport-https software-properties-common
+        wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+        sudo dpkg -i packages-microsoft-prod.deb
+        sudo apt-get update
+        sudo apt-get install -y powershell
 
     - name: Run adblock_rule_generator.ps1
       run: pwsh ./adblock_rule_generator.ps1
 
     - name: Commit and Push YAML file
       env:
-        GH_TOKEN: ${{ secrets.TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
