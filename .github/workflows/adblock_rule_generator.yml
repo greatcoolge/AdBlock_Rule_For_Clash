@@ -1,78 +1,52 @@
-# AdBlock Rule Generator
-# 这个脚本用于生成广告拦截规则，并将其保存为YAML格式
+# 工作流的名称，会显示在GitHub Actions标签页中
+name: Schedule AdBlock Rule Generator
 
-# 定义广告过滤器URL列表
-# 这些URL包含了各种广告拦截规则的源
-$urlList = @(
-    "https://anti-ad.net/adguard.txt",
-    "https://anti-ad.net/easylist.txt",
-    # ... (其他URL保持不变)
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt"
-)
+# 定义触发工作流的事件
+on:
+  # 使用cron表达式设置定时触发
+  schedule:
+    - cron: '*/20 * * * *'  # 每20分钟运行一次
+  # 当有推送到main分支时也触发工作流
+  push:
+    branches:
+      - main
 
-# 创建一个HashSet来存储唯一的规则
-# 使用HashSet可以自动去重，提高效率
-$uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
+# 定义工作流中的作业
+jobs:
+  # 定义一个名为"build"的作业
+  build:
+    # 指定作业运行的环境为最新版本的Windows
+    runs-on: windows-latest
+    
+    # 定义作业的步骤
+    steps:
+    # 步骤1：检出仓库代码
+    - name: Checkout repository
+      uses: actions/checkout@v2  # 使用官方的checkout action
 
-# 第一步：遍历每个广告过滤器URL，下载并提取拦截域名规则
-# 创建WebClient对象用于下载URL内容
-$webClient = New-Object System.Net.WebClient
-# 设置编码为UTF8，确保正确处理非ASCII字符
-$webClient.Encoding = [System.Text.Encoding]::UTF8
-# 添加User-Agent头，模拟浏览器请求，避免被某些服务器拒绝
-$webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+    # 步骤2：安装PowerShell Core
+    - name: Install PowerShell
+      run: |
+        choco install powershell-core -y  # 使用Chocolatey包管理器安装PowerShell Core
 
-foreach ($url in $urlList) {
-    Write-Host "正在处理: $url"
-    try {
-        # 下载URL内容
-        $content = $webClient.DownloadString($url)
-        # 将内容按行分割
-        $lines = $content -split "`n"
+    # 步骤3：运行PowerShell脚本
+    - name: Run PowerShell Script
+      shell: pwsh  # 指定使用PowerShell Core运行
+      run: |
+        pwsh ./adblock_rule_generator.ps1  # 运行广告拦截规则生成脚本
 
-        foreach ($line in $lines) {
-            # 使用正则表达式匹配拦截域名规则
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+)\^') {
-                $domain = $Matches[1]
-                # 将匹配的域名添加到HashSet中
-                $uniqueRules.Add($domain) | Out-Null
-            }
-        }
-    }
-    catch {
-        # 如果处理某个URL时出错，输出错误信息但继续处理其他URL
-        Write-Host "处理 $url 时出错: $_"
-    }
-}
-
-# 第二步：去除无效域名规则
-# 创建新的HashSet来存储有效的规则
-$validRules = [System.Collections.Generic.HashSet[string]]::new()
-foreach ($rule in $uniqueRules) {
-    # 使用正则表达式验证域名的有效性
-    if ($rule -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
-        $validRules.Add($rule) | Out-Null
-    }
-}
-
-# 第三步：将有效规则格式化为payload列表的格式
-# 对规则进行排序并添加DOMAIN,前缀
-$formattedRules = $validRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
-
-# 第四步：生成YAML文件内容
-# 创建YAML格式的字符串，包含所有格式化后的规则
-$yamlContent = @"
-payload:
-$($formattedRules -join "`n")
-"@
-
-# 第五步：保存生成的YAML文件
-# 定义输出文件路径
-$outputPath = "adblock_reject.yaml"
-# 将YAML内容写入文件，使用UTF8编码
-$yamlContent | Out-File -FilePath $outputPath -Encoding utf8
-
-# 第六步：统计生成的规则条目数量
-$ruleCount = $validRules.Count
-# 输出生成的有效规则总数
-Write-Host "生成的有效规则总数: $ruleCount"
+    # 步骤4：提交并推送生成的YAML文件
+    - name: Commit and Push YAML file
+      run: |
+        # 配置Git用户名和邮箱（使用GitHub Actions作为作者）
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        # 将生成的YAML文件添加到Git
+        git add adblock_reject.yaml
+        # 创建一个新的提交
+        git commit -m "Update adblock_reject.yaml"
+        # 推送更改到仓库
+        git push
+      # 设置环境变量，提供GitHub Token用于认证
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
