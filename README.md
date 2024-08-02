@@ -8,7 +8,7 @@
 三、本项目引用多个广告过滤器，从这些广告过滤器中提取了被拦截条目的域名，剔除了非拦截项，去重并格式化为适用于clash的yaml格式，最后生成yaml文件，可被引用用于clash配置文件中进行广告域名匹配拦截。
 
 
-四、关于本项目使用方式：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件中
+四、关于本项目使用方式：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件中，需要特别注意yaml文件的缩进和对齐
 
 
             rule-providers:
