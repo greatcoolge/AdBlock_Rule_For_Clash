@@ -1,41 +1,35 @@
-name: Process AdBlock Reject List
+name: Process adblock files
+
 on:
   push:
-    paths:
-      - 'adblock_reject.txt'
-      - 'adblock_reject.yaml'
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
+
 jobs:
   process-files:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Process adblock_reject.txt
-        run: |
-          # 读取文件并为每行添加 ",REJECT"，保留开头的破折号，去掉破折号后的空格
-          sed -E 's/^-[[:space:]]*(.*)/- \1,REJECT/' adblock_reject.txt > adblock_reject_change.txt
+    - name: Process adblock_reject.txt
+      run: |
+        tail -n +2 adblock_reject.txt | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.txt
 
-      - name: Process adblock_reject.yaml
-        run: |
-          # 读取 YAML 文件
-          content=$(cat adblock_reject.yaml)
-          
-          # 使用 awk 来处理 YAML 文件
-          echo "$content" | awk '
-          BEGIN {print "payload:"}
-          /^payload:/ {next}  # 跳过原始的 payload 行
-          /^-/ {  # 处理以破折号开头的行
-            sub(/^-[[:space:]]*/, "- ")  # 去除破折号后的空格
-            print $0 ",REJECT"
-          }
-          !/^-/ {print}  # 打印其他行
-          ' > adblock_reject_change.yaml
+    - name: Process adblock_reject.yaml
+      run: |
+        tail -n +2 adblock_reject.yaml | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.yaml
 
-      - name: Commit and push if changed
-        run: |
-          git config --global user.name 'GitHub Action'
-          git config --global user.email 'action@github.com'
-          git add adblock_reject_change.txt adblock_reject_change.yaml
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update processed AdBlock files" && git push)
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add adblock_reject_change.txt adblock_reject_change.yaml
+        git commit -m "Process adblock files: remove first line, add REJECT, left align" || echo "No changes to commit"
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
