@@ -1,14 +1,18 @@
-name: Generate adblock reject txt
+name: Run AdBlock Rule Generator_TXT
+
 on:
   schedule:
-    - cron: '0 * * * *'  # 每小时整点运行一次
+    - cron: '*/20 * * * *'  # 每20分钟运行一次
   workflow_dispatch:  # 手动触发
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
     - name: Install PowerShell
       run: |
         sudo apt-get update
@@ -17,12 +21,14 @@ jobs:
         sudo dpkg -i packages-microsoft-prod.deb
         sudo apt-get update
         sudo apt-get install -y powershell
+
     - name: Run adblock_rule_generator.ps1
       run: pwsh ./adblock_rule_generator.ps1
-    - name: Generate adblock_reject.txt
-      run: |
-        cp adblock_reject.yaml adblock_reject.txt
-    - name: Commit and Push txt file
+
+    - name: Rename and Move the Generated File
+      run: mv ./adblock_reject.yaml ./adblock_reject.txt
+
+    - name: Commit and Push Text File
       env:
         TOKEN: ${{ secrets.TOKEN }}
       run: |
