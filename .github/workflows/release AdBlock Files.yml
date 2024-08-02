@@ -1,14 +1,9 @@
 name: Release AdBlock Files
+
 on:
-  push:
-    branches:
-      - main  # 或者您的主分支名称
-    paths:
-      - 'adblock_reject.txt'
-      - 'adblock_reject.yaml'
-      - 'adblock_reject_change.txt'
-      - 'adblock_reject_change.yaml'
-  workflow_dispatch:  # 添加手动触发选项
+  schedule:
+    - cron: '*/30 * * * *'  # 每30分钟运行一次
+  workflow_dispatch:  # 保留手动触发选项
 
 jobs:
   create-release:
@@ -16,18 +11,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
+          tag_name: release-${{ steps.date.outputs.date }}
+          release_name: Release ${{ steps.date.outputs.date }}
           draft: false
           prerelease: false
-      
+
       - name: Upload adblock_reject.txt
         uses: actions/upload-release-asset@v1
         env:
@@ -37,7 +36,7 @@ jobs:
           asset_path: ./adblock_reject.txt
           asset_name: adblock_reject.txt
           asset_content_type: text/plain
-      
+
       - name: Upload adblock_reject.yaml
         uses: actions/upload-release-asset@v1
         env:
@@ -46,8 +45,8 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./adblock_reject.yaml
           asset_name: adblock_reject.yaml
-          asset_content_type: application/x-yaml
-      
+          asset_content_type: application/yaml
+
       - name: Upload adblock_reject_change.txt
         uses: actions/upload-release-asset@v1
         env:
@@ -57,7 +56,7 @@ jobs:
           asset_path: ./adblock_reject_change.txt
           asset_name: adblock_reject_change.txt
           asset_content_type: text/plain
-      
+
       - name: Upload adblock_reject_change.yaml
         uses: actions/upload-release-asset@v1
         env:
@@ -66,4 +65,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./adblock_reject_change.yaml
           asset_name: adblock_reject_change.yaml
-          asset_content_type: application/x-yaml
+          asset_content_type: application/yaml
