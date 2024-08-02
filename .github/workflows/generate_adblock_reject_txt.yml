@@ -1,7 +1,7 @@
 name: Generate adblock reject txt
 on:
   schedule:
-    - cron: '*/20 * * * *'  # 每20分钟运行一次
+    - cron: '0 * * * *'  # 每小时整点运行一次
   workflow_dispatch:  # 手动触发
 jobs:
   build:
@@ -29,5 +29,5 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add adblock_reject.txt
-        git commit -m "Add adblock_reject.txt" || echo "No changes to commit"
+        git commit -m "Update adblock_reject.txt" || echo "No changes to commit"
         git push https://x-access-token:${{ secrets.TOKEN }}@github.com/${{ github.repository }} HEAD:main
