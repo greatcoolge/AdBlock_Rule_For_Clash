@@ -1,0 +1,33 @@
+name: Process AdBlock Reject List
+
+on:
+  push:
+    paths:
+      - 'adblock_reject.txt'
+  workflow_dispatch:
+
+jobs:
+  process-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Process adblock_reject.txt
+        run: |
+          # 移除第一行 (payload:)
+          sed '1d' adblock_reject.txt > temp.txt
+          
+          # 为每行添加 ",REJECT" 并移除行首的空格和破折号
+          sed -E 's/^[[:space:]]*-[[:space:]]*(.*)/\1,REJECT/' temp.txt > adblock_reject_change.txt
+          
+          # 创建 YAML 文件
+          echo "payload:" > adblock_reject_change.yaml
+          cat adblock_reject_change.txt >> adblock_reject_change.yaml
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add adblock_reject_change.txt adblock_reject_change.yaml
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update processed AdBlock files" && git push)
