@@ -1,4 +1,4 @@
-name: generate adblock reject txt
+name: Generate adblock reject txt
 on:
   schedule:
     - cron: '*/20 * * * *'  # 每20分钟运行一次
