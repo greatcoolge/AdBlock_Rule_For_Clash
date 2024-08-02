@@ -12,7 +12,7 @@
 
 
             rule-providers:
-                adblock:
+              adblock:
                 type: http
                 behavior: domain
                 format: yaml
@@ -21,7 +21,7 @@
                 interval: 120
                 
                 
-            rules:
+           rules:
               - RULE-SET,adblock,REJECT
 
 
