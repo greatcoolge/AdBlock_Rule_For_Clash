@@ -94,7 +94,7 @@ $($formattedRules -join "`n")
 
 # 第五步：保存生成的YAML文件
 # 定义输出文件路径
-$outputPath = "adblock_reject.yaml"
+$outputPath = "$PSScriptRoot/adblock_reject.yaml"
 # 将YAML内容写入文件，使用UTF8编码
 $yamlContent | Out-File -FilePath $outputPath -Encoding utf8
 
@@ -102,3 +102,4 @@ $yamlContent | Out-File -FilePath $outputPath -Encoding utf8
 $ruleCount = $validRules.Count
 # 输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
+
