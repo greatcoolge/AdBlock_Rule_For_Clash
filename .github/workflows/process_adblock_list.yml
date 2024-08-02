@@ -1,18 +1,15 @@
 name: Process AdBlock Reject List
-
 on:
   push:
     paths:
       - 'adblock_reject.txt'
   workflow_dispatch:
-
 jobs:
   process-file:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Process adblock_reject.txt
         run: |
           # 移除第一行 (payload:)
@@ -24,7 +21,6 @@ jobs:
           # 创建 YAML 文件
           echo "payload:" > adblock_reject_change.yaml
           cat adblock_reject_change.txt >> adblock_reject_change.yaml
-
       - name: Commit and push if changed
         run: |
           git config --global user.name 'GitHub Action'
