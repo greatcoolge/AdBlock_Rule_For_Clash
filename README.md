@@ -23,7 +23,7 @@
             type: http
             behavior: domain
             format: yaml
-            url: https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.yaml
+            url: https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml
             path: ./ruleset/adblock_reject.yaml
             interval: 120
                     
