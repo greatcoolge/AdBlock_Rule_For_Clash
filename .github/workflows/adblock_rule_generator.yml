@@ -25,6 +25,18 @@ jobs:
     - name: Run adblock_rule_generator.ps1
       run: pwsh ./adblock_rule_generator.ps1
 
+    - name: Check if YAML file exists
+      run: |
+        if [ -f ./adblock_reject.yaml ]; then
+          echo "adblock_reject.yaml exists."
+        else
+          echo "adblock_reject.yaml does not exist."
+          exit 1
+        fi
+
+    - name: Display generated YAML file
+      run: cat ./adblock_reject.yaml
+
     - name: Commit and Push YAML file
       env:
         TOKEN: ${{ secrets.TOKEN }}
