@@ -8,7 +8,25 @@
 三、本项目引用多个广告过滤器，从这些广告过滤器中提取了被拦截条目的域名，剔除了非拦截项，去重并格式化为适用于clash的yaml格式，最后生成yaml文件，可被引用用于clash配置文件中进行广告域名匹配拦截。
 
 
-四、本项目引用的广告过滤规则如下：
+四、关于本项目使用方式：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件中
+
+
+                    rule-providers:
+                      AdBlock_Rule_For_Clash:
+                        type: http
+                        behavior: domain
+                        format: yaml
+                        url: https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.yaml
+                        path: ./ruleset/adblock_reject.yaml
+                        interval: 120
+                        
+                        
+                    rules:
+                      - RULE-SET,AdBlock_Rule_For_Clash,REJECT
+
+
+
+五、本项目引用的广告过滤规则如下：
 
 1、Anti-ad for adguard
 https://anti-ad.net/adguard.txt
@@ -131,7 +149,7 @@ https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/fil
 
 
 
-五、特别感谢
+六、特别感谢以下各位大佬辛苦付出，如有错误请多多指正
 1、anti-AD (https://github.com/privacy-protection-tools/anti-AD)
 
 2、easylist (https://github.com/easylist/easylist)
