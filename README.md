@@ -1,4 +1,4 @@
-# AdBlockRuleGenerator
+# AdBlock_Rule_For_Clash
 Extract the blocking entries from multiple ad filters, remove duplicates, and convert them into a Clash-compatible payload list format, which can be used as Clash's rule-providers to route and block ad domains.
 The PowerShell script runs every 20 minutes.
 
