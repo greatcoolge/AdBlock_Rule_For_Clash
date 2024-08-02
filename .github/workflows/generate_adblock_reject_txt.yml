@@ -1,0 +1,33 @@
+name: Run AdBlock Rule Generator
+on:
+  schedule:
+    - cron: '*/20 * * * *'  # 每20分钟运行一次
+  workflow_dispatch:  # 手动触发
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Install PowerShell
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget apt-transport-https software-properties-common
+        wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+        sudo dpkg -i packages-microsoft-prod.deb
+        sudo apt-get update
+        sudo apt-get install -y powershell
+    - name: Run adblock_rule_generator.ps1
+      run: pwsh ./adblock_rule_generator.ps1
+    - name: Generate adblock_reject.txt
+      run: |
+        cp adblock_reject.yaml adblock_reject.txt
+    - name: Commit and Push txt file
+      env:
+        TOKEN: ${{ secrets.TOKEN }}
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add adblock_reject.txt
+        git commit -m "Add adblock_reject.txt" || echo "No changes to commit"
+        git push https://x-access-token:${{ secrets.TOKEN }}@github.com/${{ github.repository }} HEAD:main
