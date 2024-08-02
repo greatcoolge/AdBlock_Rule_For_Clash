@@ -1,20 +1,39 @@
-name: Release AdBlock Files
+name: Process and Release AdBlock Files
 
 on:
   push:
-    branches:
-      - main  # 或者您的主分支名称
     paths:
       - 'adblock_reject.txt'
       - 'adblock_reject.yaml'
-  workflow_dispatch:  # 添加手动触发选项
+      - 'adblock_reject_change.txt'
+      - 'adblock_reject_change.yaml'
+  workflow_dispatch:
 
 jobs:
-  create-release:
+  process-and-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Process adblock_reject.txt
+        run: |
+          # 移除第一行 (payload:)
+          sed '1d' adblock_reject.txt > temp.txt
+          
+          # 为每行添加 ",REJECT"，保留开头的破折号，去掉破折号后的空格
+          sed -E 's/^-[[:space:]]*(.*)/- \1,REJECT/' temp.txt > adblock_reject_change.txt
+          
+          # 创建 YAML 文件
+          echo "payload:" > adblock_reject_change.yaml
+          cat adblock_reject_change.txt >> adblock_reject_change.yaml
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add adblock_reject_change.txt adblock_reject_change.yaml
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update processed AdBlock files" && git push)
 
       - name: Create Release
         id: create_release
@@ -45,4 +64,24 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./adblock_reject.yaml
           asset_name: adblock_reject.yaml
+          asset_content_type: application/x-yaml
+
+      - name: Upload adblock_reject_change.txt
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./adblock_reject_change.txt
+          asset_name: adblock_reject_change.txt
+          asset_content_type: text/plain
+
+      - name: Upload adblock_reject_change.yaml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./adblock_reject_change.yaml
+          asset_name: adblock_reject_change.yaml
           asset_content_type: application/x-yaml
