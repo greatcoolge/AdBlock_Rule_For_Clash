@@ -11,18 +11,18 @@
 四、关于本项目使用方式：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件中
 
 
-                    rule-providers:
-                      AdBlock_Rule_For_Clash:
-                        type: http
-                        behavior: domain
-                        format: yaml
-                        url: https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.yaml
-                        path: ./ruleset/adblock_reject.yaml
-                        interval: 120
-                        
-                        
-                    rules:
-                      - RULE-SET,AdBlock_Rule_For_Clash,REJECT
+            rule-providers:
+              AdBlock_Rule_For_Clash:
+                type: http
+                behavior: domain
+                format: yaml
+                url: https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.yaml
+                path: ./ruleset/adblock_reject.yaml
+                interval: 120
+                
+                
+            rules:
+              - RULE-SET,AdBlock_Rule_For_Clash,REJECT
 
 
 
