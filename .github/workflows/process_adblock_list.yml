@@ -18,8 +18,8 @@ jobs:
           # 移除第一行 (payload:)
           sed '1d' adblock_reject.txt > temp.txt
           
-          # 为每行添加 ",REJECT"，保留开头的破折号
-          sed -E 's/^(- .*)/\1,REJECT/' temp.txt > adblock_reject_change.txt
+          # 为每行添加 ",REJECT"，保留开头的破折号，去掉破折号后的空格
+          sed -E 's/^-[[:space:]]*(.*)/- \1,REJECT/' temp.txt > adblock_reject_change.txt
           
           # 创建 YAML 文件
           echo "payload:" > adblock_reject_change.yaml
