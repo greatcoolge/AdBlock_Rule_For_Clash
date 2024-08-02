@@ -3,24 +3,36 @@ on:
   push:
     paths:
       - 'adblock_reject.txt'
+      - 'adblock_reject.yaml'
   workflow_dispatch:
 jobs:
-  process-file:
+  process-files:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Process adblock_reject.txt
         run: |
-          # 移除第一行 (payload:)
-          sed '1d' adblock_reject.txt > temp.txt
+          # 读取文件并为每行添加 ",REJECT"，保留开头的破折号，去掉破折号后的空格
+          sed -E 's/^-[[:space:]]*(.*)/- \1,REJECT/' adblock_reject.txt > adblock_reject_change.txt
+
+      - name: Process adblock_reject.yaml
+        run: |
+          # 读取 YAML 文件
+          content=$(cat adblock_reject.yaml)
           
-          # 为每行添加 ",REJECT"，保留开头的破折号，去掉破折号后的空格
-          sed -E 's/^-[[:space:]]*(.*)/- \1,REJECT/' temp.txt > adblock_reject_change.txt
-          
-          # 创建 YAML 文件
-          echo "payload:" > adblock_reject_change.yaml
-          cat adblock_reject_change.txt >> adblock_reject_change.yaml
+          # 使用 awk 来处理 YAML 文件
+          echo "$content" | awk '
+          BEGIN {print "payload:"}
+          /^payload:/ {next}  # 跳过原始的 payload 行
+          /^-/ {  # 处理以破折号开头的行
+            sub(/^-[[:space:]]*/, "- ")  # 去除破折号后的空格
+            print $0 ",REJECT"
+          }
+          !/^-/ {print}  # 打印其他行
+          ' > adblock_reject_change.yaml
+
       - name: Commit and push if changed
         run: |
           git config --global user.name 'GitHub Action'
