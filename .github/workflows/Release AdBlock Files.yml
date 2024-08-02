@@ -1,39 +1,47 @@
-name: Release
+name: Release AdBlock Files
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - main  # 或者您的主分支名称
+    paths:
+      - 'adblock_reject.txt'
+      - 'adblock_reject.yaml'
 
 jobs:
-  release:
+  create-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
           draft: false
           prerelease: false
-          generate_release_notes: false
 
-      - name: Upload adblock_reject.txt to Release
+      - name: Upload adblock_reject.txt
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./adblock_reject.txt
           asset_name: adblock_reject.txt
           asset_content_type: text/plain
 
-      - name: Upload adblock_reject.yaml to Release
+      - name: Upload adblock_reject.yaml
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./adblock_reject.yaml
           asset_name: adblock_reject.yaml
-          asset_content_type: text/yaml
+          asset_content_type: application/x-yaml
