@@ -7,6 +7,7 @@ on:
     paths:
       - 'adblock_reject.txt'
       - 'adblock_reject.yaml'
+  workflow_dispatch:  # 添加手动触发选项
 
 jobs:
   create-release:
