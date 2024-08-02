@@ -5,26 +5,36 @@ on:
     - cron: '*/20 * * * *'  # 每20分钟运行一次
   push:
     branches:
-      - main
+      - main  # 在main分支上有新的push时运行
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    
+    runs-on: windows-latest
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Set up PowerShell
-      uses: actions/setup-powershell@v1
-      
-    - name: Run AdBlock Rule Generator Script
-      run: pwsh ./adblock_rule_generator.ps1
-      
-    - name: Commit and push changes
+      uses: actions/setup-python@v4  # 设置Python环境
+      with:
+        python-version: '3.x'
+
+    - name: Install PowerShell
       run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        choco install powershell-core -y  # 使用chocolatey安装PowerShell
+
+    - name: Run PowerShell Script
+      shell: pwsh
+      run: |
+        pwsh ./adblock_rule_generator.ps1  # 运行脚本
+
+    - name: Commit and Push YAML file
+      run: |
+        git config --global user.name 'your-username'
+        git config --global user.email 'your-email@example.com'
         git add adblock_reject.yaml
-        git commit -m 'Update adblock_reject.yaml'
+        git commit -m "Update adblock_reject.yaml"
         git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
