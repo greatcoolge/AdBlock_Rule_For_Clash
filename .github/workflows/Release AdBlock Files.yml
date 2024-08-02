@@ -12,12 +12,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh
+
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
 
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if gh release view release-${{ env.date }}; then
+            echo "tag_exists=true" >> $GITHUB_ENV
+          else
+            echo "tag_exists=false" >> $GITHUB_ENV
+          fi
+
       - name: Create Release
         id: create_release
+        if: env.tag_exists == 'false'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -28,6 +41,7 @@ jobs:
           prerelease: false
 
       - name: Upload adblock_reject.txt
+        if: env.tag_exists == 'false'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
