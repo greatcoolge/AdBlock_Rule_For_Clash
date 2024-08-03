@@ -25,6 +25,10 @@ jobs:
           echo "Cloning mihomo repository..."
           git clone https://github.com/MetaCubeX/mihomo.git  # 克隆 mihomo 仓库
           cd mihomo
+          echo "Listing directory contents..."
+          ls -al  # 列出目录内容，确认 build.sh 文件存在
+          echo "Setting execute permissions for build.sh..."
+          chmod +x build.sh  # 设置 build.sh 文件的执行权限
           echo "Building mihomo tool..."
           ./build.sh  # 编译 mihomo 工具
           echo "Copying mihomo to /usr/local/bin..."
