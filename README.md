@@ -27,7 +27,7 @@
 
 ##**四、关于本仓库使用方式：**
 
-  *使用方式一：下载releases中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yaml配置中的rules字段下作为拦截规则（需要手动下载更新）*
+  *使用方式一：下载releases中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yaml配置中的rules字段下作为拦截规则（需要手动下载更新），adblock_reject_change.txt则可以直接保存作为本地rule-providers*
 
 
 
