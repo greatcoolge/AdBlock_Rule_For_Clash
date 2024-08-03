@@ -1,38 +1,47 @@
-name: Convert YAML to MRS
+name: mihomo Conversion Workflow
 
 on:
   push:
-    branches:
-      - main
-  schedule:
-    - cron: '*/20 * * * *'
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Manual execution'
 
 jobs:
-  convert:
+  convert-yaml:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Install mihomo
-        run: |
-          python -m pip install --upgrade pip
-          pip install -U git+https://github.com/KT-Yeh/mihomo.git
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
-      - name: Convert YAML to MRS
-        run: |
-          for file in $(find . -maxdepth 1 -name "*.yaml"); do
-            base=$(basename "$file" .yaml)
-            mihomo convert-ruleset domain/ipcidr yaml "$file" "./$base.mrs"
-          done
+    - name: Install mihomo
+      run: |
+        pip install -U git+https://github.com/KT-Yeh/mihomo.git
 
-      - name: Commit and push MRS files
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add *.mrs
-          git commit -m "Convert YAML to MRS"
-          git push -f
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+    - name: Convert YAML files
+      run: |
+        for file in *.yaml; do
+          if [ -f "$file" ]; then
+            mihomo convert-ruleset domain/ipcidr yaml "$file" "${file%.yaml}.mrs"
+          fi
+        done
+
+    - name: Commit and push if changed
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add *.mrs
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update .mrs files" && git push)
+
+    - name: Output trigger reason
+      if: github.event_name == 'workflow_dispatch'
+      run: echo "Workflow manually triggered. Reason: ${{ github.event.inputs.reason }}"
