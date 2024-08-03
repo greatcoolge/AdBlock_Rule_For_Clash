@@ -16,17 +16,25 @@ jobs:
     steps:
     - uses: actions/checkout@v2  # 使用官方的 checkout 操作来检出代码
 
+
+
+
     - name: Process adblock_reject.txt  # 处理 adblock_reject.txt 文件
       run: |
         mkdir -p $(dirname adblock_reject_change.txt)
         tail -n +2 adblock_reject.txt | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.txt
         # 创建目录（如果不存在），然后使用 tail 命令去掉第一行，使用 sed 命令在每行末尾添加 ",REJECT"，并去除行首的空白字符，保存为 adblock_reject_change.txt
 
+
+
+
     - name: Process adblock_reject.yaml  # 处理 adblock_reject.yaml 文件
       run: |
         mkdir -p $(dirname adblock_reject_change.yaml)
         tail -n +2 adblock_reject.yaml | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.yaml
         # 创建目录（如果不存在），然后使用 tail 命令去掉第一行，使用 sed 命令在每行末尾添加 ",REJECT"，并去除行首的空白字符，保存为 adblock_reject_change.yaml
+
+
 
   
     - name: Commit changes  # 提交更改
