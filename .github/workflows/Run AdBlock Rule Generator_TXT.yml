@@ -31,12 +31,15 @@ jobs:
     - name: Run adblock_rule_generator.ps1  # 运行 adblock_rule_generator.ps1 脚本
       run: pwsh ./adblock_rule_generator.ps1  # 使用 PowerShell 运行脚本
 
+    - name: Copy generated file to root  # 将生成的文件复制到根目录
+      run: cp path/to/generated/adblock_reject.txt ./adblock_reject.txt  # 将生成的文件路径替换为实际路径
+
     - name: Commit and Push TXT file  # 提交并推送 TXT 文件
       env:
         TOKEN: ${{ secrets.TOKEN }}  # 使用 GitHub 密钥进行身份验证
       run: |
         git config --global user.name 'github-actions'  # 配置提交用户名
         git config --global user.email 'github-actions@github.com'  # 配置提交邮箱
-        git add .  # 添加所有更改
-        git commit -m 'Update adblock TXT rules'  # 提交更改
+        git add adblock_reject.txt  # 添加 adblock_reject.txt 文件
+        git commit -m 'Update adblock_reject.txt'  # 提交更改
         git push origin HEAD  # 推送更改
