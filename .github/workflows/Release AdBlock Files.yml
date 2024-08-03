@@ -24,18 +24,9 @@ jobs:
         with:
           tag_name: release-${{ steps.current-time.outputs.time }}
           release_name: Release ${{ steps.current-time.outputs.time }}
+          body: "Process adblock files: remove first line, add REJECT, left align"
           draft: false
           prerelease: false
-
-      - name: Upload adblock_reject.yaml
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./adblock_reject.yaml
-          asset_name: adblock_reject.yaml
-          asset_content_type: application/x-yaml
 
       - name: Upload adblock_reject.txt
         uses: actions/upload-release-asset@v1
@@ -47,14 +38,14 @@ jobs:
           asset_name: adblock_reject.txt
           asset_content_type: text/plain
 
-      - name: Upload adblock_reject_change.yaml
+      - name: Upload adblock_reject.yaml
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./adblock_reject_change.yaml
-          asset_name: adblock_reject_change.yaml
+          asset_path: ./adblock_reject.yaml
+          asset_name: adblock_reject.yaml
           asset_content_type: application/x-yaml
 
       - name: Upload adblock_reject_change.txt
@@ -66,3 +57,13 @@ jobs:
           asset_path: ./adblock_reject_change.txt
           asset_name: adblock_reject_change.txt
           asset_content_type: text/plain
+
+      - name: Upload adblock_reject_change.yaml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./adblock_reject_change.yaml
+          asset_name: adblock_reject_change.yaml
+          asset_content_type: application/x-yaml
