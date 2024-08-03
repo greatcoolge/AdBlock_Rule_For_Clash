@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Checkout code  # 检出代码
         uses: actions/checkout@v2  # 使用官方的checkout操作来检出代码
-        with:
-          ref: main  # 检出主分支
 
       - name: Get current time  # 获取当前时间
         id: current-time  # 设置步骤ID，以便后续步骤引用
@@ -34,16 +32,19 @@ jobs:
       - name: Create Release  # 创建发布版本
         id: create_release  # 设置步骤ID，以便后续步骤引用
         uses: actions/create-release@v1  # 使用官方的create-release操作来创建发布版本
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用自定义的 TOKEN 进行身份验证
         with:
           tag_name: release-${{ env.time }}  # 使用当前时间作为标签名称
           release_name: Release ${{ env.time }}  # 使用当前时间作为发布名称
           body: "Periodic release of adblock files."  # 发布说明
           draft: false  # 发布为正式版本
           prerelease: false  # 不发布为预发布版本
-          token: ${{ secrets.TOKEN }}  # 传递 TOKEN 进行身份验证
 
       - name: Upload adblock_reject.yaml  # 上传adblock_reject.yaml文件
         uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用自定义的 TOKEN 进行身份验证
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # 使用创建发布版本步骤中的上传URL
           asset_path: adblock_reject.yaml  # 要上传的文件路径
@@ -52,6 +53,8 @@ jobs:
 
       - name: Upload adblock_reject.txt  # 上传adblock_reject.txt文件
         uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用自定义的 TOKEN 进行身份验证
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # 使用创建发布版本步骤中的上传URL
           asset_path: adblock_reject.txt  # 要上传的文件路径
@@ -60,6 +63,8 @@ jobs:
 
       - name: Upload adblock_reject_change.txt  # 上传adblock_reject_change.txt文件
         uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用自定义的 TOKEN 进行身份验证
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # 使用创建发布版本步骤中的上传URL
           asset_path: adblock_reject_change.txt  # 要上传的文件路径
@@ -68,6 +73,8 @@ jobs:
 
       - name: Upload adblock_reject_change.yaml  # 上传adblock_reject_change.yaml文件
         uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用自定义的 TOKEN 进行身份验证
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # 使用创建发布版本步骤中的上传URL
           asset_path: adblock_reject_change.yaml  # 要上传的文件路径
