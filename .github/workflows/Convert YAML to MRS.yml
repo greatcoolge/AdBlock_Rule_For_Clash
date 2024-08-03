@@ -21,6 +21,11 @@ jobs:
       run: |
         mihomo -v
 
+    - name: Create test YAML files
+      run: |
+        echo "- domain: example.com\n- domain: ads.example.com\n- ipcidr: 192.168.0.0/24" > adblock.reject.yaml
+        echo "- domain: example.org\n- domain: ads.example.org\n- ipcidr: 192.168.1.0/24" > adblock.reject_change.yaml
+
     - name: Check files to be converted
       run: |
         ls -lah adblock.reject.yaml adblock.reject_change.yaml
