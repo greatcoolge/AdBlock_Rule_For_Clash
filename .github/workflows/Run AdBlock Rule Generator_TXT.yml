@@ -31,8 +31,15 @@ jobs:
     - name: Run adblock_rule_generator.ps1  # 运行 adblock_rule_generator.ps1 脚本
       run: pwsh ./adblock_rule_generator.ps1  # 使用 PowerShell 运行脚本
 
+    - name: List files in the root directory  # 列出根目录中的文件，调试路径问题
+      run: ls -la
+
+    - name: Verify adblock_reject.txt  # 确认文件生成
+      run: |
+        if [ -f "./adblock_reject.txt" ]; then echo "File exists"; else echo "File does not exist"; fi
+
     - name: Copy generated file to correct location  # 将生成的文件复制到正确的位置
-      run: cp path/to/generated/adblock_reject.txt ./adblock_reject.txt  # 将生成的文件路径替换为实际路径
+      run: cp ./adblock_reject.txt ./adblock_reject.txt  # 确保路径正确
 
     - name: Commit and Push TXT file  # 提交并推送 TXT 文件
       env:
