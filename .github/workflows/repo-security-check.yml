@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - '*'
+  workflow_dispatch:  # 添加此行以启用手动触发
 
 jobs:
   security-scan:
