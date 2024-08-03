@@ -1,0 +1,81 @@
+name: 顺序执行工作流
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # 每小时运行一次
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  run-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 运行并等待 AdBlock Rule Generator_YAML
+        run: |
+          workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows -q '.workflows[] | select(.name=="Run AdBlock Rule Generator_YAML") | .id')
+          run_id=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches -X POST -F ref=main | jq '.id')
+          echo "Triggered workflow Run AdBlock Rule Generator_YAML"
+          while true; do
+            status=$(gh api repos/${{ github.repository }}/actions/runs/$run_id -q '.status')
+            if [ "$status" = "completed" ]; then
+              echo "Workflow Run AdBlock Rule Generator_YAML completed"
+              break
+            fi
+            echo "Waiting for workflow to complete..."
+            sleep 60
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 运行并等待 AdBlock Rule Generator_TXT
+        run: |
+          workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows -q '.workflows[] | select(.name=="Run AdBlock Rule Generator_TXT") | .id')
+          run_id=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches -X POST -F ref=main | jq '.id')
+          echo "Triggered workflow Run AdBlock Rule Generator_TXT"
+          while true; do
+            status=$(gh api repos/${{ github.repository }}/actions/runs/$run_id -q '.status')
+            if [ "$status" = "completed" ]; then
+              echo "Workflow Run AdBlock Rule Generator_TXT completed"
+              break
+            fi
+            echo "Waiting for workflow to complete..."
+            sleep 60
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 运行并等待 Process adblock list
+        run: |
+          workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows -q '.workflows[] | select(.name=="Process_adblock_list") | .id')
+          run_id=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches -X POST -F ref=main | jq '.id')
+          echo "Triggered workflow Process_adblock_list"
+          while true; do
+            status=$(gh api repos/${{ github.repository }}/actions/runs/$run_id -q '.status')
+            if [ "$status" = "completed" ]; then
+              echo "Workflow Process_adblock_list completed"
+              break
+            fi
+            echo "Waiting for workflow to complete..."
+            sleep 60
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 运行并等待 Release AdBlock Files
+        run: |
+          workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows -q '.workflows[] | select(.name=="Release AdBlock Files") | .id')
+          run_id=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches -X POST -F ref=main | jq '.id')
+          echo "Triggered workflow Release AdBlock Files"
+          while true; do
+            status=$(gh api repos/${{ github.repository }}/actions/runs/$run_id -q '.status')
+            if [ "$status" = "completed" ]; then
+              echo "Workflow Release AdBlock Files completed"
+              break
+            fi
+            echo "Waiting for workflow to complete..."
+            sleep 60
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
