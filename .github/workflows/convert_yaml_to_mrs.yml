@@ -1,30 +1,42 @@
 name: Convert YAML to MRS
 
 on:
-  schedule:
-    - cron: '*/20 * * * *'  # 每20分钟运行一次
-  workflow_dispatch:  # 允许手动触发
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   convert:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'  # 指定 Python 版本
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -U git+https://github.com/KT-Yeh/mihomo.git
+    - name: Install mihomo
+      run: |
+        go install github.com/MetaCubeX/mihomo/dev@latest
 
-      - name: Run conversion script
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
-        run: |
-          python convert_yaml_to_mrs.py
+    - name: Convert YAML to MRS
+      run: |
+        for file in *.yaml; do
+          mihomo convert-ruleset domain/ipcidr yaml "$file" "${file%.yaml}.mrs"
+        done
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add *.mrs
+        git commit -m "Convert YAML to MRS" || echo "No changes to commit"
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
