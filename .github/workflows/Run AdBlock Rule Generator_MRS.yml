@@ -29,8 +29,6 @@ jobs:
         rm packages-microsoft-prod.deb  # 删除包配置文件
 
 
-
-
     - name: Run adblock_rule_generator_mrs.ps1  # 运行adblock_rule_generator_mrs.ps1 脚本
       run: pwsh ./adblock_rule_generator_mrs.ps1  # 使用PowerShell运行脚本
 
