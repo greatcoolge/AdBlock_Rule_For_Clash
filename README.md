@@ -2,7 +2,23 @@
 ##**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式。该列表可以用作Clash的rule-providers，以路由和阻止广告域名， powershell脚本每20分钟执行一次**
 
 
-##**二、理论上任何符合广告过滤器过滤语法的列表订阅URL都可加入powershell脚本处理，请自行酌情添加过滤器订阅URL至adblock_rule_generator.ps1脚本中进行处理**
+##**二、理论上任何符合广告过滤器过滤语法的列表订阅URL都可加入powershell脚本处理，请自行酌情添加过滤器订阅URL至adblock_rule_generator.ps1脚本中进行处理，你可将该脚本代码复制到本地文本编辑器制作成.ps1后缀的文件运行在powershell上，注意修改生成的yaml文件路径，yaml配置实现调用本地规则集，类似于如下例子， 【path：生成本地yaml规则集文件路径】**
+
+
+       rule-providers:
+          adblock:
+            type: http
+            behavior: domain
+            format: yaml
+            path: C:\Users\YourUsername\Documents\file.txt
+
+       rules:
+          - RULE-SET,adblock,REJECT
+
+             
+
+
+
 
 
 ##**三、本仓库引用多个广告过滤器，从这些广告过滤器中提取了被拦截条目的域名，剔除了非拦截项并去重，最后做成payload列表，虽无法做到全面保护但能减少广告带来的困扰，请自行斟酌考虑使用**
@@ -14,7 +30,7 @@
 
 
 
-  *使用方式二：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件中，需要特别注意yaml文件的缩进和对齐。*
+  *使用方式二：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件充当远程规则集中，需要特别注意yaml文件的缩进和对齐。*
 
 
 
