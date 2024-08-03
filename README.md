@@ -37,7 +37,7 @@
 
 
 
-五、本项目引用的广告过滤规则如下：
+五、本仓库引用的广告过滤规则如下：
 
 1、Anti-ad for adguard
 https://anti-ad.net/adguard.txt
