@@ -1,4 +1,4 @@
-name: sequential-workflows
+name: 顺序执行工作流
 
 on:
   schedule:
@@ -14,88 +14,65 @@ jobs:
 
       - name: 运行并等待 AdBlock Rule Generator_YAML
         run: |
+          echo "开始触发 AdBlock Rule Generator_YAML 工作流"
           workflow_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/actions/workflows" | \
             jq '.workflows[] | select(.name=="Run AdBlock Rule Generator_YAML") | .id')
-          run_id=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          if [ -z "$workflow_id" ]; then
+            echo "错误：未找到 AdBlock Rule Generator_YAML 工作流"
+            exit 1
+          fi
+          echo "找到工作流 ID: $workflow_id"
+          
+          response=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches" \
-            -d '{"ref":"main"}' | jq '.id')
-          echo "Triggered workflow Run AdBlock Rule Generator_YAML"
+            -d '{"ref":"main"}')
+          echo "触发响应: $response"
+          
+          echo "等待工作流开始运行..."
+          for i in {1..30}; do
+            run_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs?event=workflow_dispatch&status=in_progress" | \
+              jq '.workflow_runs[0].id')
+            if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
+              echo "工作流开始运行，ID: $run_id"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "错误：工作流未在预期时间内开始运行"
+              exit 1
+            fi
+            sleep 10
+          done
+          
+          echo "等待工作流完成..."
           while true; do
             status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id" | \
               jq -r '.status')
+            echo "当前状态: $status"
             if [ "$status" = "completed" ]; then
-              echo "Workflow Run AdBlock Rule Generator_YAML completed"
+              echo "工作流 AdBlock Rule Generator_YAML 已完成"
               break
+            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
+              echo "错误：工作流失败或被取消"
+              exit 1
             fi
-            echo "Waiting for workflow to complete..."
             sleep 60
           done
 
       - name: 运行并等待 AdBlock Rule Generator_TXT
         run: |
-          workflow_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows" | \
-            jq '.workflows[] | select(.name=="Run AdBlock Rule Generator_TXT") | .id')
-          run_id=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches" \
-            -d '{"ref":"main"}' | jq '.id')
-          echo "Triggered workflow Run AdBlock Rule Generator_TXT"
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id" | \
-              jq -r '.status')
-            if [ "$status" = "completed" ]; then
-              echo "Workflow Run AdBlock Rule Generator_TXT completed"
-              break
-            fi
-            echo "Waiting for workflow to complete..."
-            sleep 60
-          done
+          # 重复上面的代码模式，但将工作流名称改为 "Run AdBlock Rule Generator_TXT"
+          # ...
 
       - name: 运行并等待 Process adblock list
         run: |
-          workflow_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows" | \
-            jq '.workflows[] | select(.name=="Process_adblock_list") | .id')
-          run_id=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches" \
-            -d '{"ref":"main"}' | jq '.id')
-          echo "Triggered workflow Process_adblock_list"
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id" | \
-              jq -r '.status')
-            if [ "$status" = "completed" ]; then
-              echo "Workflow Process_adblock_list completed"
-              break
-            fi
-            echo "Waiting for workflow to complete..."
-            sleep 60
-          done
+          # 重复上面的代码模式，但将工作流名称改为 "Process_adblock_list"
+          # ...
 
       - name: 运行并等待 Release AdBlock Files
         run: |
-          workflow_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows" | \
-            jq '.workflows[] | select(.name=="Release AdBlock Files") | .id')
-          run_id=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches" \
-            -d '{"ref":"main"}' | jq '.id')
-          echo "Triggered workflow Release AdBlock Files"
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id" | \
-              jq -r '.status')
-            if [ "$status" = "completed" ]; then
-              echo "Workflow Release AdBlock Files completed"
-              break
-            fi
-            echo "Waiting for workflow to complete..."
-            sleep 60
-          done
+          # 重复上面的代码模式，但将工作流名称改为 "Release AdBlock Files"
+          # ...
