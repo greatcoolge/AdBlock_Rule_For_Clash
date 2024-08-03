@@ -1,0 +1,46 @@
+name: Convert YAML to MRS  # 工作流程名称
+
+on:
+  push:
+    branches:
+      - main  # 当推送到主分支时触发
+  schedule:
+    - cron: '*/20 * * * *'  # 每20分钟运行一次
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest  # 在最新的 Ubuntu 机器上运行
+
+    steps:
+      - name: Checkout repository  # 检出当前仓库的代码
+        uses: actions/checkout@v2
+
+      - name: Install dependencies  # 安装必要的依赖项
+        run: |
+          sudo apt-get update  # 更新软件包列表
+          sudo apt-get install -y git  # 安装 git
+          git clone https://github.com/MetaCubeX/mihomo.git  # 克隆 mihomo 仓库
+          cd mihomo
+          ./build.sh  # 编译 mihomo 工具
+          sudo cp ./bin/mihomo /usr/local/bin/mihomo  # 将 mihomo 工具复制到系统路径
+
+      - name: Clean existing MRS files  # 删除现有的所有 .mrs 文件
+        run: |
+          find . -name "*.mrs" -delete
+
+      - name: Convert YAML to MRS  # 将 YAML 文件转换为 MRS 文件
+        run: |
+          for file in $(find . -name "*.yaml"); do  # 查找所有 .yaml 文件
+            base=$(basename "$file" .yaml)  # 获取文件名（不带扩展名）
+            mihomo convert-ruleset domain/ipcidr yaml "$file" "$base.mrs"  # 转换为 .mrs 文件
+          done
+
+      - name: Commit and push MRS files  # 提交并推送 MRS 文件
+        run: |
+          git config --global user.name "github-actions[bot]"  # 配置 Git 用户名
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"  # 配置 Git 用户邮箱
+          git add -A  # 添加所有更改到 Git 版本控制
+          git commit -m "Convert YAML to MRS"  # 提交更改
+          git push  # 推送到远程仓库
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub Actions 自动生成的令牌进行身份验证
