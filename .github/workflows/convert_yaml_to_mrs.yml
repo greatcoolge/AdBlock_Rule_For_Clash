@@ -22,9 +22,15 @@ jobs:
       run: |
         pip install -U git+https://github.com/KT-Yeh/mihomo.git
         echo "$HOME/.local/bin" >> $GITHUB_PATH
+        
+    - name: Verify mihomo installation
+      run: |
+        which mihomo
+        mihomo --version
 
     - name: Convert YAML to MRS
       run: |
+        export PATH=$PATH:$HOME/.local/bin
         mihomo convert-ruleset domain/ipcidr yaml adblock.reject.yaml adblock.reject.mrs
         echo "Converted adblock.reject.yaml to adblock.reject.mrs"
         
