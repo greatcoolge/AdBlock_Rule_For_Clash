@@ -10,7 +10,7 @@
 
 四、关于本项目使用方式：
 
-  使用方式一：下载release中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yaml配置中的rules字段下作为拦截规则
+  使用方式一：下载releases中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yaml配置中的rules字段下作为拦截规则
 
 
 
