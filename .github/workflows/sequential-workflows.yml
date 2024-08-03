@@ -18,118 +18,45 @@ jobs:
           sudo apt-get install -y jq
           npm install -g commander
 
-      - name: 获取所有工作流 ID
+      # 提取第一个工作流的代码
+      - name: 执行第一个工作流
         run: |
-          workflows=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows")
-          echo "YAML_ID=$(echo $workflows | jq '.workflows[] | select(.name==\"Run AdBlock Rule Generator_YAML\") | .id')" >> $GITHUB_ENV
-          echo "TXT_ID=$(echo $workflows | jq '.workflows[] | select(.name==\"Run AdBlock Rule Generator_TXT\") | .id')" >> $GITHUB_ENV
-          echo "PROCESS_ID=$(echo $workflows | jq '.workflows[] | select(.name==\"Process_adblock_list\") | .id')" >> $GITHUB_ENV
-          echo "RELEASE_ID=$(echo $workflows | jq '.workflows[] | select(.name==\"Release AdBlock Files\") | .id')" >> $GITHUB_ENV
+          # 第一个工作流的实际内容
+          # 示例代码：
+          echo "执行第一个工作流：Run AdBlock Rule Generator_YAML"
+          # 你可以在这里放置第一个工作流的具体步骤
+          # 假设第一个工作流的主要任务是生成 YAML 规则
+          echo "生成 YAML 规则..."
 
-      - name: 触发并等待第一个工作流
+      # 提取第二个工作流的代码
+      - name: 执行第二个工作流
         run: |
-          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/dispatches" \
-            -d '{"ref":"main"}'
+          # 第二个工作流的实际内容
+          # 示例代码：
+          echo "执行第二个工作流：Run AdBlock Rule Generator_TXT"
+          # 你可以在这里放置第二个工作流的具体步骤
+          # 假设第二个工作流的主要任务是生成 TXT 规则
+          echo "生成 TXT 规则..."
 
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$YAML_ID" | \
-              jq -r '.workflow_runs[0].status')
-            if [ "$status" = "completed" ]; then
-              conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$YAML_ID" | \
-                jq -r '.workflow_runs[0].conclusion')
-              if [ "$conclusion" = "success" ]; then
-                break
-              else
-                echo "错误：工作流 AdBlock Rule Generator_YAML 失败或被取消"
-                exit 1
-              fi
-            fi
-            sleep 5
-          done
-          echo "工作流 AdBlock Rule Generator_YAML 已完成"
-
-      - name: 触发并等待第二个工作流
+      # 提取第三个工作流的代码
+      - name: 执行第三个工作流
         run: |
-          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$TXT_ID/dispatches" \
-            -d '{"ref":"main"}'
+          # 第三个工作流的实际内容
+          # 示例代码：
+          echo "执行第三个工作流：Process adblock list"
+          # 你可以在这里放置第三个工作流的具体步骤
+          # 假设第三个工作流的主要任务是处理 adblock 列表
+          echo "处理 adblock 列表..."
 
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$TXT_ID" | \
-              jq -r '.workflow_runs[0].status')
-            if [ "$status" = "completed" ]; then
-              conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$TXT_ID" | \
-                jq -r '.workflow_runs[0].conclusion')
-              if [ "$conclusion" = "success" ]; then
-                break
-              else
-                echo "错误：工作流 AdBlock Rule Generator_TXT 失败或被取消"
-                exit 1
-              fi
-            fi
-            sleep 5
-          done
-          echo "工作流 AdBlock Rule Generator_TXT 已完成"
-
-      - name: 触发并等待第三个工作流
+      # 提取第四个工作流的代码
+      - name: 执行第四个工作流
         run: |
-          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$PROCESS_ID/dispatches" \
-            -d '{"ref":"main"}'
-
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$PROCESS_ID" | \
-              jq -r '.workflow_runs[0].status')
-            if [ "$status" = "completed" ]; then
-              conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$PROCESS_ID" | \
-                jq -r '.workflow_runs[0].conclusion')
-              if [ "$conclusion" = "success" ]; then
-                break
-              else
-                echo "错误：工作流 Process adblock list 失败或被取消"
-                exit 1
-              fi
-            fi
-            sleep 5
-          done
-          echo "工作流 Process adblock list 已完成"
-
-      - name: 触发并等待第四个工作流
-        run: |
-          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$RELEASE_ID/dispatches" \
-            -d '{"ref":"main"}'
-
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$RELEASE_ID" | \
-              jq -r '.workflow_runs[0].status')
-            if [ "$status" = "completed" ]; then
-              conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$RELEASE_ID" | \
-                jq -r '.workflow_runs[0].conclusion')
-              if [ "$conclusion" = "success" ]; then
-                break
-              else
-                echo "错误：工作流 Release AdBlock Files 失败或被取消"
-                exit 1
-              fi
-            fi
-            sleep 5
-          done
-          echo "工作流 Release AdBlock Files 已完成"
+          # 第四个工作流的实际内容
+          # 示例代码：
+          echo "执行第四个工作流：Release AdBlock Files"
+          # 你可以在这里放置第四个工作流的具体步骤
+          # 假设第四个工作流的主要任务是发布 adblock 文件
+          echo "发布 adblock 文件..."
 
       - name: 清理安装的组件
         if: always()
