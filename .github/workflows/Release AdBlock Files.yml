@@ -26,7 +26,7 @@ jobs:
             echo "tag_exists=true" >> $GITHUB_ENV
           else
             echo "tag_exists=false" >> $GITHUB_ENV
-          fi
+        shell: bash
 
       - name: Create Release
         id: create_release
@@ -35,12 +35,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: release-${{ env.date }}
-          release_name: Release ${{ env.date }}
+          tag_name: "release-${{ env.date }}"
+          release_name: "Release ${{ env.date }}"
           draft: false
           prerelease: false
 
-      - name: Upload adblock_reject.txt
+      - name: Upload Release Asset
         if: env.tag_exists == 'false'
         uses: actions/upload-release-asset@v1
         env:
@@ -49,3 +49,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./adblock_reject.txt
           asset_name: adblock_reject.txt
+          asset_content_type: text/plain
