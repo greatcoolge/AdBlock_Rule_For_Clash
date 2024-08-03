@@ -25,7 +25,9 @@ jobs:
     - name: Convert YAML to MRS
       run: |
         for file in *.yaml; do
-          mihomo convert-ruleset domain/ipcidr yaml "$file" "${file%.yaml}.mrs"
+          output_file="${file%.yaml}.mrs"
+          mihomo convert-ruleset domain/ipcidr yaml "$file" "$output_file"
+          echo "Converted $file to $output_file"
         done
 
     - name: Commit changes
