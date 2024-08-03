@@ -8,7 +8,7 @@
 
 
 
-       rule-providers:
+  ```  rule-providers:
           adblock:
             type: http
             behavior: domain
