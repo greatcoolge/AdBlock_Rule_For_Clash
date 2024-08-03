@@ -35,6 +35,8 @@ jobs:
         # 创建目录（如果不存在），然后使用 tail 命令去掉第一行，使用 sed 命令在每行末尾添加 ",REJECT"，并去除行首的空白字符，保存为 adblock_reject_change.mrs
 
     - name: Commit changes  # 提交更改
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
       run: |
         git config --local user.email "action@github.com"  # 配置 Git 用户邮箱
         git config --local user.name "GitHub Action"  # 配置 Git 用户名
