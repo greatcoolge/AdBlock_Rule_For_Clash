@@ -3,8 +3,6 @@ name: Convert YAML to MRS
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -37,6 +35,7 @@ jobs:
         done
 
     - name: Commit and Push changes
+      if: github.event_name == 'push'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
