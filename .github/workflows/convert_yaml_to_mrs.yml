@@ -13,14 +13,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        go-version: '1.20'
+        python-version: '3.x'
 
     - name: Install mihomo
       run: |
-        go install github.com/MetaCubeX/mihomo/dev@latest
+        pip install -U git+https://github.com/KT-Yeh/mihomo.git
 
     - name: Convert YAML to MRS
       run: |
