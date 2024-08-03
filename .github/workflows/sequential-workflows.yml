@@ -15,14 +15,19 @@ jobs:
         id: run_adblock_yaml
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.TOKEN }}
           script: |
-            const result = await github.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'Run AdBlock Rule Generator_YAML.yml',
-              ref: context.ref
-            });
-            return {status: result.status};
+            try {
+              const result = await github.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'Run AdBlock Rule Generator_YAML.yml',
+                ref: context.ref
+              });
+              return {status: result.status};
+            } catch (error) {
+              core.setFailed(`Run AdBlock Rule Generator (YAML) failed: ${error.message}`);
+            }
 
       - name: Check Run AdBlock Rule Generator (YAML) Status
         if: steps.run_adblock_yaml.outputs.status != 'completed'
@@ -32,14 +37,19 @@ jobs:
         id: run_adblock_txt
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.TOKEN }}
           script: |
-            const result = await github.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'Run AdBlock Rule Generator_TXT.yml',
-              ref: context.ref
-            });
-            return {status: result.status};
+            try {
+              const result = await github.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'Run AdBlock Rule Generator_TXT.yml',
+                ref: context.ref
+              });
+              return {status: result.status};
+            } catch (error) {
+              core.setFailed(`Run AdBlock Rule Generator (TXT) failed: ${error.message}`);
+            }
 
       - name: Check Run AdBlock Rule Generator (TXT) Status
         if: steps.run_adblock_txt.outputs.status != 'completed'
@@ -49,14 +59,19 @@ jobs:
         id: process_adblock_list
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.TOKEN }}
           script: |
-            const result = await github.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'Process_adblock_list.yml',
-              ref: context.ref
-            });
-            return {status: result.status};
+            try {
+              const result = await github.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'Process_adblock_list.yml',
+                ref: context.ref
+              });
+              return {status: result.status};
+            } catch (error) {
+              core.setFailed(`Process Adblock List failed: ${error.message}`);
+            }
 
       - name: Check Process Adblock List Status
         if: steps.process_adblock_list.outputs.status != 'completed'
@@ -66,14 +81,19 @@ jobs:
         id: release_adblock_files
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.TOKEN }}
           script: |
-            const result = await github.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'Release AdBlock Files.yml',
-              ref: context.ref
-            });
-            return {status: result.status};
+            try {
+              const result = await github.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'Release AdBlock Files.yml',
+                ref: context.ref
+              });
+              return {status: result.status};
+            } catch (error) {
+              core.setFailed(`Release AdBlock Files failed: ${error.message}`);
+            }
 
       - name: Check Release AdBlock Files Status
         if: steps.release_adblock_files.outputs.status != 'completed'
