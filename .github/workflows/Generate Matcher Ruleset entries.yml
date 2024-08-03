@@ -1,4 +1,4 @@
-name: Process adblock files  # 工作流名称
+name: Generate Matcher Ruleset entries  # 工作流名称
 
 on:
   push:
