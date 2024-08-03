@@ -14,7 +14,7 @@ rule-providers:
     path: C:\Users\YourUsername\Documents\file.txt
 
 rules:
-  - RULE-SET,adblock,REJECT
+  - RULE-SET,adblock,REJECT```
 
              
 
