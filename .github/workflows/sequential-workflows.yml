@@ -1,65 +1,82 @@
-name: 快速顺序执行工作流
+name: Sequential Workflow Execution
 
 on:
-  schedule:
-    - cron: '0 * * * *'  # 每小时运行一次
-  workflow_dispatch:  # 允许手动触发
+  push:
+    branches:
+      - main
 
 jobs:
-  run-workflows:
+  run-sequentially:
     runs-on: ubuntu-latest
+
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: 安装依赖项
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-          npm install -g commander
+      - name: Run AdBlock Rule Generator (YAML)
+        id: run_adblock_yaml
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const result = await github.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'Run AdBlock Rule Generator_YAML.yml',
+              ref: context.ref
+            });
+            return result.status;
 
-      # 提取第一个工作流的代码
-      - name: 执行第一个工作流
-        run: |
-          # 第一个工作流的实际内容
-          # 示例代码：
-          echo "执行第一个工作流：Run AdBlock Rule Generator_YAML"
-          # 你可以在这里放置第一个工作流的具体步骤
-          # 假设第一个工作流的主要任务是生成 YAML 规则
-          echo "生成 YAML 规则..."
+      - name: Check Run AdBlock Rule Generator (YAML) Status
+        run: exit 1
+        if: steps.run_adblock_yaml.outputs.status != 'completed'
 
-      # 提取第二个工作流的代码
-      - name: 执行第二个工作流
-        run: |
-          # 第二个工作流的实际内容
-          # 示例代码：
-          echo "执行第二个工作流：Run AdBlock Rule Generator_TXT"
-          # 你可以在这里放置第二个工作流的具体步骤
-          # 假设第二个工作流的主要任务是生成 TXT 规则
-          echo "生成 TXT 规则..."
+      - name: Run AdBlock Rule Generator (TXT)
+        id: run_adblock_txt
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const result = await github.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'Run AdBlock Rule Generator_TXT.yml',
+              ref: context.ref
+            });
+            return result.status;
 
-      # 提取第三个工作流的代码
-      - name: 执行第三个工作流
-        run: |
-          # 第三个工作流的实际内容
-          # 示例代码：
-          echo "执行第三个工作流：Process adblock list"
-          # 你可以在这里放置第三个工作流的具体步骤
-          # 假设第三个工作流的主要任务是处理 adblock 列表
-          echo "处理 adblock 列表..."
+      - name: Check Run AdBlock Rule Generator (TXT) Status
+        run: exit 1
+        if: steps.run_adblock_txt.outputs.status != 'completed'
 
-      # 提取第四个工作流的代码
-      - name: 执行第四个工作流
-        run: |
-          # 第四个工作流的实际内容
-          # 示例代码：
-          echo "执行第四个工作流：Release AdBlock Files"
-          # 你可以在这里放置第四个工作流的具体步骤
-          # 假设第四个工作流的主要任务是发布 adblock 文件
-          echo "发布 adblock 文件..."
+      - name: Process AdBlock List
+        id: process_adblock_list
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const result = await github.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'Process_adblock_list.yml',
+              ref: context.ref
+            });
+            return result.status;
 
-      - name: 清理安装的组件
-        if: always()
-        run: |
-          sudo apt-get remove --purge -y jq
-          npm uninstall -g commander
+      - name: Check Process AdBlock List Status
+        run: exit 1
+        if: steps.process_adblock_list.outputs.status != 'completed'
+
+      - name: Release AdBlock Files
+        id: release_adblock_files
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const result = await github.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'Release AdBlock Files.yml',
+              ref: context.ref
+            });
+            return result.status;
+
+      - name: Check Release AdBlock Files Status
+        run: exit 1
+        if: steps.release_adblock_files.outputs.status != 'completed'
