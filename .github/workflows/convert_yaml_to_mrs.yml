@@ -15,33 +15,27 @@ jobs:
 
     - name: Download and setup mihomo
       run: |
-        wget https://github.com/MetaCubeX/mihomo/releases/download/v1.18.0/mihomo-linux-amd64-v1.18.0.gz
-        gunzip mihomo-linux-amd64-v1.18.0.gz
-        chmod +x mihomo-linux-amd64-v1.18.0
-        sudo mv mihomo-linux-amd64-v1.18.0 /usr/local/bin/mihomo
+        wget https://github.com/MetaCubeX/mihomo/releases/download/v1.18.0/mihomo-linux-amd64-v1.18.0.gz -O - | gunzip -c > mihomo
+        chmod +x mihomo
+        sudo mv mihomo /usr/local/bin/mihomo
 
     - name: Verify mihomo installation
       run: |
-        which mihomo
         mihomo -v
 
     - name: Convert YAML to MRS
       run: |
-        mihomo convert-ruleset domain/ipcidr yaml adblock.reject.yaml adblock.reject.mrs
-        echo "Converted adblock.reject.yaml to adblock.reject.mrs"
-        
-        mihomo convert-ruleset domain/ipcidr yaml adblock.reject_change.yaml adblock.reject_change.mrs
-        echo "Converted adblock.reject_change.yaml to adblock.reject_change.mrs"
+        for file in adblock.reject.yaml adblock.reject_change.yaml; do
+          mihomo convert-ruleset domain/ipcidr yaml "$file" "${file%.yaml}.mrs"
+          echo "Converted $file to ${file%.yaml}.mrs"
+        done
 
-    - name: Commit changes
+    - name: Commit and Push changes
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add adblock.reject.mrs adblock.reject_change.mrs
+        git add *.mrs
         git commit -m "Convert specific YAML files to MRS" || echo "No changes to commit"
-
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
+        git push origin ${{ github.ref }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
