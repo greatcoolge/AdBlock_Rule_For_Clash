@@ -38,10 +38,7 @@ jobs:
       run: |
         if [ -f "./adblock_reject.txt" ]; then echo "File exists"; else echo "File does not exist"; fi
 
-    - name: Copy generated file to correct location  # 将生成的文件复制到正确的位置
-      run: cp ./adblock_reject.txt ./adblock_reject.txt  # 确保路径正确
-
-    - name: Commit and Push TXT file  # 提交并推送 TXT 文件
+    - name: Retry Commit and Push TXT file  # 提交并推送 TXT 文件，失败时重试
       env:
         TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub 密钥进行身份验证
       run: |
@@ -49,4 +46,6 @@ jobs:
         git config --global user.email 'github-actions@github.com'  # 配置提交邮箱
         git add adblock_reject.txt  # 添加 adblock_reject.txt 文件
         git commit -m 'Update adblock_reject.txt'  # 提交更改
-        git push origin HEAD  # 推送更改
+        for i in {1..5}; do  # 尝试最多5次
+          git push origin HEAD && break || sleep 10  # 成功则退出循环，失败则等待10秒后重试
+        done
