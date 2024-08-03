@@ -13,24 +13,20 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-
-    - name: Install mihomo
+    - name: Download and setup mihomo
       run: |
-        pip install -U git+https://github.com/KT-Yeh/mihomo.git
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        
+        wget https://github.com/MetaCubeX/mihomo/releases/download/v1.18.0/mihomo-linux-amd64-v1.18.0.gz
+        gunzip mihomo-linux-amd64-v1.18.0.gz
+        chmod +x mihomo-linux-amd64-v1.18.0
+        sudo mv mihomo-linux-amd64-v1.18.0 /usr/local/bin/mihomo
+
     - name: Verify mihomo installation
       run: |
         which mihomo
-        mihomo --version
+        mihomo -v
 
     - name: Convert YAML to MRS
       run: |
-        export PATH=$PATH:$HOME/.local/bin
         mihomo convert-ruleset domain/ipcidr yaml adblock.reject.yaml adblock.reject.mrs
         echo "Converted adblock.reject.yaml to adblock.reject.mrs"
         
