@@ -25,8 +25,6 @@ jobs:
           echo "Cloning mihomo repository..."
           git clone https://github.com/MetaCubeX/mihomo.git  # 克隆 mihomo 仓库
           cd mihomo
-          echo "Listing directory contents..."
-          ls -al  # 列出目录内容，确认 build.sh 文件存在
           echo "Setting execute permissions for build.sh..."
           chmod +x build.sh  # 设置 build.sh 文件的执行权限
           echo "Building mihomo tool..."
@@ -40,11 +38,6 @@ jobs:
         run: |
           echo "Checking mihomo version..."
           mihomo --version  # 检查 mihomo 版本
-
-      - name: Clean existing MRS files  # 删除现有的所有 .mrs 文件
-        run: |
-          echo "Cleaning existing MRS files..."
-          find . -maxdepth 1 -name "*.mrs" -delete  # 仅删除根目录下的 .mrs 文件
 
       - name: Convert YAML to MRS  # 将 YAML 文件转换为 MRS 文件
         run: |
@@ -61,9 +54,9 @@ jobs:
           git config --global user.name "github-actions[bot]"  # 配置 Git 用户名
           git config --global user.email "github-actions[bot]@users.noreply.github.com"  # 配置 Git 用户邮箱
           echo "Adding and committing changes..."
-          git add -A  # 添加所有更改到 Git 版本控制
+          git add *.mrs  # 添加所有更改到 Git 版本控制
           git commit -m "Convert YAML to MRS"  # 提交更改
           echo "Pushing changes..."
-          git push -f  # 强制推送到远程仓库
+          git push  # 推送到远程仓库
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用 TOKEN 作为身份验证的令牌
