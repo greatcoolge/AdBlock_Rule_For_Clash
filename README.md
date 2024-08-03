@@ -1,5 +1,5 @@
 # 关于AdBlock_Rule_For_Clash
-##**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式。该列表可以用作Clash的rule-providers，以路由和阻止广告域名， powershell脚本每20分钟执行生成新adblock_reject.txt和adblock_reject.yaml并发布在release中.另外，文件名带“change”的是去除payload表头的左对齐规则条目，文件名不带“change”的是正常的payload列表，六个文件的下载地址如下：**
+##**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式，其中列表的每一项都写成了Matcher Ruleset 格式的数组，一行一条规则。该列表可以用作Clash的rule-providers，以路由和阻止广告域名， powershell脚本每20分钟执行生成新adblock_reject.txt和adblock_reject.yaml并发布在release中.另外，文件名带“change”的是去除payload表头的左对齐规则条目，文件名不带“change”的是正常的payload列表，六个文件的下载地址如下：**
 
 *1、adblock_reject.yaml*
 
