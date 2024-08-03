@@ -1,20 +1,20 @@
 # 关于AdBlock_Rule_For_Clash
-##一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式。该列表可以用作Clash的rule-providers，以路由和阻止广告域名， powershell脚本每20分钟执行一次
+##**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式。该列表可以用作Clash的rule-providers，以路由和阻止广告域名， powershell脚本每20分钟执行一次**
 
 
-##二、理论上任何符合广告过滤器过滤语法的列表订阅URL都可加入powershell脚本，请自行酌情添加过滤器订阅URL至adblock_rule_generator.ps1脚本中进行处理
+##**二、理论上任何符合广告过滤器过滤语法的列表订阅URL都可加入powershell脚本，请自行酌情添加过滤器订阅URL至adblock_rule_generator.ps1脚本中进行处理**
 
 
-##三、本仓库引用多个广告过滤器，从这些广告过滤器中提取了被拦截条目的域名，剔除了非拦截项并去重，最后做成payload列表，虽无法做到全面保护但能减少广告带来的困扰，请自行斟酌考虑使用。
+##**三、本仓库引用多个广告过滤器，从这些广告过滤器中提取了被拦截条目的域名，剔除了非拦截项并去重，最后做成payload列表，虽无法做到全面保护但能减少广告带来的困扰，请自行斟酌考虑使用**
 
 
-##四、关于本仓库使用方式：
+##**四、关于本仓库使用方式：**
 
-  使用方式一：下载releases中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yaml配置中的rules字段下作为拦截规则
+  *使用方式一：下载releases中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yaml配置中的rules字段下作为拦截规则*
 
 
 
-  使用方式二：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件中，需要特别注意yaml文件的缩进和对齐。
+  *使用方式二：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件中，需要特别注意yaml文件的缩进和对齐。*
 
 
 
@@ -37,7 +37,7 @@
 
 
 
-##五、本仓库引用的广告过滤规则如下：
+##**五、本仓库引用的广告过滤规则如下：**
 
 1、Anti-ad for adguard
 https://anti-ad.net/adguard.txt
@@ -162,7 +162,7 @@ https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/fil
 
 
 
-##六、特别感谢以下各位大佬辛苦付出
+##**六、特别感谢以下各位大佬辛苦付出**
 
 1、anti-AD (https://github.com/privacy-protection-tools/anti-AD)
 
