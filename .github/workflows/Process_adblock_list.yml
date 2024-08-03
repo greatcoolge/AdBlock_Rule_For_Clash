@@ -38,9 +38,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       run: |
-        git config --local user.email "action@github.com"  # 配置 Git 用户邮箱
-        git config --local user.name "GitHub Action"  # 配置 Git 用户名
+        git config --global user.email "action@github.com"  # 配置 Git 用户邮箱
+        git config --global user.name "GitHub Action"  # 配置 Git 用户名
+        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
         git add adblock_reject_change.txt adblock_reject_change.yaml adblock_reject_change.mrs  # 添加更改的文件
-        git commit -m "Process adblock files: remove first line, add REJECT, left align"
+        git commit -m "Process adblock files: remove first line, add REJECT, left align" || echo "No changes to commit"
         git push origin main --force  # 强制推送到 main 分支
-        # 提交更改，并强制推送覆盖同名文件
