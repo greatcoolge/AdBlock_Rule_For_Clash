@@ -28,27 +28,10 @@ jobs:
         sudo apt-get install -y powershell  # 安装 PowerShell
         rm packages-microsoft-prod.deb  # 删除包配置文件
 
-    - name: Run adblock_rule_generator.ps1  # 运行 adblock_rule_generator.ps1 脚本
-      run: pwsh ./adblock_rule_generator.ps1  # 使用 PowerShell 运行脚本
 
-    - name: List files in the root directory  # 列出根目录中的文件，调试路径问题
-      run: ls -la
-
-    - name: Verify adblock_reject.txt  # 确认文件生成
-      run: |
-        if [ -f "./adblock_reject.txt" ]; then echo "File exists"; else echo "File does not exist"; fi
+    - name: Run adblock_rule_generator_txt.ps1  # 运行adblock_rule_generator_txt.ps1 脚本
+      run: pwsh ./adblock_rule_generator_txt.ps1  # 使用PowerShell运行脚本
 
     - name: Force Add and Commit TXT file  # 强制添加并提交 TXT 文件
       run: |
         git config --global user.name 'github-actions'  # 配置提交用户名
-        git config --global user.email 'github-actions@github.com'  # 配置提交邮箱
-        git add -f adblock_reject.txt  # 强制添加 adblock_reject.txt 文件
-        git commit -m 'Update adblock_reject.txt' || git commit --allow-empty -m 'Empty commit to force push'  # 提交更改，若无更改则提交空更改
-
-    - name: Retry Push TXT file  # 推送 TXT 文件，失败时重试
-      env:
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub 密钥进行身份验证
-      run: |
-        for i in {1..5}; do  # 尝试最多5次
-          git push --force origin HEAD && exit 0 || (echo "Push failed, retrying in 10 seconds..." && sleep 10)
-        done
