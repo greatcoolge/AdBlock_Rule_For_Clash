@@ -46,7 +46,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: adblock_reject.yaml
+          asset_path: ./adblock_reject.yaml
           asset_name: adblock_reject.yaml
           asset_content_type: text/yaml
 
@@ -55,7 +55,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: adblock_reject.txt
+          asset_path: ./adblock_reject.txt
           asset_name: adblock_reject.txt
           asset_content_type: text/plain
 
@@ -64,7 +64,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: adblock_reject_change.yaml
+          asset_path: ./adblock_reject_change.yaml
           asset_name: adblock_reject_change.yaml
           asset_content_type: text/yaml
 
@@ -73,6 +73,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: adblock_reject_change.txt
+          asset_path: ./adblock_reject_change.txt
           asset_name: adblock_reject_change.txt
           asset_content_type: text/plain
