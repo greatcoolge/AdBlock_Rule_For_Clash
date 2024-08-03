@@ -12,11 +12,11 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v3
 
-      - name: 设置 jq
-        uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-      - run: npm install -g jq
+      - name: 安装 jq
+        run: sudo apt-get install jq
+
+      - name: 安装 commander
+        run: npm install -g commander
 
       - name: 获取所有工作流 ID
         run: |
@@ -36,11 +36,11 @@ jobs:
           
           while true; do
             status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/runs?per_page=1" | \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$YAML_ID" | \
               jq -r '.workflow_runs[0].status')
             if [ "$status" = "completed" ]; then
               conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/runs?per_page=1" | \
+                "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$YAML_ID" | \
                 jq -r '.workflow_runs[0].conclusion')
               if [ "$conclusion" = "success" ]; then
                 break
@@ -62,11 +62,11 @@ jobs:
 
           while true; do
             status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$TXT_ID/runs?per_page=1" | \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$TXT_ID" | \
               jq -r '.workflow_runs[0].status')
             if [ "$status" = "completed" ]; then
               conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$TXT_ID/runs?per_page=1" | \
+                "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$TXT_ID" | \
                 jq -r '.workflow_runs[0].conclusion')
               if [ "$conclusion" = "success" ]; then
                 break
@@ -88,11 +88,11 @@ jobs:
 
           while true; do
             status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$PROCESS_ID/runs?per_page=1" | \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$PROCESS_ID" | \
               jq -r '.workflow_runs[0].status')
             if [ "$status" = "completed" ]; then
               conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$PROCESS_ID/runs?per_page=1" | \
+                "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$PROCESS_ID" | \
                 jq -r '.workflow_runs[0].conclusion')
               if [ "$conclusion" = "success" ]; then
                 break
@@ -114,11 +114,11 @@ jobs:
 
           while true; do
             status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$RELEASE_ID/runs?per_page=1" | \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$RELEASE_ID" | \
               jq -r '.workflow_runs[0].status')
             if [ "$status" = "completed" ]; then
               conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$RELEASE_ID/runs?per_page=1" | \
+                "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$RELEASE_ID" | \
                 jq -r '.workflow_runs[0].conclusion')
               if [ "$conclusion" = "success" ]; then
                 break
@@ -130,3 +130,9 @@ jobs:
             sleep 10
           done
           echo "工作流 Release AdBlock Files 已完成"
+
+      - name: 清理安装的组件
+        if: always()
+        run: |
+          sudo apt-get remove --purge -y jq
+          npm uninstall -g commander
