@@ -1,4 +1,4 @@
-name: Convert YAML to MRS
+name: Convert Specific YAML to MRS
 
 on:
   push:
@@ -25,18 +25,18 @@ jobs:
 
     - name: Convert YAML to MRS
       run: |
-        for file in *.yaml; do
-          output_file="${file%.yaml}.mrs"
-          mihomo convert-ruleset domain/ipcidr yaml "$file" "$output_file"
-          echo "Converted $file to $output_file"
-        done
+        mihomo convert-ruleset domain/ipcidr yaml adblock.reject.yaml adblock.reject.mrs
+        echo "Converted adblock.reject.yaml to adblock.reject.mrs"
+        
+        mihomo convert-ruleset domain/ipcidr yaml adblock.reject_change.yaml adblock.reject_change.mrs
+        echo "Converted adblock.reject_change.yaml to adblock.reject_change.mrs"
 
     - name: Commit changes
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add *.mrs
-        git commit -m "Convert YAML to MRS" || echo "No changes to commit"
+        git add adblock.reject.mrs adblock.reject_change.mrs
+        git commit -m "Convert specific YAML files to MRS" || echo "No changes to commit"
 
     - name: Push changes
       uses: ad-m/github-push-action@master
