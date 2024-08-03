@@ -11,12 +11,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # 获取所有历史记录和标签
 
       - name: Get current time
         id: current-time
-        run: echo "::set-output name=time::$(date +'%y%m%d%H%M')"
+        run: echo "time=$(date +'%y%m%d%H%M')" >> $GITHUB_OUTPUT
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --quiet HEAD@{20.minutes.ago} HEAD -- \
+            adblock_reject.yaml \
+            adblock_reject.txt \
+            adblock_reject_change.yaml \
+            adblock_reject_change.txt \
+          || echo "changes=true" >> $GITHUB_OUTPUT
 
       - name: Create Release
+        if: steps.check_changes.outputs.changes == 'true'
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -28,6 +41,7 @@ jobs:
           prerelease: false
 
       - name: Upload adblock_reject.yaml
+        if: steps.check_changes.outputs.changes == 'true'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,6 +52,7 @@ jobs:
           asset_content_type: application/x-yaml
 
       - name: Upload adblock_reject.txt
+        if: steps.check_changes.outputs.changes == 'true'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,6 +63,7 @@ jobs:
           asset_content_type: text/plain
 
       - name: Upload adblock_reject_change.yaml
+        if: steps.check_changes.outputs.changes == 'true'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,6 +74,7 @@ jobs:
           asset_content_type: application/x-yaml
 
       - name: Upload adblock_reject_change.txt
+        if: steps.check_changes.outputs.changes == 'true'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
