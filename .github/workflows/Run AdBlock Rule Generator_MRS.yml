@@ -1,0 +1,40 @@
+name: Run AdBlock Rule Generator_MRS  # Workflow name
+
+on:
+  schedule:
+    - cron: '*/20 * * * *'  # Run every 20 minutes
+  workflow_dispatch:  # Allow manual triggering of the workflow
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu version as the running environment
+
+    steps:
+    - name: Setup Node.js 20  # Setup Node.js 20 environment
+      uses: actions/setup-node@v3  # Use the official setup-node action to setup Node.js environment
+      with:
+        node-version: '20'  # Specify Node.js version 20
+
+    - name: Checkout repository  # Checkout code repository
+      uses: actions/checkout@v3  # Use the official checkout action to checkout code
+
+    - name: Install PowerShell  # Install PowerShell
+      run: |
+        sudo apt-get update  # Update package list
+        sudo apt-get install -y wget apt-transport-https software-properties-common  # Install necessary packages
+        wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb  # Download Microsoft's package config file
+        sudo dpkg -i packages-microsoft-prod.deb  # Install package config file
+        sudo apt-get update  # Update package list
+        sudo apt-get install -y powershell  # Install PowerShell
+        rm packages-microsoft-prod.deb  # Remove package config file
+
+    - name: Run adblock_rule_generator.ps1  # Run adblock_rule_generator.ps1 script
+      run: pwsh ./adblock_rule_generator.ps1  # Use PowerShell to run the script
+
+    - name: Force Add and Commit MRS file  # Force add and commit the MRS file
+      run: |
+        git config --global user.name 'github-actions'  # Configure commit username
+        git config --global user.email 'github-actions@github.com'  # Configure commit email
+        git add adblock_reject.mrs  # Add the generated MRS file
+        git commit -m 'Update adblock_reject.mrs file'  # Commit the added MRS file
+        git push  # Push the commit to the repository
