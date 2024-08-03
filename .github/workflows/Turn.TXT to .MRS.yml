@@ -1,4 +1,4 @@
-name: Turn.txt to .mrs
+name: Turn.TXT to .MRS
 
 on:
   push:
