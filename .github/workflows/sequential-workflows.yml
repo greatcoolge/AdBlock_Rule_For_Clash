@@ -1,4 +1,4 @@
-name: sequential-workflows
+name: 快速顺序执行工作流
 
 on:
   schedule:
@@ -12,11 +12,11 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v3
 
-      - name: 安装 jq
-        run: sudo apt-get install jq
-
-      - name: 安装 commander
-        run: npm install -g commander
+      - name: 安装依赖项
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          npm install -g commander
 
       - name: 获取所有工作流 ID
         run: |
@@ -33,7 +33,7 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/dispatches" \
             -d '{"ref":"main"}'
-          
+
           while true; do
             status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=1&workflow_id=$YAML_ID" | \
@@ -49,7 +49,7 @@ jobs:
                 exit 1
               fi
             fi
-            sleep 10
+            sleep 5
           done
           echo "工作流 AdBlock Rule Generator_YAML 已完成"
 
@@ -75,7 +75,7 @@ jobs:
                 exit 1
               fi
             fi
-            sleep 10
+            sleep 5
           done
           echo "工作流 AdBlock Rule Generator_TXT 已完成"
 
@@ -101,7 +101,7 @@ jobs:
                 exit 1
               fi
             fi
-            sleep 10
+            sleep 5
           done
           echo "工作流 Process adblock list 已完成"
 
@@ -127,7 +127,7 @@ jobs:
                 exit 1
               fi
             fi
-            sleep 10
+            sleep 5
           done
           echo "工作流 Release AdBlock Files 已完成"
 
