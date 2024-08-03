@@ -28,12 +28,7 @@ jobs:
         tail -n +2 adblock_reject.yaml | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.yaml
         # 创建目录（如果不存在），然后使用 tail 命令去掉第一行，使用 sed 命令在每行末尾添加 ",REJECT"，并去除行首的空白字符，保存为 adblock_reject_change.yaml
 
-    - name: Process adblock_reject.mrs  # 处理 adblock_reject.mrs 文件
-      run: |
-        mkdir -p $(dirname adblock_reject_change.mrs)
-        tail -n +2 adblock_reject.mrs | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.mrs
-        # 创建目录（如果不存在），然后使用 tail 命令去掉第一行，使用 sed 命令在每行末尾添加 ",REJECT"，并去除行首的空白字符，保存为 adblock_reject_change.mrs
-
+  
     - name: Commit changes  # 提交更改
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
@@ -41,6 +36,6 @@ jobs:
         git config --global user.email "action@github.com"  # 配置 Git 用户邮箱
         git config --global user.name "GitHub Action"  # 配置 Git 用户名
         git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-        git add adblock_reject_change.txt adblock_reject_change.yaml adblock_reject_change.mrs  # 添加更改的文件
+        git add adblock_reject_change.txt adblock_reject_change.yaml # 添加更改的文件
         git commit -m "Process adblock files: remove first line, add REJECT, left align" || echo "No changes to commit"
         git push origin main --force  # 强制推送到 main 分支
