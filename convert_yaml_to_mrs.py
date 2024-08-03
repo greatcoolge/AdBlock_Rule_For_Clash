@@ -13,7 +13,9 @@ FILES_TO_CONVERT = [("adblock_reject.yaml", "adblock_reject.mrs"),
 # 转换 YAML 文件为 MRS 文件
 def convert_yaml_to_mrs():
     for yaml_file, mrs_file in FILES_TO_CONVERT:
+        print(f"Converting {yaml_file} to {mrs_file}")
         subprocess.run(["mihomo", "convert-ruleset", "domain/ipcidr", "yaml", yaml_file, mrs_file], check=True)
+        print(f"Conversion completed for {yaml_file}")
 
 # 提交并推送更改
 def commit_and_push():
