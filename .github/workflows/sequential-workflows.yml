@@ -27,40 +27,86 @@ jobs:
           echo "PROCESS_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Process_adblock_list") | .id')" >> $GITHUB_ENV
           echo "RELEASE_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Release AdBlock Files") | .id')" >> $GITHUB_ENV
 
-      - name: 触发所有工作流
+      - name: 触发并等待第一个工作流
         run: |
-          trigger_workflow() {
-            curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$1/dispatches" \
-              -d '{"ref":"main"}'
-          }
-          trigger_workflow $YAML_ID &
-          trigger_workflow $TXT_ID &
-          trigger_workflow $PROCESS_ID &
-          trigger_workflow $RELEASE_ID &
-          wait
+          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/dispatches" \
+            -d '{"ref":"main"}'
 
-      - name: 等待工作流完成
+          while true; do
+            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/runs?per_page=1" | \
+              jq -r '.workflow_runs[0].status')
+            if [ "$status" = "completed" ]; then
+              break
+            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
+              echo "错误：工作流 AdBlock Rule Generator_YAML 失败或被取消"
+              exit 1
+            fi
+            sleep 10
+          done
+          echo "工作流 AdBlock Rule Generator_YAML 已完成"
+
+      - name: 触发并等待第二个工作流
         run: |
-          check_workflow() {
-            while true; do
-              status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$1/runs?per_page=1" | \
-                jq -r '.workflow_runs[0].status')
-              if [ "$status" = "completed" ]; then
-                break
-              elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-                echo "错误：工作流 $2 失败或被取消"
-                exit 1
-              fi
-              sleep 10
-            done
-            echo "工作流 $2 已完成"
-          }
-          
-          check_workflow $YAML_ID "AdBlock Rule Generator_YAML" &
-          check_workflow $TXT_ID "AdBlock Rule Generator_TXT" &
-          check_workflow $PROCESS_ID "Process adblock list" &
-          check_workflow $RELEASE_ID "Release AdBlock Files" &
-          wait
+          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$TXT_ID/dispatches" \
+            -d '{"ref":"main"}'
+
+          while true; do
+            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$TXT_ID/runs?per_page=1" | \
+              jq -r '.workflow_runs[0].status')
+            if [ "$status" = "completed" ]; then
+              break
+            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
+              echo "错误：工作流 AdBlock Rule Generator_TXT 失败或被取消"
+              exit 1
+            fi
+            sleep 10
+          done
+          echo "工作流 AdBlock Rule Generator_TXT 已完成"
+
+      - name: 触发并等待第三个工作流
+        run: |
+          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$PROCESS_ID/dispatches" \
+            -d '{"ref":"main"}'
+
+          while true; do
+            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$PROCESS_ID/runs?per_page=1" | \
+              jq -r '.workflow_runs[0].status')
+            if [ "$status" = "completed" ]; then
+              break
+            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
+              echo "错误：工作流 Process adblock list 失败或被取消"
+              exit 1
+            fi
+            sleep 10
+          done
+          echo "工作流 Process adblock list 已完成"
+
+      - name: 触发并等待第四个工作流
+        run: |
+          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$RELEASE_ID/dispatches" \
+            -d '{"ref":"main"}'
+
+          while true; do
+            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$RELEASE_ID/runs?per_page=1" | \
+              jq -r '.workflow_runs[0].status')
+            if [ "$status" = "completed" ]; then
+              break
+            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
+              echo "错误：工作流 Release AdBlock Files 失败或被取消"
+              exit 1
+            fi
+            sleep 10
+          done
+          echo "工作流 Release AdBlock Files 已完成"
