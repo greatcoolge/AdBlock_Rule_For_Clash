@@ -1,9 +1,46 @@
 # 关于AdBlock_Rule_For_Clash
 ##**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式。该列表可以用作Clash的rule-providers，以路由和阻止广告域名， powershell脚本每20分钟执行生成新adblock_reject.txt和adblock_reject.yaml并发布在release中.另外，文件名带“change”的是去除payload表头的左对齐规则条目，文件名不带“change”的是正常的payload列表，六个文件的下载地址如下：**
 
+*1、adblock_reject.yaml*
+
+*https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.yaml*
+
+*https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml*
 
 
+*2、adblock_reject.txt*
 
+*https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.txt*
+
+*https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.txt*
+
+
+3、adblock_reject.mrs
+
+*https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.mrs*
+
+*https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.mrs*
+
+
+*4、adblock_reject_change.yaml*
+
+*https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.yaml*
+
+*https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.yaml*
+
+
+*5、adblock_reject_change.txt*
+
+*https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.txt*
+
+*https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.txt*
+
+
+*6、adblock_reject_change.mrs*
+
+*https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.mrs*
+
+*https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.mrs*
 
 
 ##**二、理论上任何代理拦截域名且符合广告过滤器过滤语法的列表订阅URL都可加入powershell脚本处理，请自行酌情添加过滤器订阅URL至adblock_rule_generator.ps1脚本中进行处理，你可将该脚本代码复制到本地文本编辑器制作成.ps1后缀的文件运行在powershell上，注意修改生成的yaml文件路径，最后在clash的yaml配置中实现调用本地yaml文件作为规则集（RULE-SET)，clash配置字段写成类似于如下例子， 【path：生成本地yaml规则集文件路径】**
