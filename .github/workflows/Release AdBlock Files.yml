@@ -28,6 +28,16 @@ jobs:
           draft: false  # 发布为正式版本
           prerelease: false  # 不发布为预发布版本
 
+
+
+
+
+
+
+
+
+
+
       - name: Upload adblock_reject.txt  # 上传 adblock_reject.txt 文件
         uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
         env:
@@ -37,6 +47,17 @@ jobs:
           asset_path: ./adblock_reject.txt  # 文件路径
           asset_name: adblock_reject.txt  # 文件名称
           asset_content_type: text/plain  # 文件类型
+
+
+
+
+
+
+
+
+
+
+
 
       - name: Upload adblock_reject_change.txt  # 上传 adblock_reject_change.txt 文件
         uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
@@ -48,6 +69,18 @@ jobs:
           asset_name: adblock_reject_change.txt  # 文件名称
           asset_content_type: text/plain  # 文件类型
 
+
+
+
+
+
+
+
+
+
+
+
+
       - name: Upload adblock_reject.yaml  # 上传 adblock_reject.yaml 文件
         uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
         env:
@@ -57,6 +90,20 @@ jobs:
           asset_path: ./adblock_reject.yaml  # 文件路径
           asset_name: adblock_reject.yaml  # 文件名称
           asset_content_type: text/plain  # 文件类型
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       - name: Upload adblock_reject_change.yaml  # 上传 adblock_reject_change.yaml 文件
         uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
