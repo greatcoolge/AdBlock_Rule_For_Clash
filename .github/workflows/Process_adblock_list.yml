@@ -13,8 +13,6 @@ jobs:
   process-files:
     runs-on: ubuntu-latest  # 使用最新的 Ubuntu 版本作为运行环境
 
-
-
     steps:
     - uses: actions/checkout@v2  # 使用官方的 checkout 操作来检出代码
 
@@ -23,26 +21,20 @@ jobs:
         tail -n +2 adblock_reject.txt | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.txt
         # 使用 tail 命令去掉第一行，使用 sed 命令在每行末尾添加 ",REJECT"，并去除行首的空白字符，保存为 adblock_reject_change.txt
 
-
-
     - name: Process adblock_reject.yaml  # 处理 adblock_reject.yaml 文件
       run: |
         tail -n +2 adblock_reject.yaml | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.yaml
         # 使用 tail 命令去掉第一行，使用 sed 命令在每行末尾添加 ",REJECT"，并去除行首的空白字符，保存为 adblock_reject_change.yaml
 
-
-
-   - name: Process adblock_reject.mrs  # 处理 adblock_reject.mrs 文件
+    - name: Process adblock_reject.mrs  # 处理 adblock_reject.mrs 文件
       run: |
-        tail -n +2 adblock_reject.txt | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.mrs
+        tail -n +2 adblock_reject.mrs | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.mrs
         # 使用 tail 命令去掉第一行，使用 sed 命令在每行末尾添加 ",REJECT"，并去除行首的空白字符，保存为 adblock_reject_change.mrs
-
-
 
     - name: Commit changes  # 提交更改
       run: |
         git config --local user.email "action@github.com"  # 配置 Git 用户邮箱
         git config --local user.name "GitHub Action"  # 配置 Git 用户名
-        git add adblock_reject_change.txt adblock_reject_change.yaml adblock_reject_change.mrs # 添加更改的文件
+        git add adblock_reject_change.txt adblock_reject_change.yaml adblock_reject_change.mrs  # 添加更改的文件
         git commit -m "Process adblock files: remove first line, add REJECT, left align" || echo "No changes to commit"
         # 提交更改，如果没有更改，则输出 "No changes to commit"
