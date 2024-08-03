@@ -56,123 +56,123 @@
 
 ##**五、本仓库引用的广告过滤规则如下：**
 
-1、Anti-ad for adguard
+1、Anti-ad for adguard<br>
 https://anti-ad.net/adguard.txt
 
 
-2、Anti-ad-Easylist
+2、Anti-ad-Easylist<br>
 https://anti-ad.net/easylist.txt
     
     
-3、EasyList 
+3、EasyList<br>
 https://easylist-downloads.adblockplus.org/easylist.txt
 
 
-4、EasyList  china
+4、EasyList  china<br>
 https://easylist-downloads.adblockplus.org/easylistchina.txt
 
 
-5、EasyList Privacy
+5、EasyList Privacy<br>
 https://easylist-downloads.adblockplus.org/easyprivacy.txt
     
     
-6、AdGuardSDNSFilter
+6、AdGuardSDNSFilter<br>
 https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
     
     
-7、CJX's Annoyance List
+7、CJX's Annoyance List<br>
 https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjx-annoyance.txt
     
     
-8、uniartisan's Adblock List Plus
+8、uniartisan's Adblock List Plus<br>
 https://raw.githubusercontent.com/uniartisan/adblock_list/master/adblock_plus.txt
 
 
-9、uniartisan's Privacy List
+9、uniartisan's Privacy List<br>
 https://raw.githubusercontent.com/uniartisan/adblock_list/master/adblock_privacy.txt
     
     
-10、AdRules AdBlock List Plus
+10、AdRules AdBlock List Plus<br>
 https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock_plus.txt
 
 
-11、AdRules DNS List
+11、AdRules DNS List<br>
 https://raw.githubusercontent.com/Cats-Team/AdRules/main/dns.txt
     
     
-12、AdBlock DNS
+12、AdBlock DNS<br>
 https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockdns.txt
 
 
-13、AdBlock Filter
+13、AdBlock Filter<br>
 https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockfilters.txt
     
     
-14、GOODBYEADS
+14、GOODBYEADS<br>
 https://raw.githubusercontent.com/8680/GOODBYEADS/master/rules.txt
 
 
-15、GOODBYEADS-Dns
+15、GOODBYEADS-DNS<br>
 https://raw.githubusercontent.com/8680/GOODBYEADS/master/dns.txt
     
     
-16、AWAvenue-Ads-Rule
+16、AWAvenue-Ads-Rule<br>
 https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt
     
     
-17、Bibaiji's ad-rules
+17、Bibaiji's ad-rules<br>
 https://raw.githubusercontent.com/Bibaiji/ad-rules/main/rule/ad-rules.txt
     
     
-18、uBlock filters
+18、uBlock filters<br>
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt
 
 
-19、uBlock privacy
+19、uBlock privacy<br>
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt
 
 
-20、uBlock mobile filter
+20、uBlock mobile filter<br>
 https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-mobile.txt
 
 
-21、Adgurd Base filter
+21、Adgurd Base filter<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt
 
 
-22、Adgurd Tracking Protection filter
+22、Adgurd Tracking Protection filter<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_3_Spyware/filter.txt
 
 
-23、Adgurd URL Tracking filter
+23、Adgurd URL Tracking filter<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_17_TrackParam/filter.txt
 
 
-24、Adgurd Social media filter
+24、Adgurd Social media filter<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_4_Social/filter.txt
 
 
-25、Adgurd Annoyances filter
+25、Adgurd Annoyances filter<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_14_Annoyances/filter.txt
 
 
-26、Filter unblocking search ads and self-promotions
+26、Filter unblocking search ads and self-promotions<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_10_Useful/filter.txt
 
 
-27、Adgurd Chinese filter
+27、Adgurd Chinese filter<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
 
 
-28、Adgurd Japanese filter
+28、Adgurd Japanese filter<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_7_Japanese/filter.txt
 
 
-29、Adgurd Mobile ads filter
+29、Adgurd Mobile ads filter<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt
 
 
-30、Adgurd DNS filter
+30、Adgurd DNS filter<br>
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
 
 
