@@ -28,8 +28,8 @@ jobs:
         sudo apt-get install -y powershell  # 安装 PowerShell
         rm packages-microsoft-prod.deb  # 删除包配置文件
 
-    - name: Run adblock_rule_generator.ps1  # 运行 adblock_rule_generator.ps1 脚本
-      run: pwsh ./adblock_rule_generator.ps1  # 使用 PowerShell 运行脚本
+    - name: Run adblock_rule_generator_yaml.ps1  # 运行adblock_rule_generator_yaml.ps1 脚本
+      run: pwsh ./adblock_rule_generator_yaml.ps1  # 使用PowerShell运行脚本
 
     - name: Force Add and Commit YAML file  # 强制添加并提交 YAML 文件
       run: |
