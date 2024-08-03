@@ -11,10 +11,22 @@ jobs:
     steps:
       - name: Checkout code  # 检出代码
         uses: actions/checkout@v2  # 使用官方的checkout操作来检出代码
+        with:
+          ref: main  # 检出主分支
 
       - name: Get current time  # 获取当前时间
         id: current-time  # 设置步骤ID，以便后续步骤引用
         run: echo "time=$(date +'%y%m%d%H%M')" >> $GITHUB_ENV  # 获取当前时间，并将其输出为GitHub Actions的环境变量
+
+      - name: Force add and commit changes  # 强制添加和提交更改
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -f adblock_reject.yaml adblock_reject.txt adblock_reject_change.txt adblock_reject_change.yaml
+          git commit -m "Forced update of adblock files"
+          git push origin main --force  # 强制推送到主分支
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub Token进行身份验证
 
       - name: Create Release  # 创建发布版本
         id: create_release  # 设置步骤ID，以便后续步骤引用
