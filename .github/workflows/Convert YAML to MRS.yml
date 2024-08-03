@@ -23,16 +23,21 @@ jobs:
           cd mihomo
           ./build.sh  # 编译 mihomo 工具
           sudo cp ./bin/mihomo /usr/local/bin/mihomo  # 将 mihomo 工具复制到系统路径
+          ls -l /usr/local/bin/mihomo  # 确认 mihomo 工具已复制
+
+      - name: Verify mihomo installation  # 验证 mihomo 是否正确安装
+        run: |
+          mihomo --version  # 检查 mihomo 版本
 
       - name: Clean existing MRS files  # 删除现有的所有 .mrs 文件
         run: |
-          find . -name "*.mrs" -delete
+          find . -maxdepth 1 -name "*.mrs" -delete  # 仅删除根目录下的 .mrs 文件
 
       - name: Convert YAML to MRS  # 将 YAML 文件转换为 MRS 文件
         run: |
-          for file in $(find . -name "*.yaml"); do  # 查找所有 .yaml 文件
+          for file in $(find . -maxdepth 1 -name "*.yaml"); do  # 查找根目录下的 .yaml 文件
             base=$(basename "$file" .yaml)  # 获取文件名（不带扩展名）
-            mihomo convert-ruleset domain/ipcidr yaml "$file" "$base.mrs"  # 转换为 .mrs 文件
+            mihomo convert-ruleset domain/ipcidr yaml "$file" "./$base.mrs"  # 转换为 .mrs 文件
           done
 
       - name: Commit and push MRS files  # 提交并推送 MRS 文件
@@ -41,6 +46,6 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"  # 配置 Git 用户邮箱
           git add -A  # 添加所有更改到 Git 版本控制
           git commit -m "Convert YAML to MRS"  # 提交更改
-          git push  # 推送到远程仓库
+          git push -f  # 强制推送到远程仓库
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub Actions 自动生成的令牌进行身份验证
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用 TOKEN 作为身份验证的令牌
