@@ -1,9 +1,7 @@
 name: Sequential Workflow Execution
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   run-sequentially:
@@ -24,11 +22,11 @@ jobs:
               workflow_id: 'Run AdBlock Rule Generator_YAML.yml',
               ref: context.ref
             });
-            return result.status;
+            return {status: result.status};
 
       - name: Check Run AdBlock Rule Generator (YAML) Status
-        run: exit 1
         if: steps.run_adblock_yaml.outputs.status != 'completed'
+        run: exit 1
 
       - name: Run AdBlock Rule Generator (TXT)
         id: run_adblock_txt
@@ -41,13 +39,13 @@ jobs:
               workflow_id: 'Run AdBlock Rule Generator_TXT.yml',
               ref: context.ref
             });
-            return result.status;
+            return {status: result.status};
 
       - name: Check Run AdBlock Rule Generator (TXT) Status
-        run: exit 1
         if: steps.run_adblock_txt.outputs.status != 'completed'
+        run: exit 1
 
-      - name: Process AdBlock List
+      - name: Process Adblock List
         id: process_adblock_list
         uses: actions/github-script@v6
         with:
@@ -58,11 +56,11 @@ jobs:
               workflow_id: 'Process_adblock_list.yml',
               ref: context.ref
             });
-            return result.status;
+            return {status: result.status};
 
-      - name: Check Process AdBlock List Status
-        run: exit 1
+      - name: Check Process Adblock List Status
         if: steps.process_adblock_list.outputs.status != 'completed'
+        run: exit 1
 
       - name: Release AdBlock Files
         id: release_adblock_files
@@ -75,8 +73,8 @@ jobs:
               workflow_id: 'Release AdBlock Files.yml',
               ref: context.ref
             });
-            return result.status;
+            return {status: result.status};
 
       - name: Check Release AdBlock Files Status
-        run: exit 1
         if: steps.release_adblock_files.outputs.status != 'completed'
+        run: exit 1
