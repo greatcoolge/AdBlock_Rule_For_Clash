@@ -1,4 +1,4 @@
-name: 顺序执行工作流
+name: sequential-workflows
 
 on:
   schedule:
@@ -14,11 +14,18 @@ jobs:
 
       - name: 运行并等待 AdBlock Rule Generator_YAML
         run: |
-          workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows -q '.workflows[] | select(.name=="Run AdBlock Rule Generator_YAML") | .id')
-          run_id=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches -X POST -F ref=main | jq '.id')
+          workflow_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows" | \
+            jq '.workflows[] | select(.name=="Run AdBlock Rule Generator_YAML") | .id')
+          run_id=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches" \
+            -d '{"ref":"main"}' | jq '.id')
           echo "Triggered workflow Run AdBlock Rule Generator_YAML"
           while true; do
-            status=$(gh api repos/${{ github.repository }}/actions/runs/$run_id -q '.status')
+            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id" | \
+              jq -r '.status')
             if [ "$status" = "completed" ]; then
               echo "Workflow Run AdBlock Rule Generator_YAML completed"
               break
@@ -26,16 +33,21 @@ jobs:
             echo "Waiting for workflow to complete..."
             sleep 60
           done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 运行并等待 AdBlock Rule Generator_TXT
         run: |
-          workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows -q '.workflows[] | select(.name=="Run AdBlock Rule Generator_TXT") | .id')
-          run_id=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches -X POST -F ref=main | jq '.id')
+          workflow_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows" | \
+            jq '.workflows[] | select(.name=="Run AdBlock Rule Generator_TXT") | .id')
+          run_id=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches" \
+            -d '{"ref":"main"}' | jq '.id')
           echo "Triggered workflow Run AdBlock Rule Generator_TXT"
           while true; do
-            status=$(gh api repos/${{ github.repository }}/actions/runs/$run_id -q '.status')
+            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id" | \
+              jq -r '.status')
             if [ "$status" = "completed" ]; then
               echo "Workflow Run AdBlock Rule Generator_TXT completed"
               break
@@ -43,16 +55,21 @@ jobs:
             echo "Waiting for workflow to complete..."
             sleep 60
           done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 运行并等待 Process adblock list
         run: |
-          workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows -q '.workflows[] | select(.name=="Process_adblock_list") | .id')
-          run_id=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches -X POST -F ref=main | jq '.id')
+          workflow_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows" | \
+            jq '.workflows[] | select(.name=="Process_adblock_list") | .id')
+          run_id=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches" \
+            -d '{"ref":"main"}' | jq '.id')
           echo "Triggered workflow Process_adblock_list"
           while true; do
-            status=$(gh api repos/${{ github.repository }}/actions/runs/$run_id -q '.status')
+            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id" | \
+              jq -r '.status')
             if [ "$status" = "completed" ]; then
               echo "Workflow Process_adblock_list completed"
               break
@@ -60,16 +77,21 @@ jobs:
             echo "Waiting for workflow to complete..."
             sleep 60
           done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 运行并等待 Release AdBlock Files
         run: |
-          workflow_id=$(gh api repos/${{ github.repository }}/actions/workflows -q '.workflows[] | select(.name=="Release AdBlock Files") | .id')
-          run_id=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches -X POST -F ref=main | jq '.id')
+          workflow_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows" | \
+            jq '.workflows[] | select(.name=="Release AdBlock Files") | .id')
+          run_id=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$workflow_id/dispatches" \
+            -d '{"ref":"main"}' | jq '.id')
           echo "Triggered workflow Release AdBlock Files"
           while true; do
-            status=$(gh api repos/${{ github.repository }}/actions/runs/$run_id -q '.status')
+            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id" | \
+              jq -r '.status')
             if [ "$status" = "completed" ]; then
               echo "Workflow Release AdBlock Files completed"
               break
@@ -77,5 +99,3 @@ jobs:
             echo "Waiting for workflow to complete..."
             sleep 60
           done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
