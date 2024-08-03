@@ -24,7 +24,7 @@ jobs:
         with:
           tag_name: release-${{ env.time }}  # 使用当前时间作为标签名称
           release_name: Release ${{ env.time }}  # 使用当前时间作为发布名称
-          body: "Process adblock files: remove first line, add REJECT, left align"  # 发布说明
+          body: "Periodic release of adblock files."  # 发布说明
           draft: false  # 发布为正式版本
           prerelease: false  # 不发布为预发布版本
 
@@ -66,4 +66,24 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # 使用创建发布步骤的上传URL
           asset_path: ./adblock_reject_change.mrs  # 文件路径
           asset_name: adblock_reject_change.mrs  # 文件名称
+          asset_content_type: text/plain  # 文件类型
+
+      - name: Upload adblock_reject.yaml  # 上传 adblock_reject.yaml 文件
+        uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub Token进行身份验证
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # 使用创建发布步骤的上传URL
+          asset_path: ./adblock_reject.yaml  # 文件路径
+          asset_name: adblock_reject.yaml  # 文件名称
+          asset_content_type: text/plain  # 文件类型
+
+      - name: Upload adblock_reject_change.yaml  # 上传 adblock_reject_change.yaml 文件
+        uses: actions/upload-release-asset@v1  # 使用官方的upload-release-asset操作来上传发布资源
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub Token进行身份验证
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # 使用创建发布步骤的上传URL
+          asset_path: ./adblock_reject_change.yaml  # 文件路径
+          asset_name: adblock_reject_change.yaml  # 文件名称
           asset_content_type: text/plain  # 文件类型
