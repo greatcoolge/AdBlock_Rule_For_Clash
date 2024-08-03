@@ -1,0 +1,52 @@
+name: 代码安全分析
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  analyze:
+    name: 分析
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'python' ]
+
+    steps:
+    - name: 检出仓库
+      uses: actions/checkout@v3
+
+    - name: 初始化 CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: 自动构建
+      uses: github/codeql-action/autobuild@v2
+
+    - name: 执行 CodeQL 分析
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"
+
+    - name: 运行 Snyk 以检查安全漏洞
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.TOKEN }}
+      with:
+        command: test
+
+    - name: 上传 SARIF 文件
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: snyk.sarif
