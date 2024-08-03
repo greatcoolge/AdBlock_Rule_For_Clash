@@ -26,6 +26,7 @@ jobs:
         sudo dpkg -i packages-microsoft-prod.deb  # 安装包配置文件
         sudo apt-get update  # 更新包列表
         sudo apt-get install -y powershell  # 安装 PowerShell
+        rm packages-microsoft-prod.deb  # 删除包配置文件
 
     - name: Run adblock_rule_generator.ps1  # 运行 adblock_rule_generator.ps1 脚本
       run: pwsh ./adblock_rule_generator.ps1  # 使用 PowerShell 运行脚本
