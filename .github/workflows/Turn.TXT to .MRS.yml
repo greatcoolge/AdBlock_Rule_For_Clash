@@ -15,15 +15,21 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Copy and rename adblock_reject.txt to adblock_reject.mrs
-        run: cp adblock_reject.txt adblock_reject.mrs
+        run: |
+          if [ -f adblock_reject.txt ]; then
+            cp adblock_reject.txt adblock_reject.mrs
+          fi
 
       - name: Copy and rename adblock_reject_change.txt to adblock_reject_change.mrs
-        run: cp adblock_reject_change.txt adblock_reject_change.mrs
+        run: |
+          if [ -f adblock_reject_change.txt ]; then
+            cp adblock_reject_change.txt adblock_reject_change.mrs
+          fi
 
       - name: Commit and push .mrs files
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add adblock_reject.mrs adblock_reject_change.mrs
-          git commit -m 'Add adblock_reject.mrs and adblock_reject_change.mrs files'
+          git commit -m 'Add adblock_reject.mrs and adblock_reject_change.mrs files' || echo "No changes to commit"
           git push
