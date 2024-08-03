@@ -4,12 +4,6 @@ on:
   schedule:
     - cron: '0 * * * *'  # 每小时运行一次
   workflow_dispatch:  # 允许手动触发
-name: 快速顺序执行工作流
-
-on:
-  schedule:
-    - cron: '0 * * * *'  # 每小时运行一次
-  workflow_dispatch:  # 允许手动触发
 
 jobs:
   run-workflows:
@@ -28,10 +22,10 @@ jobs:
         run: |
           workflows=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/actions/workflows")
-          echo "YAML_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Run AdBlock Rule Generator_YAML") | .id')" >> $GITHUB_ENV
-          echo "TXT_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Run AdBlock Rule Generator_TXT") | .id')" >> $GITHUB_ENV
-          echo "PROCESS_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Process_adblock_list") | .id')" >> $GITHUB_ENV
-          echo "RELEASE_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Release AdBlock Files") | .id')" >> $GITHUB_ENV
+          echo "YAML_ID=$(echo $workflows | jq '.workflows[] | select(.name==\"Run AdBlock Rule Generator_YAML\") | .id')" >> $GITHUB_ENV
+          echo "TXT_ID=$(echo $workflows | jq '.workflows[] | select(.name==\"Run AdBlock Rule Generator_TXT\") | .id')" >> $GITHUB_ENV
+          echo "PROCESS_ID=$(echo $workflows | jq '.workflows[] | select(.name==\"Process_adblock_list\") | .id')" >> $GITHUB_ENV
+          echo "RELEASE_ID=$(echo $workflows | jq '.workflows[] | select(.name==\"Release AdBlock Files\") | .id')" >> $GITHUB_ENV
 
       - name: 触发并等待第一个工作流
         run: |
@@ -39,16 +33,21 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/dispatches" \
             -d '{"ref":"main"}'
-
+          
           while true; do
             status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/runs?per_page=1" | \
               jq -r '.workflow_runs[0].status')
             if [ "$status" = "completed" ]; then
-              break
-            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-              echo "错误：工作流 AdBlock Rule Generator_YAML 失败或被取消"
-              exit 1
+              conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/runs?per_page=1" | \
+                jq -r '.workflow_runs[0].conclusion')
+              if [ "$conclusion" = "success" ]; then
+                break
+              else
+                echo "错误：工作流 AdBlock Rule Generator_YAML 失败或被取消"
+                exit 1
+              fi
             fi
             sleep 10
           done
@@ -66,10 +65,15 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$TXT_ID/runs?per_page=1" | \
               jq -r '.workflow_runs[0].status')
             if [ "$status" = "completed" ]; then
-              break
-            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-              echo "错误：工作流 AdBlock Rule Generator_TXT 失败或被取消"
-              exit 1
+              conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$TXT_ID/runs?per_page=1" | \
+                jq -r '.workflow_runs[0].conclusion')
+              if [ "$conclusion" = "success" ]; then
+                break
+              else
+                echo "错误：工作流 AdBlock Rule Generator_TXT 失败或被取消"
+                exit 1
+              fi
             fi
             sleep 10
           done
@@ -87,10 +91,15 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$PROCESS_ID/runs?per_page=1" | \
               jq -r '.workflow_runs[0].status')
             if [ "$status" = "completed" ]; then
-              break
-            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-              echo "错误：工作流 Process adblock list 失败或被取消"
-              exit 1
+              conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$PROCESS_ID/runs?per_page=1" | \
+                jq -r '.workflow_runs[0].conclusion')
+              if [ "$conclusion" = "success" ]; then
+                break
+              else
+                echo "错误：工作流 Process adblock list 失败或被取消"
+                exit 1
+              fi
             fi
             sleep 10
           done
@@ -108,116 +117,15 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$RELEASE_ID/runs?per_page=1" | \
               jq -r '.workflow_runs[0].status')
             if [ "$status" = "completed" ]; then
-              break
-            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-              echo "错误：工作流 Release AdBlock Files 失败或被取消"
-              exit 1
-            fi
-            sleep 10
-          done
-          echo "工作流 Release AdBlock Files 已完成"
-
-jobs:
-  run-workflows:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v3
-
-      - name: 设置 jq
-        uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-      - run: npm install -g jq
-
-      - name: 获取所有工作流 ID
-        run: |
-          workflows=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows")
-          echo "YAML_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Run AdBlock Rule Generator_YAML") | .id')" >> $GITHUB_ENV
-          echo "TXT_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Run AdBlock Rule Generator_TXT") | .id')" >> $GITHUB_ENV
-          echo "PROCESS_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Process_adblock_list") | .id')" >> $GITHUB_ENV
-          echo "RELEASE_ID=$(echo $workflows | jq '.workflows[] | select(.name=="Release AdBlock Files") | .id')" >> $GITHUB_ENV
-
-      - name: 触发并等待第一个工作流
-        run: |
-          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/dispatches" \
-            -d '{"ref":"main"}'
-
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$YAML_ID/runs?per_page=1" | \
-              jq -r '.workflow_runs[0].status')
-            if [ "$status" = "completed" ]; then
-              break
-            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-              echo "错误：工作流 AdBlock Rule Generator_YAML 失败或被取消"
-              exit 1
-            fi
-            sleep 10
-          done
-          echo "工作流 AdBlock Rule Generator_YAML 已完成"
-
-      - name: 触发并等待第二个工作流
-        run: |
-          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$TXT_ID/dispatches" \
-            -d '{"ref":"main"}'
-
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$TXT_ID/runs?per_page=1" | \
-              jq -r '.workflow_runs[0].status')
-            if [ "$status" = "completed" ]; then
-              break
-            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-              echo "错误：工作流 AdBlock Rule Generator_TXT 失败或被取消"
-              exit 1
-            fi
-            sleep 10
-          done
-          echo "工作流 AdBlock Rule Generator_TXT 已完成"
-
-      - name: 触发并等待第三个工作流
-        run: |
-          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$PROCESS_ID/dispatches" \
-            -d '{"ref":"main"}'
-
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$PROCESS_ID/runs?per_page=1" | \
-              jq -r '.workflow_runs[0].status')
-            if [ "$status" = "completed" ]; then
-              break
-            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-              echo "错误：工作流 Process adblock list 失败或被取消"
-              exit 1
-            fi
-            sleep 10
-          done
-          echo "工作流 Process adblock list 已完成"
-
-      - name: 触发并等待第四个工作流
-        run: |
-          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$RELEASE_ID/dispatches" \
-            -d '{"ref":"main"}'
-
-          while true; do
-            status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$RELEASE_ID/runs?per_page=1" | \
-              jq -r '.workflow_runs[0].status')
-            if [ "$status" = "completed" ]; then
-              break
-            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-              echo "错误：工作流 Release AdBlock Files 失败或被取消"
-              exit 1
+              conclusion=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$RELEASE_ID/runs?per_page=1" | \
+                jq -r '.workflow_runs[0].conclusion')
+              if [ "$conclusion" = "success" ]; then
+                break
+              else
+                echo "错误：工作流 Release AdBlock Files 失败或被取消"
+                exit 1
+              fi
             fi
             sleep 10
           done
