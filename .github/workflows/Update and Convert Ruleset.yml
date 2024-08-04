@@ -52,11 +52,19 @@ jobs:
           Get-Location
           Write-Host "Directory contents:"
           Get-ChildItem
+          Write-Host "Mihomo version:"
+          & .\mihomo.exe -v
+          Write-Host "Mihomo help:"
+          & .\mihomo.exe convert-ruleset --help
           $maxAttempts = 5
           $attempt = 1
           do {
             try {
-              & .\mihomo.exe convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
+              Write-Host "Attempting conversion (Attempt $attempt)..."
+              & .\mihomo.exe convert-ruleset yaml adblock_reject.yaml adblock_reject.mrs
+              if ($LASTEXITCODE -ne 0) {
+                throw "Conversion failed with exit code $LASTEXITCODE"
+              }
               Write-Host "Conversion successful!"
               break
             }
