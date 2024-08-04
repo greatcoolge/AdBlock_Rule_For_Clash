@@ -110,7 +110,7 @@ jobs:
             exit 1
           }
 
-      # 步骤4：提交并推送更改（仅当转换步骤成功时）
+      # 步骤4：提交并推送更改（包括 mihomo.exe 和标记文件）
       - name: Push changes
         shell: powershell
         env:
@@ -120,14 +120,14 @@ jobs:
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
           
-          # 添加转换后的文件到 Git
-          git add adblock_reject.mrs
+          # 添加转换后的文件和 mihomo.exe 以及标记文件到 Git
+          git add adblock_reject.mrs mihomo.exe .mihomo_downloaded
           
           # 检查是否有更改需要提交
           $changes = git status --porcelain
           if ($changes) {
             # 如果有更改，进行提交和推送
-            git commit -m "Update adblock_reject.mrs"
+            git commit -m "Update adblock_reject.mrs and add mihomo.exe"
             git push https://${{ secrets.TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
             Write-Host "Changes committed and pushed."
           } else {
