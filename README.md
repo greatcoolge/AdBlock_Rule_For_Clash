@@ -42,7 +42,7 @@
 *简而言之就是可以让你DIY出希望得到的yaml格式拦截域名列表，缺点是此做法只能本地定制使用，当然你也可以像我一样部署到GitHub上面，仁者见仁*
 
 
-```text
+```conf
 rule-providers:
   adblock:
     type: http
@@ -54,7 +54,7 @@ rules:
   - RULE-SET,adblock,REJECT
 ```
 
-```text
+```conf
 rule-providers:
   adblock:
     type: http
@@ -86,7 +86,7 @@ rules:
 
 
 
-```text
+```conf
 rule-providers:
   adblock:
     type: http
@@ -99,7 +99,7 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-```text
+```conf
 rule-providers:
   adblock:
     type: http
