@@ -21,7 +21,8 @@ jobs:
           fi
 
       - name: Set execute permissions for mihomo
-        run: chmod +x $GITHUB_WORKSPACE/mihomo
+        run: |
+          chmod +x $GITHUB_WORKSPACE/mihomo
 
       - name: Display mihomo version and contents of current directory
         run: |
