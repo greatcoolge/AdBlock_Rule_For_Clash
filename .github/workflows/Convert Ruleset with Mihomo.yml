@@ -1,4 +1,4 @@
-name: Convert and Commit adblock_reject.mrs
+name: Convert and Commit adblock_reject_change.mrs
 
 on:
   schedule:
@@ -7,24 +7,22 @@ on:
 
 jobs:
   convert_and_commit:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set execute permission
-      run: chmod +x ./mihomo
-
-    - name: Convert adblock_reject.txt to adblock_reject.mrs
-      run: ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
+    - name: Convert adblock_reject_change.txt to adblock_reject_change.mrs
+      run: |
+        .\mihomo.exe convert-ruleset domain yaml adblock_reject_change.txt adblock_reject_change.mrs
 
     - name: Commit changes
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add adblock_reject.mrs
-        git commit -m 'Update adblock_reject.mrs'
+        git add adblock_reject_change.mrs
+        git commit -m 'Update adblock_reject_change.mrs'
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
