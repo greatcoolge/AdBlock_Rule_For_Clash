@@ -12,18 +12,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Check for mihomo and download if necessary
+      - name: Download mihomo
         run: |
-          if [ ! -f "mihomo" ]; then
-            echo "Downloading mihomo..."
-            curl -L -o mihomo https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64
-            chmod +x mihomo
-          else
-            echo "mihomo already exists."
-          fi
+          echo "Downloading mihomo..."
+          curl -L -o mihomo https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64
+          chmod +x mihomo
+          ls -l mihomo  # 检查文件权限
+          file mihomo   # 检查文件类型
 
       - name: Convert ruleset
         run: |
+          pwd  # 打印当前工作目录
           max_attempts=5
           attempt=1
           until ./mihomo convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
