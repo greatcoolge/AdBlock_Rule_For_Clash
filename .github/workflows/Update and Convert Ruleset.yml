@@ -1,0 +1,37 @@
+name: Update and Convert Ruleset
+
+on:
+  schedule:
+    - cron: '*/20 * * * *'  # 每20分钟运行一次
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  update-and-convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Check for mihomo and download if necessary
+        run: |
+          if [ ! -f "mihomo" ]; then
+            echo "Downloading mihomo..."
+            curl -L -o mihomo https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64
+            chmod +x mihomo
+          else
+            echo "mihomo already exists."
+          fi
+
+      - name: Convert ruleset
+        run: |
+          ./mihomo convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
+
+      - name: Push changes
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add adblock_reject.mrs
+          git commit -m "Update adblock_reject.mrs" || echo "No changes to commit"
+          git push https://${TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:${GITHUB_REF}
