@@ -1,4 +1,4 @@
-name: Convert and Commit adblock_reject_change.mrs
+name: Convert Ruleset with Mihomo
 
 on:
   schedule:
@@ -12,6 +12,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
+    - name: Ensure mihomo is executable
+      run: |
+        icacls mihomo.exe /grant Everyone:F
 
     - name: Convert adblock_reject_change.txt to adblock_reject_change.mrs
       run: |
