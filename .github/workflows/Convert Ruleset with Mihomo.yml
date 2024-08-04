@@ -1,5 +1,6 @@
 name: Convert Adblock Rules
 
+# 触发工作流的条件：手动触发和对 adblock_reject.txt 文件的推送事件
 on:
   workflow_dispatch:
   push:
@@ -10,9 +11,11 @@ jobs:
   convert-ruleset:
     runs-on: ubuntu-latest
     steps:
+      # 从仓库检出最新代码
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # 检查 mihomo 文件是否存在于仓库根目录中
       - name: Check if mihomo exists
         run: |
           if [ ! -f "$GITHUB_WORKSPACE/mihomo" ]; then
@@ -20,31 +23,37 @@ jobs:
             exit 1
           fi
 
+      # 设置 mihomo 文件的执行权限
       - name: Set execute permissions for mihomo
         run: chmod +x $GITHUB_WORKSPACE/mihomo
 
+      # 显示 mihomo 版本和当前目录的内容
       - name: Display mihomo version and contents of current directory
         run: |
           $GITHUB_WORKSPACE/mihomo -v || echo "Failed to get mihomo version"
           ls -la $GITHUB_WORKSPACE
 
+      # 使用 mihomo 执行转换指令
       - name: Convert ruleset
         run: |
-          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
+          $GITHUB_WORKSPACE/mihomo convert-ruleset domain yaml $GITHUB_WORKSPACE/adblock_reject.txt $GITHUB_WORKSPACE/adblock_reject.mrs
 
+      # 检查转换结果，确保 adblock_reject.mrs 文件存在
       - name: Check conversion result
         run: |
-          if [ ! -f "adblock_reject.mrs" ]; then
+          if [ ! -f "$GITHUB_WORKSPACE/adblock_reject.mrs" ]; then
             echo "Error: Conversion failed, adblock_reject.mrs not found"
             exit 1
           else
             echo "Conversion successful, adblock_reject.mrs created"
           fi
 
+      # 提交并推送更改，如果 adblock_reject.mrs 文件有变动
       - name: Commit and push changes
         run: |
-          git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add adblock_reject.mrs
-          git commit -m "Update adblock_reject.mrs"
-          git push
+          git config --global user.name "github-actions[bot]"
+          git add $GITHUB_WORKSPACE/adblock_reject.mrs
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update adblock_reject.mrs" && git push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
