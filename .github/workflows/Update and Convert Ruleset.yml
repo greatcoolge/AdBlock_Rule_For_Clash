@@ -28,7 +28,14 @@ jobs:
             # 下载并解压 mihomo
             Invoke-WebRequest -Uri $url -OutFile $zipFile -TimeoutSec 300
             Expand-Archive -Path $zipFile -DestinationPath . -Force
+
+            # 列出解压后的文件
+            Write-Host "Listing contents of extracted directory:"
+            Get-ChildItem -Recurse
             
+            # 确定解压路径
+            # Move-Item -Path "./mihomo-windows-amd64-compatible-v1.18.7/mihomo.exe" -Destination "./mihomo.exe"
+            # 临时注释掉 Move-Item，确保正确路径后再启用
             # 移动 mihomo 到根目录
             Move-Item -Path "./mihomo-windows-amd64-compatible-v1.18.7/mihomo.exe" -Destination "./mihomo.exe"
             
