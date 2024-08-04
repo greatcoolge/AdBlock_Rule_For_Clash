@@ -20,6 +20,7 @@ jobs:
       - name: Check and download mihomo v1.18.7
         shell: powershell
         run: |
+          # 检查根目录下是否已有 mihomo.exe
           if (-not (Test-Path "./mihomo.exe")) {
             Write-Host "mihomo not found, downloading..."
             $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-compatible-v1.18.7.zip"
@@ -39,7 +40,7 @@ jobs:
                   Remove-Item $zipFile
                   
                   # 查找并重命名 mihomo 可执行文件
-                  $exeFile = Get-ChildItem -Filter "*mihomo*.exe" | Select-Object -First 1
+                  $exeFile = Get-ChildItem -Recurse -Filter "*mihomo*.exe" | Select-Object -First 1
                   if ($exeFile) {
                     Rename-Item -Path $exeFile.FullName -NewName "mihomo.exe" -Force
                     Write-Host "Extraction and renaming complete!"
