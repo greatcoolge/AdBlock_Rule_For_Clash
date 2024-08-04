@@ -1,0 +1,63 @@
+name: Update Mihomo Core
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 时间 00:00 运行一次
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  update-mihomo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Fetch latest Mihomo core version
+        id: fetch_version
+        run: |
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/Mihomo/releases/latest | jq -r .tag_name)
+          echo "Latest Mihomo core version: $LATEST_VERSION"
+          echo "::set-output name=latest_version::$LATEST_VERSION"
+
+      - name: Check if Mihomo core needs update
+        id: check_update
+        run: |
+          LATEST_VERSION=${{ steps.fetch_version.outputs.latest_version }}
+          if [ -f "current_version.txt" ]; then
+            CURRENT_VERSION=$(cat current_version.txt)
+            echo "Current Mihomo core version: $CURRENT_VERSION"
+            if [ "$LATEST_VERSION" == "$CURRENT_VERSION" ]; then
+              echo "Mihomo core is up-to-date."
+              echo "::set-output name=update_needed::false"
+            else
+              echo "::set-output name=update_needed::true"
+            fi
+          else
+            echo "::set-output name=update_needed::true"
+          fi
+
+      - name: Download and save Mihomo core
+        if: steps.check_update.outputs.update_needed == 'true'
+        run: |
+          LATEST_VERSION=${{ steps.fetch_version.outputs.latest_version }}
+          echo "Updating Mihomo core to version $LATEST_VERSION..."
+          wget -O mihomo-core-latest.zip "https://github.com/Mihomo/mihomo-core/releases/download/$LATEST_VERSION/mihomo-core-$LATEST_VERSION.zip"
+          echo $LATEST_VERSION > current_version.txt
+
+      - name: Commit and push changes
+        if: steps.check_update.outputs.update_needed == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update Mihomo core to version $LATEST_VERSION"
+          git push
