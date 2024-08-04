@@ -7,42 +7,55 @@ on:
 
 jobs:
   update-and-convert:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest  # 使用 Windows 运行环境
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Download mihomo
+        shell: powershell
         run: |
-          echo "Downloading mihomo..."
-          curl -L -o mihomo https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64
-          chmod +x mihomo
-          ls -l  # 列出当前目录内容
+          Write-Host "Downloading mihomo..."
+          Invoke-WebRequest -Uri "https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-windows-amd64.exe" -OutFile "mihomo.exe"
+          Get-ChildItem  # 列出当前目录内容
 
       - name: Convert ruleset
+        shell: powershell
         run: |
-          pwd  # 打印当前工作目录
-          ls -l  # 再次列出目录内容，确保文件存在
-          max_attempts=5
-          attempt=1
-          until ./mihomo convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
-          do
-            echo "Attempt $attempt failed. Retrying..."
-            if [ $attempt -eq $max_attempts ]; then
-              echo "Max attempts reached. Exiting."
-              exit 1
-            fi
-            attempt=$((attempt+1))
-            sleep 5
-          done
-          echo "Conversion successful!"
+          Write-Host "Current directory:"
+          Get-Location
+          Write-Host "Directory contents:"
+          Get-ChildItem
+          $maxAttempts = 5
+          $attempt = 1
+          do {
+            try {
+              & .\mihomo.exe convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
+              Write-Host "Conversion successful!"
+              break
+            }
+            catch {
+              Write-Host "Attempt $attempt failed. Retrying..."
+              if ($attempt -eq $maxAttempts) {
+                Write-Host "Max attempts reached. Exiting."
+                exit 1
+              }
+              $attempt++
+              Start-Sleep -Seconds 5
+            }
+          } while ($true)
 
       - name: Push changes
+        shell: powershell
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add adblock_reject.mrs
-          git commit -m "Update adblock_reject.mrs" || echo "No changes to commit"
-          git push https://${TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:${GITHUB_REF}
+          git commit -m "Update adblock_reject.mrs" -ErrorAction SilentlyContinue
+          if ($LASTEXITCODE -eq 0) {
+            git push https://${env:TOKEN}@github.com/${env:GITHUB_REPOSITORY}.git HEAD:${env:GITHUB_REF}
+          } else {
+            Write-Host "No changes to commit"
+          }
