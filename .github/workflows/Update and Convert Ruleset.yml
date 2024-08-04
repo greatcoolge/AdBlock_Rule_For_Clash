@@ -20,7 +20,7 @@ jobs:
       - name: Check for mihomo
         shell: powershell
         run: |
-          if (-not (Test-Path "./mihomo/mihomo.exe")) {
+          if (-not (Test-Path "./mihomo.exe")) {
             Write-Host "mihomo not found, downloading..."
             $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-compatible-v1.18.7.zip"
             $zipFile = "mihomo.zip"
@@ -30,7 +30,7 @@ jobs:
             Expand-Archive -Path $zipFile -DestinationPath . -Force
             
             # 移动 mihomo 到根目录
-            Move-Item -Path "./mihomo-windows-amd64-compatible-v1.18.7/mihomo.exe" -Destination "./mihomo/mihomo.exe"
+            Move-Item -Path "./mihomo-windows-amd64-compatible-v1.18.7/mihomo.exe" -Destination "./mihomo.exe"
             
             # 清理临时文件
             Remove-Item $zipFile
@@ -43,7 +43,7 @@ jobs:
       - name: Convert ruleset with mihomo
         shell: powershell
         run: |
-          .\mihomo\mihomo.exe convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
+          .\mihomo.exe convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
 
       # 步骤4：推送生成的文件到根目录
       - name: Commit and push adblock_reject.mrs
