@@ -17,12 +17,12 @@ jobs:
           echo "Downloading mihomo..."
           curl -L -o mihomo https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64
           chmod +x mihomo
-          ls -l mihomo  # 检查文件权限
-          file mihomo   # 检查文件类型
+          ls -l  # 列出当前目录内容
 
       - name: Convert ruleset
         run: |
           pwd  # 打印当前工作目录
+          ls -l  # 再次列出目录内容，确保文件存在
           max_attempts=5
           attempt=1
           until ./mihomo convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
