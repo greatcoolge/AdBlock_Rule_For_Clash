@@ -24,7 +24,19 @@ jobs:
 
       - name: Convert ruleset
         run: |
-          ./mihomo convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
+          max_attempts=5
+          attempt=1
+          until ./mihomo convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
+          do
+            echo "Attempt $attempt failed. Retrying..."
+            if [ $attempt -eq $max_attempts ]; then
+              echo "Max attempts reached. Exiting."
+              exit 1
+            fi
+            attempt=$((attempt+1))
+            sleep 5
+          done
+          echo "Conversion successful!"
 
       - name: Push changes
         env:
