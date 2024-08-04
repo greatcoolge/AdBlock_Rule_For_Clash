@@ -1,0 +1,28 @@
+name: Download mihomo.exe
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  download_mihomo:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Download mihomo.exe
+      run: curl -L -o mihomo.exe <URL_TO_MIHOMO_EXE>
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add mihomo.exe
+        git commit -m 'Downloaded latest mihomo.exe'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
