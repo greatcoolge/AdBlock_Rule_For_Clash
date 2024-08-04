@@ -16,7 +16,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # 步骤2：检查是否存在 mihomo
+      # 步骤2：缓存 mihomo 可执行文件
+      - name: Cache mihomo executable
+        uses: actions/cache@v3
+        with:
+          path: mihomo.exe
+          key: mihomo-${{ runner.os }}-${{ hashFiles('**/mihomo.exe') }}
+          restore-keys: |
+            mihomo-${{ runner.os }}-
+
+      # 步骤3：检查是否存在 mihomo
       - name: Check for mihomo
         shell: powershell
         run: |
@@ -25,17 +34,10 @@ jobs:
             $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-compatible-v1.18.7.zip"
             $zipFile = "mihomo.zip"
             
-            # 下载并解压 mihomo
+            # 下载并解压 mihomo 到根目录
             Invoke-WebRequest -Uri $url -OutFile $zipFile -TimeoutSec 300
             Expand-Archive -Path $zipFile -DestinationPath . -Force
-
-            # 列出解压后的文件
-            Write-Host "Listing contents of extracted directory:"
-            Get-ChildItem -Recurse
             
-            # 确定解压路径
-            # Move-Item -Path "./mihomo-windows-amd64-compatible-v1.18.7/mihomo.exe" -Destination "./mihomo.exe"
-            # 临时注释掉 Move-Item，确保正确路径后再启用
             # 移动 mihomo 到根目录
             Move-Item -Path "./mihomo-windows-amd64-compatible-v1.18.7/mihomo.exe" -Destination "./mihomo.exe"
             
@@ -46,13 +48,18 @@ jobs:
             Write-Host "mihomo already exists."
           }
 
-      # 步骤3：执行 mihomo 指令
+      # 步骤4：执行 mihomo 指令
       - name: Convert ruleset with mihomo
         shell: powershell
         run: |
+          # 确保 mihomo 存在于根目录
+          if (-not (Test-Path "./mihomo.exe")) {
+            Write-Host "Error: mihomo.exe is not found in the root directory."
+            exit 1
+          }
           .\mihomo.exe convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
 
-      # 步骤4：推送生成的文件到根目录
+      # 步骤5：推送生成的文件到根目录
       - name: Commit and push adblock_reject.mrs
         uses: EndBug/add-and-commit@v9
         with:
