@@ -13,12 +13,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install latest mihomo (v1.18.7)
+      - name: Install latest mihomo and related tools
         run: |
+          # 下载并安装 mihomo
           curl -Lo mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-linux-amd64-v1.18.7.gz
           gunzip mihomo.gz
           chmod +x mihomo
           sudo mv mihomo /usr/local/bin/
+
+          # 下载并安装 mihomo-alpha
+          curl -Lo mihomo-alpha.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-linux-amd64-v1.18.7-alpha.gz
+          gunzip mihomo-alpha.gz
+          chmod +x mihomo-alpha
+          sudo mv mihomo-alpha /usr/local/bin/
+
+          # 下载并安装 mihomo-meta
+          curl -Lo mihomo-meta.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-linux-amd64-v1.18.7-meta.gz
+          gunzip mihomo-meta.gz
+          chmod +x mihomo-meta
+          sudo mv mihomo-meta /usr/local/bin/
+
+          # 下载并安装 Country.mmdb
+          sudo mkdir -p /etc/mihomo
+          curl -Lo Country.mmdb https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country.mmdb
+          sudo mv Country.mmdb /etc/mihomo/
 
       - name: Convert YAML to MRS
         run: |
@@ -32,5 +50,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add *.mrs
-          git commit -m "Convert YAML to MRS using mihomo v1.18.7" || echo "No changes to commit"
+          git commit -m "Convert YAML to MRS using latest mihomo tools" || echo "No changes to commit"
           git push https://${{ secrets.TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
