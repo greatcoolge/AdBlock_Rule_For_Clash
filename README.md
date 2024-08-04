@@ -37,7 +37,7 @@
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.txt*
 
 
-##**二、理论上任何代理拦截域名且符合广告过滤器过滤语法的列表订阅URL都可加入powershell脚本处理，请自行酌情添加过滤器订阅URL至adblock_rule_generator.ps1脚本中进行处理，你可将该脚本代码复制到本地文本编辑器制作成.ps1后缀的文件运行在powershell上，注意修改生成的yaml文件路径，最后在clash的yaml配置中实现调用本地yaml文件作为规则集（RULE-SET)，clash配置字段写成类似于如下例子， 【path：生成本地yaml规则集文件路径】**
+##**二、理论上任何代理拦截域名且符合广告过滤器过滤语法的列表订阅URL都可加入powershell脚本处理，请自行酌情添加过滤器订阅URL至adblock_rule_generator.ps1脚本中进行处理，你可将该脚本代码复制到本地文本编辑器制作成.ps1后缀的文件运行在powershell上，注意修改生成的yaml文件路径，最后在clash的yaml配置中实现调用本地yaml文件作为规则集（RULE-SET)，clash配置字段写成类似于如下两个例子， 【path：生成本地yaml规则集文件路径】**
 *简而言之就是可以让你DIY出希望得到的yaml格式拦截域名列表，缺点是此做法只能本地定制使用，当然你也可以像我一样部署到GitHub上面，仁者见仁*
 
 
@@ -46,10 +46,27 @@
             type: http
             behavior: domain
             format: yaml
-            path: C:\Users\YourUsername\Documents\file.txt
-        
+            path: C:\Users\YourUsername\Documents\file.yaml
+            
         rules:
           - RULE-SET,adblock,REJECT
+
+
+
+
+
+
+
+        rule-providers:
+          adblock:
+            type: http
+            behavior: domain
+            format: mrs
+            path: C:\Users\YourUsername\Documents\file.mrs
+            
+        rules:
+          - RULE-SET,adblock,REJECT
+
 
              
 
