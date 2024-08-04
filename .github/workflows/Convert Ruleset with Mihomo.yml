@@ -1,0 +1,43 @@
+name: Convert Rulesets with Mihomo
+
+on:
+  workflow_run:
+    workflows: ["Download Latest Mihomo"]
+    types:
+      - completed
+
+jobs:
+  convert-rulesets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check mihomo existence
+        id: check_mihomo
+        run: |
+          if [ -f "mihomo" ]; then
+            echo "MIHOMO_EXISTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "MIHOMO_EXISTS=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Convert rulesets
+        if: steps.check_mihomo.outputs.MIHOMO_EXISTS == 'true'
+        run: |
+          chmod +x ./mihomo
+          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
+          ./mihomo convert-ruleset domain yaml adblock_reject_change.txt adblock_reject_change.mrs
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add adblock_reject.mrs adblock_reject_change.mrs
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update adblock reject rulesets" && git push)
+
+      - name: Error if mihomo not found
+        if: steps.check_mihomo.outputs.MIHOMO_EXISTS == 'false'
+        run: |
+          echo "Error: mihomo executable not found in the repository root."
+          exit 1
