@@ -23,6 +23,10 @@ jobs:
           curl -L -o mihomo "https://github.com/MetaCubeX/mihomo/releases/download/${LATEST_RELEASE}/mihomo-linux-amd64-${LATEST_RELEASE}"
           chmod +x mihomo
 
+      - name: Verify mihomo download
+        run: |
+          file mihomo
+
       - name: Commit and push mihomo
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
