@@ -128,7 +128,8 @@ jobs:
           if ($changes) {
             # 如果有更改，进行提交和推送
             git commit -m "Update adblock_reject.mrs"
-            git push https://${env:TOKEN}@github.com/${env:GITHUB_REPOSITORY}.git HEAD:${env:GITHUB_REF}
+            git push https://${{ secrets.TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
             Write-Host "Changes committed and pushed."
           } else {
             Write-Host "No changes to commit."
+          }
