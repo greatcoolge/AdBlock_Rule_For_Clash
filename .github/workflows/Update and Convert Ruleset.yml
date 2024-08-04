@@ -1,17 +1,14 @@
 name: Update and Convert Ruleset
-
 on:
   schedule:
     - cron: '*/20 * * * *'  # 每20分钟运行一次
   workflow_dispatch:  # 允许手动触发
-
 jobs:
   update-and-convert:
     runs-on: windows-latest  # 使用 Windows 运行环境
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
       - name: Download and extract mihomo v1.18.7
         shell: powershell
         run: |
@@ -19,7 +16,6 @@ jobs:
           $zipFile = "mihomo.zip"
           $maxAttempts = 5
           $attempt = 1
-
           do {
             try {
               Write-Host "Downloading mihomo v1.18.7 (Attempt $attempt)..."
@@ -28,24 +24,27 @@ jobs:
                 Write-Host "Download successful!"
                 Expand-Archive -Path $zipFile -DestinationPath . -Force
                 Remove-Item $zipFile
-                Rename-Item -Path "mihomo-windows-amd64.exe" -NewName "mihomo.exe" -Force
-                Write-Host "Extraction complete!"
+                $exeFile = Get-ChildItem -Filter "*mihomo*.exe" | Select-Object -First 1
+                if ($exeFile) {
+                  Rename-Item -Path $exeFile.FullName -NewName "mihomo.exe" -Force
+                  Write-Host "Extraction and renaming complete!"
+                } else {
+                  throw "Executable file not found in the extracted contents"
+                }
                 break
               }
             }
             catch {
-              Write-Host "Download or extraction failed. Error: $_"
+              Write-Host "Download, extraction, or renaming failed. Error: $_"
               if ($attempt -eq $maxAttempts) {
-                Write-Host "Max attempts reached. Download failed."
+                Write-Host "Max attempts reached. Process failed."
                 exit 1
               }
               $attempt++
               Start-Sleep -Seconds 10
             }
           } while ($true)
-
           Get-ChildItem  # 列出当前目录内容
-
       - name: Convert ruleset
         shell: powershell
         run: |
@@ -71,7 +70,6 @@ jobs:
               Start-Sleep -Seconds 5
             }
           } while ($true)
-
       - name: Push changes
         shell: powershell
         env:
