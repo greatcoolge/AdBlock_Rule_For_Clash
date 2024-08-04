@@ -21,8 +21,7 @@ jobs:
           fi
 
       - name: Set execute permissions for mihomo
-        run: |
-          chmod +x $GITHUB_WORKSPACE/mihomo
+        run: chmod +x $GITHUB_WORKSPACE/mihomo
 
       - name: Display mihomo version and contents of current directory
         run: |
@@ -31,11 +30,11 @@ jobs:
 
       - name: Convert ruleset
         run: |
-          $GITHUB_WORKSPACE/mihomo convert-ruleset domain yaml $GITHUB_WORKSPACE/adblock_reject.txt $GITHUB_WORKSPACE/adblock_reject.mrs
+          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
 
       - name: Check conversion result
         run: |
-          if [ ! -f "$GITHUB_WORKSPACE/adblock_reject.mrs" ]; then
+          if [ ! -f "adblock_reject.mrs" ]; then
             echo "Error: Conversion failed, adblock_reject.mrs not found"
             exit 1
           else
