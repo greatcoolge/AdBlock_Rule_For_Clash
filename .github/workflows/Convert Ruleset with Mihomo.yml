@@ -1,10 +1,10 @@
 name: Convert Adblock Rules
 
 on:
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
   push:
     paths:
-      - 'adblock_reject.txt'  # 当adblock_reject.txt文件变更时触发
+      - 'adblock_reject.txt'
 
 jobs:
   convert-ruleset:
@@ -13,12 +13,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Check if mihomo exists
+        run: |
+          if [ ! -f "$GITHUB_WORKSPACE/mihomo" ]; then
+            echo "Error: mihomo file not found in the root directory"
+            exit 1
+          fi
+
       - name: Set execute permissions for mihomo
-        run: chmod +x ./mihomo
+        run: chmod +x $GITHUB_WORKSPACE/mihomo
+
+      - name: Display mihomo version and contents of current directory
+        run: |
+          $GITHUB_WORKSPACE/mihomo -v || echo "Failed to get mihomo version"
+          ls -la $GITHUB_WORKSPACE
 
       - name: Convert ruleset
         run: |
-          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
+          $GITHUB_WORKSPACE/mihomo convert-ruleset domain yaml $GITHUB_WORKSPACE/adblock_reject.txt $GITHUB_WORKSPACE/adblock_reject.mrs
+        working-directory: $GITHUB_WORKSPACE
+
+      - name: Check conversion result
+        run: |
+          if [ ! -f "$GITHUB_WORKSPACE/adblock_reject.mrs" ]; then
+            echo "Error: adblock_reject.mrs was not created. Conversion likely failed."
+            exit 1
+          fi
 
       - name: Commit and push if changed
         run: |
