@@ -85,18 +85,34 @@ rules:
 
 
 
-        rule-providers:
-          adblock:
-            type: http
-            behavior: domain
-            format: yaml
-            url: https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml
-            path: ./ruleset/adblock_reject.yaml
-            interval: 120
-                    
-                    
-        rules:
-          - RULE-SET,adblock,REJECT
+```yaml
+rule-providers:
+  adblock:
+    type: http
+    behavior: domain
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml
+    path: ./ruleset/adblock_reject.yaml
+    interval: 120
+    
+rules:
+  - RULE-SET,adblock,REJECT
+```
+
+```yaml
+rule-providers:
+  adblock:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.mrs
+    path: ./ruleset/adblock_reject.mrs
+    interval: 120
+    
+rules:
+  - RULE-SET,adblock,REJECT
+```
+
 
 
 
