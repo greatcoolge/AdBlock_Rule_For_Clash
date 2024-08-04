@@ -16,7 +16,7 @@
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml*
 
 
-*3、外部远程拦截域名规则Matcher Ruleset条目列表 adblock_reject.txt*
+*3、外部远程拦截域名规则payload列表 adblock_reject.txt*
 
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.txt*
 
