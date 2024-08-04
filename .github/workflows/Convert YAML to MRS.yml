@@ -1,0 +1,33 @@
+name: Convert YAML to MRS
+
+on:
+  push:
+    paths:
+      - '**.yaml'
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install mihomo
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/MetaCubeX/mihomo/main/install.sh | sh
+
+      - name: Convert YAML to MRS
+        run: |
+          for file in *.yaml; do
+            filename="${file%.*}"
+            mihomo convert-ruleset domain/ipcidr yaml "$file" "$filename.mrs"
+          done
+
+      - name: Push MRS files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add *.mrs
+          git commit -m "Convert YAML to MRS" || echo "No changes to commit"
+          git push https://${{ secrets.TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
