@@ -83,12 +83,14 @@ jobs:
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
           git add adblock_reject.mrs
-          git commit -m "Update adblock_reject.mrs" -ErrorAction SilentlyContinue
-          if ($LASTEXITCODE -eq 0) {
+          $changes = git status --porcelain
+          if ($changes) {
+            git commit -m "Update adblock_reject.mrs"
             git push https://${env:TOKEN}@github.com/${env:GITHUB_REPOSITORY}.git HEAD:${env:GITHUB_REF}
+            Write-Host "Changes committed and pushed."
           } else {
-            Write-Host "No changes to commit"
+            Write-Host "No changes to commit."
           }
