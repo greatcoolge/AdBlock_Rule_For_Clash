@@ -16,55 +16,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # 步骤2：检查并下载mihomo（如果需要）
-      - name: Check and download mihomo v1.18.7 if needed
-        shell: powershell
-        run: |
-          # 检查根目录下是否已有mihomo.exe
-          if (Test-Path "./mihomo.exe") {
-            Write-Host "mihomo.exe已存在，跳过下载步骤。"
-          } else {
-            Write-Host "mihomo未找到，开始下载..."
-            $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-compatible-v1.18.7.zip"
-            $zipFile = "mihomo.zip"
-            $maxAttempts = 5
-            $attempt = 1
 
-            # 尝试下载和解压，最多重试5次
-            do {
-              try {
-                Write-Host "正在下载mihomo v1.18.7 (尝试 $attempt)..."
-                Invoke-WebRequest -Uri $url -OutFile $zipFile -TimeoutSec 300
-                if (Test-Path $zipFile) {
-                  Write-Host "下载成功！"
-                  # 解压文件
-                  Expand-Archive -Path $zipFile -DestinationPath . -Force
-                  Remove-Item -Path $zipFile
-
-                  # 查找并重命名mihomo可执行文件
-                  $exeFile = Get-ChildItem -Recurse -Filter "*mihomo*.exe" | Select-Object -First 1
-                  if ($exeFile) {
-                    Rename-Item -Path $exeFile.FullName -NewName "mihomo.exe" -Force
-                    Write-Host "解压和重命名完成！"
-                    break
-                  } else {
-                    throw "在解压内容中未找到可执行文件"
-                  }
-                }
-              }
-              catch {
-                Write-Host "下载、解压或重命名失败。错误: $_"
-                if ($attempt -eq $maxAttempts) {
-                  Write-Host "达到最大尝试次数。过程失败。"
-                  exit 1
-                }
-                $attempt++
-                Start-Sleep -Seconds 10
-              }
-            } while ($true)
-          }
-
-      # 步骤3：转换规则集
+      # 步骤2：转换规则集
       - name: Convert ruleset
         shell: powershell
         run: |
@@ -102,7 +55,7 @@ jobs:
             }
           } while ($true)
 
-      # 步骤4：提交并推送更改
+      # 步骤3：提交并推送更改
       - name: Push changes
         shell: powershell
         env:
