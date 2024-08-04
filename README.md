@@ -16,21 +16,21 @@
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml*
 
 
-*3、外部远程拦截域名规则payload列表 adblock_reject.txt*
+*3、文本格式的外部远程拦截域名规则payload列表 adblock_reject.txt*
 
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.txt*
 
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.txt*
 
 
-*4、YMAL格式外部拦截域名条目Matcher Ruleset列表 adblock_reject_change.yaml*
+*4、YMAL格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.yaml*
 
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.yaml*
 
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.yaml*
 
 
-*5、外部拦截域名条目Matcher Ruleset列表 adblock_reject_change.txt*
+*5、文本格式的外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.txt*
 
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.txt*
 
