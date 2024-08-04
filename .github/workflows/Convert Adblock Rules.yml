@@ -25,11 +25,18 @@ jobs:
       - name: Display mihomo version and contents of current directory
         run: |
           chmod +x $GITHUB_WORKSPACE/mihomo
+          echo "Checking file type:"
+          file $GITHUB_WORKSPACE/mihomo
+          echo "Displaying first 10 lines of mihomo:"
+          head -n 10 $GITHUB_WORKSPACE/mihomo
+          echo "Getting mihomo version:"
           $GITHUB_WORKSPACE/mihomo -v || echo "Failed to get mihomo version"
+          echo "Listing contents of workspace:"
           ls -la $GITHUB_WORKSPACE
 
       - name: Convert ruleset
         run: |
+          echo "Starting conversion:"
           $GITHUB_WORKSPACE/mihomo convert-ruleset domain yaml $GITHUB_WORKSPACE/adblock_reject.txt $GITHUB_WORKSPACE/adblock_reject.mrs
 
       - name: Check conversion result
