@@ -43,6 +43,7 @@
 
 
 ```conf
+#YAML外部本地拦截域名规则集
 rule-providers:
   adblock:
     type: http
@@ -55,6 +56,7 @@ rules:
 ```
 
 ```conf
+#MRS外部远程拦截域名规则集
 rule-providers:
   adblock:
     type: http
@@ -85,8 +87,9 @@ rules:
   *使用方式二：将下面两个yaml配置文件中rule-providers字段和rules字段内容添加到你的yaml配置文件充当远程规则集，需要特别注意yaml文件的缩进和对齐（同步本仓库的云端部署配置)*
 
 
-# YAML外部远程拦截域名规则集
+
 ```conf
+#YAML外部远程拦截域名规则集
 rule-providers:
   adblock:
     type: http
@@ -99,8 +102,9 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-# MRS外部远程拦截域名规则集
+
 ```conf
+#MRS外部远程拦截域名规则集
 rule-providers:
   adblock:
     type: http
