@@ -5,7 +5,7 @@ on:
     workflows: ["Download Latest Mihomo"]
     types:
       - completed
-  workflow_dispatch:  # 添加手动触发选项
+  workflow_dispatch:
 
 jobs:
   convert-rulesets:
@@ -14,31 +14,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Check mihomo existence
-        id: check_mihomo
+      - name: Check mihomo and input files
+        id: check_files
         run: |
-          if [ -f "mihomo" ]; then
-            echo "MIHOMO_EXISTS=true" >> $GITHUB_OUTPUT
-          else
+          if [ ! -f "mihomo" ]; then
             echo "MIHOMO_EXISTS=false" >> $GITHUB_OUTPUT
+            echo "Error: mihomo executable not found in the repository root."
+            exit 1
           fi
+          
+          for file in adblock_reject.txt adblock_reject_change.txt; do
+            if [ ! -f "$file" ]; then
+              echo "Error: $file not found in the repository root."
+              exit 1
+            fi
+            if [ ! -s "$file" ]; then
+              echo "Error: $file is empty."
+              exit 1
+            fi
+          done
+          
+          echo "MIHOMO_EXISTS=true" >> $GITHUB_OUTPUT
 
       - name: Convert rulesets
-        if: steps.check_mihomo.outputs.MIHOMO_EXISTS == 'true'
+        if: steps.check_files.outputs.MIHOMO_EXISTS == 'true'
         run: |
           chmod +x ./mihomo
-          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
-          ./mihomo convert-ruleset domain yaml adblock_reject_change.txt adblock_reject_change.mrs
+          for file in adblock_reject.txt adblock_reject_change.txt; do
+            output_file="${file%.txt}.mrs"
+            echo "Converting $file to $output_file"
+            ./mihomo convert-ruleset domain yaml "$file" "$output_file" || echo "Error converting $file"
+          done
 
       - name: Commit and push if changed
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add adblock_reject.mrs adblock_reject_change.mrs
+          git add *.mrs
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update adblock reject rulesets" && git push)
-
-      - name: Error if mihomo not found
-        if: steps.check_mihomo.outputs.MIHOMO_EXISTS == 'false'
-        run: |
-          echo "Error: mihomo executable not found in the repository root."
-          exit 1
