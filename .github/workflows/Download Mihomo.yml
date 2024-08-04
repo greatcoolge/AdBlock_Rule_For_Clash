@@ -1,0 +1,34 @@
+name: Download Mihomo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  download-mihomo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Check if mihomo exists
+        run: |
+          if [ -f "$GITHUB_WORKSPACE/mihomo" ]; then
+            echo "mihomo already exists. Skipping download."
+            exit 0
+          fi
+
+      - name: Download latest Mihomo release
+        run: |
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r .tag_name)
+          curl -L -o mihomo "https://github.com/MetaCubeX/mihomo/releases/download/${LATEST_RELEASE}/mihomo-linux-amd64-${LATEST_RELEASE}"
+          chmod +x mihomo
+
+      - name: Commit and push mihomo
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add mihomo
+          git commit -m "Add mihomo executable"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
