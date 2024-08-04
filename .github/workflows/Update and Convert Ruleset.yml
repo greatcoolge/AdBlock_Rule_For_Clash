@@ -16,12 +16,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # 步骤2：检查并下载mihomo（如果不存在）
-      - name: Check and download mihomo v1.18.7
+      # 步骤2：检查并下载mihomo（如果需要）
+      - name: Check and download mihomo v1.18.7 if needed
         shell: powershell
         run: |
           # 检查根目录下是否已有mihomo.exe
-          if (-not (Test-Path "./mihomo.exe")) {
+          if (Test-Path "./mihomo.exe") {
+            Write-Host "mihomo.exe已存在，跳过下载步骤。"
+          } else {
             Write-Host "mihomo未找到，开始下载..."
             $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-compatible-v1.18.7.zip"
             $zipFile = "mihomo.zip"
@@ -37,7 +39,7 @@ jobs:
                   Write-Host "下载成功！"
                   # 解压文件
                   Expand-Archive -Path $zipFile -DestinationPath . -Force
-                  Remove-Item $zipFile
+                  Remove-Item -Path $zipFile
                   
                   # 查找并重命名mihomo可执行文件
                   $exeFile = Get-ChildItem -Recurse -Filter "*mihomo*.exe" | Select-Object -First 1
@@ -60,8 +62,6 @@ jobs:
                 Start-Sleep -Seconds 10
               }
             } while ($true)
-          } else {
-            Write-Host "mihomo.exe已存在。"
           }
 
       # 步骤3：转换规则集
@@ -112,16 +112,16 @@ jobs:
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
           
-          # 添加mihomo.exe和转换后的文件到Git
-          git add mihomo.exe
+          # 添加mihomo.exe（如果是新下载的）和转换后的文件到Git
+          git add -f mihomo.exe
           git add adblock_reject.mrs
           
           # 检查是否有更改需要提交
           $changes = git status --porcelain
           if ($changes) {
             # 如果有更改，进行提交和推送
-            git commit -m "更新mihomo.exe和adblock_reject.mrs"
-            git push https://${{ env:TOKEN }}@github.com/${{ env:GITHUB_REPOSITORY }}.git HEAD:${{ env:GITHUB_REF }}
+            git commit -m "更新mihomo.exe（如果有变动）和adblock_reject.mrs"
+            git push https://${env:TOKEN}@github.com/${env:GITHUB_REPOSITORY}.git HEAD:${env:GITHUB_REF}
             Write-Host "更改已提交并推送。"
           } else {
             Write-Host "没有需要提交的更改。"
