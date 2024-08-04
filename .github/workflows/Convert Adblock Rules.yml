@@ -22,9 +22,11 @@ jobs:
             exit 1
           fi
 
+      - name: Ensure mihomo is executable
+        run: chmod +x $GITHUB_WORKSPACE/mihomo
+
       - name: Display mihomo version and contents of current directory
         run: |
-          chmod +x $GITHUB_WORKSPACE/mihomo
           echo "Checking file type:"
           file $GITHUB_WORKSPACE/mihomo
           echo "Displaying first 10 lines of mihomo:"
@@ -36,8 +38,9 @@ jobs:
 
       - name: Convert ruleset
         run: |
+          cd $GITHUB_WORKSPACE
           echo "Starting conversion:"
-          $GITHUB_WORKSPACE/mihomo convert-ruleset domain yaml $GITHUB_WORKSPACE/adblock_reject.txt $GITHUB_WORKSPACE/adblock_reject.mrs
+          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
           RESULT=$?
           if [ $RESULT -ne 0 ]; then
             echo "Error: Conversion command failed with exit code $RESULT"
@@ -61,5 +64,3 @@ jobs:
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update adblock_reject.mrs" && git push)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
