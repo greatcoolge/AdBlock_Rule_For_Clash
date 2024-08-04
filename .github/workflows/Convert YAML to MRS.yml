@@ -30,22 +30,37 @@ jobs:
           import struct
           import os
 
+          def encode_value(value):
+              if isinstance(value, (str, int, float, bool)):
+                  return str(value).encode('utf-8')
+              elif isinstance(value, list):
+                  return ','.join(map(str, value)).encode('utf-8')
+              elif isinstance(value, dict):
+                  return yaml.dump(value).encode('utf-8')
+              else:
+                  return str(value).encode('utf-8')
+
           def yaml_to_mrs(yaml_file, mrs_file):
               with open(yaml_file, 'r') as f:
                   data = yaml.safe_load(f)
               
               with open(mrs_file, 'wb') as f:
-                  # Write a simple header
                   f.write(b'MRS\0')
                   
-                  # Write the data
-                  for key, value in data.items():
-                      key_bytes = key.encode('utf-8')
-                      value_bytes = str(value).encode('utf-8')
-                      f.write(struct.pack('<I', len(key_bytes)))
-                      f.write(key_bytes)
-                      f.write(struct.pack('<I', len(value_bytes)))
-                      f.write(value_bytes)
+                  def write_data(d):
+                      if isinstance(d, dict):
+                          for key, value in d.items():
+                              key_bytes = key.encode('utf-8')
+                              value_bytes = encode_value(value)
+                              f.write(struct.pack('<I', len(key_bytes)))
+                              f.write(key_bytes)
+                              f.write(struct.pack('<I', len(value_bytes)))
+                              f.write(value_bytes)
+                      elif isinstance(d, list):
+                          for item in d:
+                              write_data(item)
+                  
+                  write_data(data)
 
           for file in os.listdir('.'):
               if file.endswith('.yaml'):
@@ -65,12 +80,8 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          # 确保我们在根目录
           git checkout ${{ github.ref }}
-          # 移动 .mrs 文件到根目录（如果它们不在那里）
           mv *.mrs ./ 2>/dev/null || true
-          # 添加并提交更改
           git add *.mrs
           git commit -m "Move MRS files to root directory" || echo "No changes to commit"
-          # 使用 TOKEN 推送到仓库
           git push https://${{ secrets.TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
