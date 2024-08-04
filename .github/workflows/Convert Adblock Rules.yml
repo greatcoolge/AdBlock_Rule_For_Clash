@@ -1,34 +1,31 @@
-name: Download Mihomo and Convert Adblock Rules
+name: Convert Adblock Rules
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: '*/20 * * * *'  # 每 20 分钟运行一次
+  workflow_dispatch:  # 允许手动触发
   push:
     paths:
       - 'adblock_reject.txt'
-  schedule:
-    - cron: '*/20 * * * *'  # 每 20 分钟运行一次
 
 jobs:
-  download-and-convert:
+  convert-ruleset:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Download latest Mihomo release
+      - name: Check if mihomo exists
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r .tag_name)
-          curl -L -o mihomo "https://github.com/MetaCubeX/mihomo/releases/download/${LATEST_RELEASE}/mihomo-linux-amd64-${LATEST_RELEASE}"
-          chmod +x mihomo
-
-      - name: Display mihomo version and contents of current directory
-        run: |
-          ./mihomo -v || echo "Failed to get mihomo version"
-          ls -la $GITHUB_WORKSPACE
+          if [ ! -f "$GITHUB_WORKSPACE/mihomo" ]; then
+            echo "Error: mihomo file not found in the root directory"
+            exit 1
+          fi
 
       - name: Convert ruleset
         run: |
-          ./mihomo convert-ruleset domain yaml $GITHUB_WORKSPACE/adblock_reject.txt $GITHUB_WORKSPACE/adblock_reject.mrs
+          chmod +x $GITHUB_WORKSPACE/mihomo
+          $GITHUB_WORKSPACE/mihomo convert-ruleset domain yaml $GITHUB_WORKSPACE/adblock_reject.txt $GITHUB_WORKSPACE/adblock_reject.mrs
 
       - name: Check conversion result
         run: |
@@ -46,4 +43,4 @@ jobs:
           git add adblock_reject.mrs
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update adblock_reject.mrs" && git push)
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
