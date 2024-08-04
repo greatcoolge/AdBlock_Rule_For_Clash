@@ -13,18 +13,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-
-    - name: Install mihomo
-      run: |
-        pip install mihomo  # 确保 mihomo 可以通过 pip 安装，如果不行的话，根据实际情况修改
+    - name: Set execute permission
+      run: chmod +x ./mihomo
 
     - name: Convert adblock_reject.txt to adblock_reject.mrs
-      run: |
-        mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
+      run: ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
 
     - name: Commit changes
       run: |
