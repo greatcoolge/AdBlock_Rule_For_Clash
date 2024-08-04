@@ -1,44 +1,37 @@
-name: Convert Rulesets with Mihomo
+name: Convert and Commit adblock_reject.mrs
 
 on:
   schedule:
-    - cron: '*/20 * * * *'
-  workflow_dispatch:
+    - cron: '*/20 * * * *'  # 每20分钟运行一次
+  workflow_dispatch:  # 手动触发
 
 jobs:
-  convert-rulesets:
+  convert_and_commit:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Check mihomo and input files
-        id: check_files
-        run: |
-          if [ ! -f "mihomo" ]; then
-            echo "MIHOMO_EXISTS=false" >> $GITHUB_OUTPUT
-            echo "Error: mihomo executable not found in the repository root."
-            exit 1
-          fi
-          
-          if [ ! -f "adblock_reject.txt" ]; then
-            echo "Error: adblock_reject.txt not found in the repository root."
-            exit 1
-          fi
-          
-          if [ ! -s "adblock_reject.txt" ]; then
-            echo "Error: adblock_reject.txt is empty."
-            exit 1
-          fi
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
-      - name: Execute mihomo command
-        run: |
-          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
+    - name: Install mihomo
+      run: |
+        pip install mihomo  # 确保 mihomo 可以通过 pip 安装，如果不行的话，根据实际情况修改
 
-      - name: Commit and push changes
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add adblock_reject.mrs
-          git commit -m "Update adblock_reject.mrs file"
-          git push
+    - name: Convert adblock_reject.txt to adblock_reject.mrs
+      run: |
+        mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
+
+    - name: Commit changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add adblock_reject.mrs
+        git commit -m 'Update adblock_reject.mrs'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
