@@ -1,0 +1,33 @@
+name: Download Latest Mihomo
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 时间 00:00 运行
+
+jobs:
+  download-mihomo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Get latest mihomo release
+        id: get_release
+        run: |
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r .tag_name)
+          echo "LATEST_RELEASE=${LATEST_RELEASE}" >> $GITHUB_OUTPUT
+
+      - name: Download mihomo
+        run: |
+          DOWNLOAD_URL="https://github.com/MetaCubeX/mihomo/releases/download/${{ steps.get_release.outputs.LATEST_RELEASE }}/mihomo-linux-amd64-${{ steps.get_release.outputs.LATEST_RELEASE }}.gz"
+          curl -L -o mihomo.gz $DOWNLOAD_URL
+          gunzip mihomo.gz
+          chmod +x mihomo
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add mihomo
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update mihomo to ${{ steps.get_release.outputs.LATEST_RELEASE }}" && git push)
