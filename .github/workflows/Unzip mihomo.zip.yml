@@ -1,4 +1,4 @@
-name: Unzip mihomo.zip
+name: Unzip and Replace mihomo.zip
 
 on:
   push:
@@ -7,15 +7,34 @@ on:
   workflow_dispatch:
 
 jobs:
-  unzip:
+  unzip_and_replace:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install unzip
-      run: sudo apt-get install -y unzip
+    - name: Install unzip and zip
+      run: sudo apt-get install -y unzip zip
 
     - name: Unzip mihomo.zip
-      run: unzip -o mihomo.zip -d .
+      run: unzip -o mihomo.zip -d extracted
+
+    - name: Remove original mihomo.zip
+      run: rm mihomo.zip
+
+    - name: Recreate mihomo.zip with new content
+      run: |
+        cd extracted
+        zip -r ../mihomo.zip .
+        
+    - name: Cleanup extracted directory
+      run: rm -rf extracted
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add mihomo.zip
+        git commit -m 'Recreated mihomo.zip with new content'
+        git push
