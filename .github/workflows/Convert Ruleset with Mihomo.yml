@@ -1,32 +1,42 @@
 name: Convert Ruleset with Mihomo
 
 on:
-  schedule:
-    - cron: '*/20 * * * *'  # 每20分钟运行一次
-  workflow_dispatch:  # 手动触发
+  workflow_run:
+    workflows: ["Download Latest Mihomo"]
+    types:
+      - completed
 
 jobs:
-  convert_and_commit:
-    runs-on: windows-latest
-
+  convert-ruleset:
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Ensure mihomo is executable
-      run: |
-        icacls mihomo.exe /grant Everyone:F
+      - name: Check mihomo existence
+        id: check_mihomo
+        run: |
+          if [ -f "mihomo" ]; then
+            echo "MIHOMO_EXISTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "MIHOMO_EXISTS=false" >> $GITHUB_OUTPUT
+          fi
 
-    - name: Convert adblock_reject_change.txt to adblock_reject_change.mrs
-      run: |
-        .\mihomo.exe convert-ruleset domain yaml adblock_reject_change.txt adblock_reject_change.mrs
+      - name: Convert ruleset
+        if: steps.check_mihomo.outputs.MIHOMO_EXISTS == 'true'
+        run: |
+          chmod +x ./mihomo
+          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
 
-    - name: Commit changes
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add adblock_reject_change.mrs
-        git commit -m 'Update adblock_reject_change.mrs'
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add adblock_reject.mrs
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update adblock_reject.mrs" && git push)
+
+      - name: Error if mihomo not found
+        if: steps.check_mihomo.outputs.MIHOMO_EXISTS == 'false'
+        run: |
+          echo "Error: mihomo executable not found in the repository root."
+          exit 1
