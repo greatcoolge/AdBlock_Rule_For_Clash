@@ -12,11 +12,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Download mihomo
+      - name: Download mihomo v1.18.7
         shell: powershell
         run: |
-          Write-Host "Downloading mihomo..."
-          Invoke-WebRequest -Uri "https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-windows-amd64.exe" -OutFile "mihomo.exe"
+          Write-Host "Downloading mihomo v1.18.7..."
+          $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-v1.18.7.exe"
+          Invoke-WebRequest -Uri $url -OutFile "mihomo.exe"
           Get-ChildItem  # 列出当前目录内容
 
       - name: Convert ruleset
@@ -35,7 +36,7 @@ jobs:
               break
             }
             catch {
-              Write-Host "Attempt $attempt failed. Retrying..."
+              Write-Host "Attempt $attempt failed. Error: $_"
               if ($attempt -eq $maxAttempts) {
                 Write-Host "Max attempts reached. Exiting."
                 exit 1
