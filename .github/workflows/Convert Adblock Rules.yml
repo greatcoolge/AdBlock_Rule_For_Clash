@@ -22,9 +22,14 @@ jobs:
             exit 1
           fi
 
-      - name: Convert ruleset
+      - name: Display mihomo version and contents of current directory
         run: |
           chmod +x $GITHUB_WORKSPACE/mihomo
+          $GITHUB_WORKSPACE/mihomo -v || echo "Failed to get mihomo version"
+          ls -la $GITHUB_WORKSPACE
+
+      - name: Convert ruleset
+        run: |
           $GITHUB_WORKSPACE/mihomo convert-ruleset domain yaml $GITHUB_WORKSPACE/adblock_reject.txt $GITHUB_WORKSPACE/adblock_reject.mrs
 
       - name: Check conversion result
