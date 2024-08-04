@@ -30,7 +30,7 @@
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.yaml*
 
 
-*5、adblock_reject_change.txt*
+*5、外部拦截条目Matcher Ruleset列表 adblock_reject_change.txt*
 
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.txt*
 
