@@ -41,31 +41,29 @@
 *简而言之就是可以让你DIY出希望得到的yaml格式拦截域名列表，缺点是此做法只能本地定制使用，当然你也可以像我一样部署到GitHub上面，仁者见仁*
 
 
-        rule-providers:
-          adblock:
-            type: http
-            behavior: domain
-            format: yaml
-            path: C:\Users\YourUsername\Documents\file.yaml
-            
-        rules:
-          - RULE-SET,adblock,REJECT
+```yaml
+rule-providers:
+  adblock:
+    type: http
+    behavior: domain
+    format: yaml
+    path: C:\Users\YourUsername\Documents\file.yaml
+    
+rules:
+  - RULE-SET,adblock,REJECT
+```
 
-
-
-
-
-
-
-        rule-providers:
-          adblock:
-            type: http
-            behavior: domain
-            format: mrs
-            path: C:\Users\YourUsername\Documents\file.mrs
-            
-        rules:
-          - RULE-SET,adblock,REJECT
+```yaml
+rule-providers:
+  adblock:
+    type: http
+    behavior: domain
+    format: mrs
+    path: C:\Users\YourUsername\Documents\file.mrs
+    
+rules:
+  - RULE-SET,adblock,REJECT
+```
 
 
              
