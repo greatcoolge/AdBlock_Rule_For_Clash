@@ -14,15 +14,25 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Get latest release
+      id: get_release
+      run: |
+        LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/<mihomo_owner>/<mihomo_repo>/releases/latest | jq -r '.assets[] | select(.name == "mihomo.exe") | .browser_download_url')
+        echo "LATEST_RELEASE_URL=${LATEST_RELEASE_URL}" >> $GITHUB_ENV
+
     - name: Download mihomo.exe
-      run: curl -L -o mihomo.exe <URL_TO_MIHOMO_EXE>
+      run: curl -L -o mihomo.exe ${{ env.LATEST_RELEASE_URL }}
+
+    - name: Verify downloaded file
+      run: ls -al mihomo.exe
 
     - name: Commit and push changes
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add mihomo.exe
+        git status
         git commit -m 'Downloaded latest mihomo.exe'
         git push
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        TOKEN: ${{ secrets.TOKEN }}
