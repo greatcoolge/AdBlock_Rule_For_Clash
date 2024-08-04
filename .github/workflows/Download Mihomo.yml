@@ -1,12 +1,12 @@
-name: Download Mihomo
+name: Download and Use Mihomo
 
 on:
-  workflow_dispatch:  # 添加这行来启用手动触发
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # 每天UTC时间00:00运行
+    - cron: '0 0 * * *'
 
 jobs:
-  download-mihomo:
+  download-and-convert:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -16,14 +16,26 @@ jobs:
         run: |
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r .tag_name)
           curl -L -o mihomo "https://github.com/MetaCubeX/mihomo/releases/download/${LATEST_RELEASE}/mihomo-linux-amd64-${LATEST_RELEASE}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          chmod +x mihomo
 
-      - name: Commit and push if changed
+      - name: Convert ruleset
+        run: |
+          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
+
+      - name: Check conversion result
+        run: |
+          if [ ! -f "adblock_reject.mrs" ]; then
+            echo "Error: Conversion failed, adblock_reject.mrs not found"
+            exit 1
+          else
+            echo "Conversion successful, adblock_reject.mrs created"
+          fi
+
+      - name: Commit and push changes
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git add mihomo
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update Mihomo to latest version" && git push)
+          git add mihomo adblock_reject.mrs
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update Mihomo and adblock_reject.mrs" && git push)
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
