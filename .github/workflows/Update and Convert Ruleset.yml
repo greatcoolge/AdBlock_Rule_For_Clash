@@ -16,14 +16,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # 步骤2：检查并下载 mihomo（如果需要）
+      # 步骤2：检查并下载 mihomo（仅在第一次运行时）
       - name: Check and download mihomo v1.18.7 if needed
         shell: powershell
-        id: download_mihomo
         run: |
-          # 检查根目录下是否已有 mihomo.exe
-          if (-not (Test-Path "./mihomo.exe")) {
-            Write-Host "mihomo.exe not found, downloading..."
+          # 检查根目录下是否已有 mihomo.exe 和 .mihomo_downloaded 标记文件
+          if (-not (Test-Path "./mihomo.exe") -or -not (Test-Path "./.mihomo_downloaded")) {
+            Write-Host "mihomo.exe or .mihomo_downloaded not found, downloading..."
             $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-compatible-v1.18.7.zip"
             $zipFile = "mihomo.zip"
             $maxAttempts = 5
@@ -45,6 +44,8 @@ jobs:
                   if ($exeFile) {
                     Rename-Item -Path $exeFile.FullName -NewName "mihomo.exe" -Force
                     Write-Host "Extraction and renaming complete!"
+                    # 创建标记文件
+                    New-Item -Path . -Name ".mihomo_downloaded" -ItemType "file" -Force
                     break
                   } else {
                     throw "Executable file not found in the extracted contents"
@@ -62,7 +63,7 @@ jobs:
               }
             } while ($true)
           } else {
-            Write-Host "mihomo.exe already exists."
+            Write-Host "mihomo.exe and .mihomo_downloaded already exist."
           }
 
       # 步骤3：转换规则集（依赖于 mihomo.exe）
@@ -131,4 +132,3 @@ jobs:
             Write-Host "Changes committed and pushed."
           } else {
             Write-Host "No changes to commit."
-          }
