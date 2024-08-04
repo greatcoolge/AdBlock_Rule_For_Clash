@@ -20,9 +20,6 @@ jobs:
           chmod +x mihomo
           sudo mv mihomo /usr/local/bin/
 
-      - name: Verify mihomo version
-        run: mihomo version
-
       - name: Convert YAML to MRS
         run: |
           for file in *.yaml; do
