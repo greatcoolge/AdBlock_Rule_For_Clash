@@ -1,50 +1,59 @@
+# 工作流程名称
 name: Update and Convert Ruleset
 
+# 触发条件
 on:
   schedule:
-    - cron: '*/20 * * * *'  # Run every 20 minutes
-  workflow_dispatch:  # Allow manual triggering
+    - cron: '*/20 * * * *'  # 每20分钟运行一次
+  workflow_dispatch:  # 允许手动触发
 
+# 定义作业
 jobs:
   update-and-convert:
-    runs-on: windows-latest
+    runs-on: windows-latest  # 使用Windows运行环境
     steps:
+      # 步骤1：检出仓库代码
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # 步骤2：检查并下载mihomo
       - name: Check and download mihomo v1.18.7
         shell: powershell
         run: |
+          # 检查根目录下是否已有mihomo.exe
           if (-not (Test-Path "./mihomo.exe")) {
-            Write-Host "mihomo not found, downloading..."
+            Write-Host "mihomo未找到，开始下载..."
             $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-compatible-v1.18.7.zip"
             $zipFile = "mihomo.zip"
             $maxAttempts = 5
             $attempt = 1
 
+            # 尝试下载和解压，最多重试5次
             do {
               try {
-                Write-Host "Downloading mihomo v1.18.7 (Attempt $attempt)..."
+                Write-Host "正在下载mihomo v1.18.7 (尝试 $attempt)..."
                 Invoke-WebRequest -Uri $url -OutFile $zipFile -TimeoutSec 300
                 if (Test-Path $zipFile) {
-                  Write-Host "Download successful!"
+                  Write-Host "下载成功！"
+                  # 解压文件
                   Expand-Archive -Path $zipFile -DestinationPath . -Force
                   Remove-Item $zipFile
                   
+                  # 查找并重命名mihomo可执行文件
                   $exeFile = Get-ChildItem -Recurse -Filter "*mihomo*.exe" | Select-Object -First 1
                   if ($exeFile) {
                     Rename-Item -Path $exeFile.FullName -NewName "mihomo.exe" -Force
-                    Write-Host "Extraction and renaming complete!"
+                    Write-Host "解压和重命名完成！"
                     break
                   } else {
-                    throw "Executable file not found in the extracted contents"
+                    throw "在解压内容中未找到可执行文件"
                   }
                 }
               }
               catch {
-                Write-Host "Download, extraction, or renaming failed. Error: $_"
+                Write-Host "下载、解压或重命名失败。错误: $_"
                 if ($attempt -eq $maxAttempts) {
-                  Write-Host "Max attempts reached. Process failed."
+                  Write-Host "达到最大尝试次数。过程失败。"
                   exit 1
                 }
                 $attempt++
@@ -52,37 +61,40 @@ jobs:
               }
             } while ($true)
           } else {
-            Write-Host "mihomo already exists."
+            Write-Host "mihomo.exe已存在。"
           }
 
+      # 步骤3：转换规则集
       - name: Convert ruleset
         shell: powershell
         run: |
-          Write-Host "Current directory:"
+          Write-Host "当前目录:"
           Get-Location
-          Write-Host "Directory contents:"
+          Write-Host "目录内容:"
           Get-ChildItem
-          Write-Host "Mihomo version:"
+          Write-Host "Mihomo版本:"
           & .\mihomo.exe -v
-          Write-Host "Mihomo help:"
+          Write-Host "Mihomo帮助:"
           & .\mihomo.exe convert-ruleset --help
 
+          # 尝试转换规则集，最多重试5次
           $maxAttempts = 5
           $attempt = 1
           do {
             try {
-              Write-Host "Attempting conversion (Attempt $attempt)..."
+              Write-Host "正在尝试转换 (尝试 $attempt)..."
+              # 执行mihomo转换命令
               & .\mihomo.exe convert-ruleset domain yaml adblock_reject.yaml adblock_reject.mrs
               if ($LASTEXITCODE -ne 0) {
-                throw "Conversion failed with exit code $LASTEXITCODE"
+                throw "转换失败，退出代码 $LASTEXITCODE"
               }
-              Write-Host "Conversion successful!"
+              Write-Host "转换成功！"
               break
             }
             catch {
-              Write-Host "Attempt $attempt failed. Error: $_"
+              Write-Host "尝试 $attempt 失败。错误: $_"
               if ($attempt -eq $maxAttempts) {
-                Write-Host "Max attempts reached. Exiting."
+                Write-Host "达到最大尝试次数。退出。"
                 exit 1
               }
               $attempt++
@@ -90,22 +102,27 @@ jobs:
             }
           } while ($true)
 
+      # 步骤4：提交并推送更改
       - name: Push changes
         shell: powershell
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
+          # 配置Git用户信息
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
           
+          # 添加mihomo.exe和转换后的文件到Git
           git add mihomo.exe
           git add adblock_reject.mrs
           
+          # 检查是否有更改需要提交
           $changes = git status --porcelain
           if ($changes) {
-            git commit -m "Update mihomo.exe and adblock_reject.mrs"
+            # 如果有更改，进行提交和推送
+            git commit -m "更新mihomo.exe和adblock_reject.mrs"
             git push https://${env:TOKEN}@github.com/${env:GITHUB_REPOSITORY}.git HEAD:${env:GITHUB_REF}
-            Write-Host "Changes committed and pushed."
+            Write-Host "更改已提交并推送。"
           } else {
-            Write-Host "No changes to commit."
+            Write-Host "没有需要提交的更改。"
           }
