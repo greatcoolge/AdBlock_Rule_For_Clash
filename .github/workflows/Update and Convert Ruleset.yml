@@ -38,8 +38,17 @@ jobs:
             Invoke-WebRequest -Uri $url -OutFile $zipFile -TimeoutSec 300
             Expand-Archive -Path $zipFile -DestinationPath . -Force
             
-            # 移动 mihomo 到根目录
-            Move-Item -Path "./mihomo-windows-amd64-compatible-v1.18.7/mihomo.exe" -Destination "./mihomo.exe"
+            # 列出解压后的文件以确认路径
+            Write-Host "Listing contents of extracted directory:"
+            Get-ChildItem -Recurse
+
+            # 确保路径正确后移动 mihomo
+            if (Test-Path "./mihomo-windows-amd64-compatible-v1.18.7/mihomo.exe") {
+              Move-Item -Path "./mihomo-windows-amd64-compatible-v1.18.7/mihomo.exe" -Destination "./mihomo.exe"
+            } else {
+              Write-Host "Error: mihomo.exe not found in the extracted directory."
+              exit 1
+            }
             
             # 清理临时文件
             Remove-Item $zipFile
