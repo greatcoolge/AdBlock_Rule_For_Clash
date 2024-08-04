@@ -1,42 +1,30 @@
-name: Convert Ruleset with Mihomo
+name: Convert Adblock Rules
 
 on:
-  workflow_run:
-    workflows: ["Download Latest Mihomo"]
-    types:
-      - completed
+  workflow_dispatch:  # 允许手动触发
+  push:
+    paths:
+      - 'adblock_reject.txt'  # 当adblock_reject.txt文件变更时触发
 
 jobs:
   convert-ruleset:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Check mihomo existence
-        id: check_mihomo
-        run: |
-          if [ -f "mihomo" ]; then
-            echo "MIHOMO_EXISTS=true" >> $GITHUB_OUTPUT
-          else
-            echo "MIHOMO_EXISTS=false" >> $GITHUB_OUTPUT
-          fi
+      - name: Set execute permissions for mihomo
+        run: chmod +x ./mihomo
 
       - name: Convert ruleset
-        if: steps.check_mihomo.outputs.MIHOMO_EXISTS == 'true'
         run: |
-          chmod +x ./mihomo
           ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
 
       - name: Commit and push if changed
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
           git add adblock_reject.mrs
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update adblock_reject.mrs" && git push)
-
-      - name: Error if mihomo not found
-        if: steps.check_mihomo.outputs.MIHOMO_EXISTS == 'false'
-        run: |
-          echo "Error: mihomo executable not found in the repository root."
-          exit 1
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update adblock_reject.mrs in root directory" && git push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
