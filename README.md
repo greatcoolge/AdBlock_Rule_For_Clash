@@ -43,26 +43,26 @@
 
 
 ```conf
-#YAML外部本地拦截域名规则集
+#YAML格式外部本地拦截域名规则集
 rule-providers:
   adblock:
     type: http
     behavior: domain
     format: yaml
-    path: C:\Users\YourUsername\Documents\file.yaml
+    path: C:\Users\YourUsername\Documents\file.yaml   #你的YAML格式外部本地拦截域名规则集保存路径
     
 rules:
   - RULE-SET,adblock,REJECT
 ```
 
 ```conf
-#MRS外部远程拦截域名规则集
+#MRS格式外部远程拦截域名规则集
 rule-providers:
   adblock:
     type: http
     behavior: domain
     format: mrs
-    path: C:\Users\YourUsername\Documents\file.mrs
+    path: C:\Users\YourUsername\Documents\file.mrs   #你的YAML格式外部本地拦截域名规则集保存路径
     
 rules:
   - RULE-SET,adblock,REJECT
@@ -89,7 +89,7 @@ rules:
 
 
 ```conf
-#YAML外部远程拦截域名规则集
+#YAML格式外部远程拦截域名规则集
 rule-providers:
   adblock:
     type: http
@@ -104,7 +104,7 @@ rules:
 ```
 
 ```conf
-#MRS外部远程拦截域名规则集
+#MRS格式外部远程拦截域名规则集
 rule-providers:
   adblock:
     type: http
