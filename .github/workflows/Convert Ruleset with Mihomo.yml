@@ -1,10 +1,8 @@
 name: Convert Rulesets with Mihomo
 
 on:
-  workflow_run:
-    workflows: ["Download Latest Mihomo"]
-    types:
-      - completed
+  schedule:
+    - cron: '*/20 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -33,22 +31,16 @@ jobs:
               exit 1
             fi
           done
-          
-          echo "MIHOMO_EXISTS=true" >> $GITHUB_OUTPUT
 
-      - name: Convert rulesets
-        if: steps.check_files.outputs.MIHOMO_EXISTS == 'true'
+      - name: Execute mihomo commands
         run: |
-          chmod +x ./mihomo
-          for file in adblock_reject.txt adblock_reject_change.txt; do
-            output_file="${file%.txt}.mrs"
-            echo "Converting $file to $output_file"
-            ./mihomo convert-ruleset domain yaml "$file" "$output_file" || echo "Error converting $file"
-          done
+          ./mihomo convert-ruleset domain yaml adblock_reject.txt adblock_reject.mrs
+          ./mihomo convert-ruleset domain yaml adblock_reject_change.txt adblock_reject_change.mrs
 
-      - name: Commit and push if changed
+      - name: Commit and push changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add *.mrs
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update adblock reject rulesets" && git push)
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add adblock_reject.mrs adblock_reject_change.mrs
+          git commit -m "Update mrs files"
+          git push
