@@ -53,9 +53,7 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-<br>
-<br>
-<br>
+
 ```mrs
 rule-providers:
   adblock:
@@ -101,9 +99,6 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-<br>
-<br>
-<br>
 ```mrs
 rule-providers:
   adblock:
