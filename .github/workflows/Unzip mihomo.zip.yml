@@ -27,14 +27,20 @@ jobs:
       run: |
         cd extracted
         zip -r ../mihomo.zip .
-        
+
     - name: Cleanup extracted directory
       run: rm -rf extracted
+
+    - name: List files to check changes
+      run: ls -al
 
     - name: Commit and push changes
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add mihomo.zip
+        git status
         git commit -m 'Recreated mihomo.zip with new content'
         git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
