@@ -53,7 +53,7 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-<br>
+
 ```mrs
 rule-providers:
   adblock:
