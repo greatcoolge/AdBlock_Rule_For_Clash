@@ -61,7 +61,7 @@ jobs:
           do {
             try {
               Write-Host "Attempting conversion (Attempt $attempt)..."
-              & .\mihomo.exe convert-ruleset yaml adblock_reject.yaml adblock_reject.mrs
+              & .\mihomo.exe convert-ruleset domain yaml adblock_reject.yaml adblock_reject.mrs
               if ($LASTEXITCODE -ne 0) {
                 throw "Conversion failed with exit code $LASTEXITCODE"
               }
