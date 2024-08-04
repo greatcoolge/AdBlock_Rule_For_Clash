@@ -38,6 +38,11 @@ jobs:
         run: |
           echo "Starting conversion:"
           $GITHUB_WORKSPACE/mihomo convert-ruleset domain yaml $GITHUB_WORKSPACE/adblock_reject.txt $GITHUB_WORKSPACE/adblock_reject.mrs
+          RESULT=$?
+          if [ $RESULT -ne 0 ]; then
+            echo "Error: Conversion command failed with exit code $RESULT"
+            exit $RESULT
+          fi
 
       - name: Check conversion result
         run: |
