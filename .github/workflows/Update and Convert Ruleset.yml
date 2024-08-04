@@ -12,12 +12,38 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Download mihomo v1.18.7
+      - name: Download and extract mihomo v1.18.7
         shell: powershell
         run: |
-          Write-Host "Downloading mihomo v1.18.7..."
-          $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-v1.18.7.exe"
-          Invoke-WebRequest -Uri $url -OutFile "mihomo.exe"
+          $url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.7/mihomo-windows-amd64-compatible-v1.18.7.zip"
+          $zipFile = "mihomo.zip"
+          $maxAttempts = 5
+          $attempt = 1
+
+          do {
+            try {
+              Write-Host "Downloading mihomo v1.18.7 (Attempt $attempt)..."
+              Invoke-WebRequest -Uri $url -OutFile $zipFile -TimeoutSec 300
+              if (Test-Path $zipFile) {
+                Write-Host "Download successful!"
+                Expand-Archive -Path $zipFile -DestinationPath . -Force
+                Remove-Item $zipFile
+                Rename-Item -Path "mihomo-windows-amd64.exe" -NewName "mihomo.exe" -Force
+                Write-Host "Extraction complete!"
+                break
+              }
+            }
+            catch {
+              Write-Host "Download or extraction failed. Error: $_"
+              if ($attempt -eq $maxAttempts) {
+                Write-Host "Max attempts reached. Download failed."
+                exit 1
+              }
+              $attempt++
+              Start-Sleep -Seconds 10
+            }
+          } while ($true)
+
           Get-ChildItem  # 列出当前目录内容
 
       - name: Convert ruleset
