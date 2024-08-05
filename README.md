@@ -62,7 +62,7 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    path: C:\Users\YourUsername\Documents\file.mrs   #你的YAML格式外部本地拦截域名规则集保存路径
+    path: C:\Users\YourUsername\Documents\file.mrs   #你的MRS格式外部本地拦截域名规则集保存路径
     
 rules:
   - RULE-SET,adblock,REJECT
