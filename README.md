@@ -251,11 +251,11 @@ https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/fil
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
 
 
-31、HyperADRules
+31、HyperADRules<br>
 https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/rules.txt
 
 
-32、HyperADRules-DNS
+32、HyperADRules-DNS<br>
 https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/dns.txt
 
 
