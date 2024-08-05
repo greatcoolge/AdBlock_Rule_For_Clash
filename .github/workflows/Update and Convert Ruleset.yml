@@ -58,12 +58,12 @@ jobs:
         shell: powershell
         run: ./mihomo.exe convert-ruleset domain/ipcidr yaml adblock_reject.yaml adblock_reject.mrs
 
-      # 步骤4：拉取最新更改
+      # 新增步骤：拉取最新更改
       - name: Pull latest changes
         shell: bash
         run: git pull origin main
 
-      # 步骤5：提交更改
+      # 步骤4：提交更改
       - name: Commit changes
         shell: bash
         run: |
@@ -72,7 +72,7 @@ jobs:
           git add adblock_reject.mrs
           git commit -m "Update adblock_reject.mrs and add mihomo.exe" || echo "No changes to commit"
 
-      # 步骤6：强制推送更改
+      # 步骤5：强制推送更改
       - name: Force push changes
         shell: bash
         run: git push -f origin main
