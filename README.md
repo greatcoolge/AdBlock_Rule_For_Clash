@@ -62,7 +62,7 @@ rules:
 ```
 
 ```conf
-#MRS格式外部远程拦截域名规则集
+#MRS格式外部本地拦截域名规则集
 rule-providers:
   adblock:
     type: http
@@ -75,7 +75,7 @@ rules:
 ```
 
 ```conf
-#SRS格式外部远程拦截域名规则集
+#SRS格式外部本地拦截域名规则集
 rule-providers:
   adblock:
     type: http
