@@ -1,30 +1,39 @@
-name: Generate Matcher Ruleset entries
+name: Generate Matcher Ruleset entries  # 工作流名称
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]  # 在推送到 main 分支时触发
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ main ]  # 在 pull request 针对 main 分支时触发
+  workflow_dispatch:  # 允许手动触发工作流
   schedule:
-    - cron: '*/20 * * * *'
+    - cron: '*/20 * * * *'  # 每20分钟触发一次
 jobs:
   process-files:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 版本作为运行环境
     steps:
-    - uses: actions/checkout@v2
-    - name: Process adblock_reject.txt
+    - uses: actions/checkout@v2  # 使用官方的 checkout 操作来检出代码
+
+    - name: Process adblock_reject.txt  # 处理 adblock_reject.txt 文件
       run: |
+        # 去掉第一行，在每行末尾添加 ",REJECT"，去除行首空白字符，保存为新文件
         tail -n +2 adblock_reject.txt | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.txt
-    - name: Process adblock_reject.yaml
+
+    - name: Process adblock_reject.yaml  # 处理 adblock_reject.yaml 文件
       run: |
+        # 去掉第一行，在每行末尾添加 ",REJECT"，去除行首空白字符，保存为新文件
         tail -n +2 adblock_reject.yaml | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.yaml
-    - name: Commit changes
+  
+    - name: Commit changes  # 提交更改
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用存储在仓库中的 TOKEN 密钥
       run: |
-        git config --global user.email "action@github.com"
-        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"  # 配置 Git 用户邮箱
+        git config --global user.name "GitHub Action"  # 配置 Git 用户名
+        # 设置远程仓库 URL，使用 TOKEN 进行身份验证
         git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+        # 添加处理后的文件到 Git
         git add adblock_reject_change.txt adblock_reject_change.yaml
+        # 提交更改，如果没有更改则输出信息
         git commit -m "Process adblock files: remove first line, add REJECT, left align" || echo "No changes to commit"
+        # 推送更改到 main 分支
         git push origin main
