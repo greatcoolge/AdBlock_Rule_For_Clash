@@ -1,5 +1,5 @@
 # 关于AdBlock_Rule_For_Clash
-##**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式，其中列表的每一项都写成了符合clash的Matcher Ruleset格式数组，一行仅一条规则。该列表可以用作Clash的rule-providers，以阻止广告域名， powershell脚本每20分钟自动执行生成新adblock_reject.txt和adblock_reject.yaml并发布在release中.五个文件的下载地址分别如下，其中adblock_reject.yaml和adblock_reject.txt是Matcher Ruleset格式数组构成的payload列表，adblock_reject_change.yaml和adblock_reject_change.txt则是纯粹的Matcher Ruleset数组列表，adblock_reject.mrs则是由mihomo核心将adblock_reject.yaml转化得来的规则集。**
+##**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式，其中列表的每一项都写成了符合clash的Matcher Ruleset格式数组，一行仅一条规则。该列表可以用作Clash的rule-providers，以阻止广告域名， powershell脚本每20分钟自动执行生成新adblock_reject.txt和adblock_reject.yaml并发布在release中.五个文件的下载地址分别如下，其中adblock_reject.yaml和adblock_reject.txt是Matcher Ruleset格式数组构成的payload列表，adblock_reject_change.yaml和adblock_reject_change.txt则是纯粹的Matcher Ruleset数组列表，adblock_reject.mrs和adblock_reject.srs则是由mihomo核心将adblock_reject.yaml转化得来的规则集。**
 
 *1、MRS格式外部远程拦截域名规则集 adblock_reject.mrs*
 
@@ -8,29 +8,35 @@
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.mrs*
 
 
+*2、SRS格式外部远程拦截域名规则集 adblock_reject.srs*
 
-*2、YAML格式外部远程拦截域名规则集 adblock_reject.yaml*
+*https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.srs*
+
+*https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.srs*
+
+
+*3、YAML格式外部远程拦截域名规则集 adblock_reject.yaml*
 
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.yaml*
 
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml*
 
 
-*3、文本格式外部远程拦截域名规则payload列表 adblock_reject.txt*
+*4、文本格式外部远程拦截域名规则payload列表 adblock_reject.txt*
 
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.txt*
 
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.txt*
 
 
-*4、YMAL格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.yaml*
+*5、YMAL格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.yaml*
 
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.yaml*
 
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.yaml*
 
 
-*5、文本格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.txt*
+*6、文本格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.txt*
 
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.txt*
 
@@ -68,6 +74,18 @@ rules:
   - RULE-SET,adblock,REJECT
 ```
 
+```conf
+#SRS格式外部远程拦截域名规则集
+rule-providers:
+  adblock:
+    type: http
+    behavior: domain
+    format: srs
+    path: C:\Users\YourUsername\Documents\file.srs   #你的SRS格式外部本地拦截域名规则集保存路径
+    
+rules:
+  - RULE-SET,adblock,REJECT
+```
 
              
 
@@ -117,7 +135,20 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-
+```conf
+#SRS格式外部远程拦截域名规则集
+rule-providers:
+  adblock:
+    type: http
+    behavior: domain
+    format: srs
+    url: https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.srs
+    path: ./ruleset/adblock_reject.srs
+    interval: 120
+    
+rules:
+  - RULE-SET,adblock,REJECT
+```
 
 
 
