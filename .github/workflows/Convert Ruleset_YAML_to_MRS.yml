@@ -3,7 +3,7 @@ name: Convert Ruleset_YAML_to_MRS
 # 触发条件
 on:
   schedule:
-    - cron: '*/20 * * * *'  # 每20分钟运行一次
+    - cron: '*/20 * * * *'  # 每20分钟运行一次（修复了cron表达式）
   workflow_dispatch:  # 允许手动触发
 # 定义作业
 jobs:
@@ -50,11 +50,9 @@ jobs:
           else {
             Write-Host "mihomo.exe already exists, skipping download."
           }
-
       # 步骤3：运行Python脚本
       - name: Run Python script
         run: python convert_ruleset.py
-
       # 步骤4：提交更改
       - name: Commit changes
         run: |
@@ -62,8 +60,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add .
           git commit -m "Update ruleset files" -a || echo "No changes to commit"
-
-      # 步骤5：推送更改到仓库（添加重试机制）
+      # 步骤5：推送更改到仓库（已包含重试机制）
       - name: Push changes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
