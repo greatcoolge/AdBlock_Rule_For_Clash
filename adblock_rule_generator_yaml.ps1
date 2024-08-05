@@ -33,7 +33,11 @@ $urlList = @(
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt",
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_7_Japanese/filter.txt",
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt"
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt",
+    "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/rules.txt",
+    "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/dns.txt"
+    
+    
 )
 
 # 创建一个HashSet来存储唯一的规则
