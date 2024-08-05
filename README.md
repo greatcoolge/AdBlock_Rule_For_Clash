@@ -251,6 +251,14 @@ https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/fil
 https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt
 
 
+31、HyperADRules
+https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/rules.txt
+
+
+32、HyperADRules-DNS
+https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/dns.txt
+
+
 
 
 
@@ -277,3 +285,5 @@ https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/fil
 10、uBlockOrigin (https://github.com/uBlockOrigin/uAssets)
 
 11、ADguardTeam (https://github.com/AdguardTeam/AdGuardFilters)
+
+12、HyperADRules (https://github.com/Lynricsy/HyperADRules)
