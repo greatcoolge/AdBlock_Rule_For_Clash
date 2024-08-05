@@ -1,5 +1,5 @@
 # 工作流程名称
-name: Convert Ruleset_MRS
+name: Convert Ruleset_YAML_to_MRS
 
 # 触发条件
 on:
