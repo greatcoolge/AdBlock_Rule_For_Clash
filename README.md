@@ -129,7 +129,7 @@ rules:
 
 
 
-##**六、本仓库引用的广告过滤规则如下，是否误杀域名完全取决于这些处于上游的广告过滤器的域名拦截行为，若不满意的话可按照第二条使用adblock_rule_generator_yaml.ps1或者adblock_rule_generator_txt.ps1两个脚本进行DIY本地定制化，也可以像本仓库一样DIY定制后部署到github上面**
+##**六、本仓库引用的广告过滤规则如下，后续考虑添加更多上游规则列表进行处理整合。至于是否误杀域名完全取决于这些处于上游的广告过滤器的域名拦截行为，若不满意的话可按照第二条在本地使用adblock_rule_generator_yaml.ps1或者adblock_rule_generator_txt.ps1两个脚本进行DIY本地定制化，亦或可以像本仓库一样DIY定制后部署到github上面**
 
 1、Anti-ad for adguard<br>
 https://anti-ad.net/adguard.txt
