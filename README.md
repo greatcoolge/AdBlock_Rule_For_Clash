@@ -52,7 +52,7 @@ rules:
 ```
 
 ```conf
-#MRS格式外部本地拦截域名规则集
+#MRS格式外部本地拦截域名规则集,适用于mihomo核心
 rule-providers:
   adblock:
     type: http
