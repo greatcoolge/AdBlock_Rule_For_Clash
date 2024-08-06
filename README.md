@@ -1,6 +1,6 @@
 # AdBlock_Rule_For_Clash
 
-一个适用于Clash（premium核心与mihomo核心）的广告域名拦截rule-providers规则集
+## 一个适用于Clash（premium核心与mihomo核心）的广告域名拦截rule-providers规则集
 
 ![Last Commit](https://img.shields.io/github/last-commit/REIJI007/AdBlock_Rule_For_Clash.svg)
 ![Forks](https://img.shields.io/github/forks/REIJI007/AdBlock_Rule_For_Clash.svg)
