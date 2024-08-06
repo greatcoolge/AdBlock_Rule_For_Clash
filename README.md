@@ -22,15 +22,15 @@
 
 
 
-**后两个是Matcher Ruleset数组列表，可复制贴到yaml配置文件下的rules字段，注意对齐**
-*4、YMAL格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.yaml* 
+**后两个是Matcher Ruleset数组列表，可代开然后复制粘贴到你的yaml配置文件下的rules字段，注意对齐**
+*4、YMAL格式的外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.yaml* 
 <br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.yaml*
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.yaml*
 
 
 
-*5、txt格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.txt* 
+*5、文本格式的外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.txt* 
 <br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.txt*
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.txt*
