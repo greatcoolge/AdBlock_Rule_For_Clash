@@ -1,3 +1,7 @@
+# Title: AdBlock_Rule_For_Clash
+# Description: 适用于Clash的域名拦截rule-providers，每20分钟更新一次，确保即时同步上游减少误杀
+# Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
+
 # AdBlock Rule For Clash
 # 这个脚本用于生成广告拦截规则，并将其保存为TXT格式
 
@@ -97,6 +101,10 @@ $formattedRules = $validRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
 $ruleCount = $validRules.Count
 # 创建TXT格式的字符串，包含所有格式化后的规则和注释
 $txtContent = @"
+# Title: AdBlock_Rule_For_Clash
+# Description: 适用于Clash的域名拦截rule-providers，每20分钟更新一次，确保即时同步上游减少误杀
+# Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
+
 # Generated AdBlock rules
 # Total entries: $ruleCount
 
