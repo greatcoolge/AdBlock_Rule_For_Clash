@@ -17,11 +17,11 @@ jobs:
 
     - name: Process adblock_reject.txt
       run: |
-        sed '/^#/!s/^- DOMAIN,/DOMAIN,/; /^#/!s/$/,REJECT/; /^payload:/d' adblock_reject.txt > adblock_reject_change.txt
+        sed '/^#/!{/^$/!{/^- DOMAIN,/{s/^- DOMAIN,/DOMAIN,/;s/$/,REJECT/}}};/^payload:/d' adblock_reject.txt > adblock_reject_change.txt
 
     - name: Process adblock_reject.yaml
       run: |
-        sed '/^#/!s/^- DOMAIN,/DOMAIN,/; /^#/!s/$/,REJECT/; /^payload:/d' adblock_reject.yaml > adblock_reject_change.yaml
+        sed '/^#/!{/^$/!{/^- DOMAIN,/{s/^- DOMAIN,/DOMAIN,/;s/$/,REJECT/}}};/^payload:/d' adblock_reject.yaml > adblock_reject_change.yaml
 
     - name: Commit changes
       env:
@@ -31,6 +31,6 @@ jobs:
         git config --global user.name "GitHub Action"
         git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
         git add adblock_reject_change.txt adblock_reject_change.yaml
-        git commit -m "Process adblock files: format as DOMAIN,example,REJECT, preserve comments, remove payload" || echo "No changes to commit"
+        git commit -m "Process adblock files: format as DOMAIN,example,REJECT, preserve comments and empty lines, remove payload" || echo "No changes to commit"
         git pull origin main --rebase
         git push origin main
