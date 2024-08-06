@@ -2,11 +2,10 @@
 <!-- 居中的大标题 -->
 <h1 align="center" style="font-size: 70px; margin-bottom: 20px;">AdBlock_Rule_For_Clash</h1>
 
-[![GPL 3.0 license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
-[![CC BY-SA 4.0 license](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](CC-BY-SA-4.0.md)
-
 <!-- 居中的副标题 -->
 <h2 align="center" style="font-size: 30px; margin-bottom: 40px;">一个适用于Clash（premium核心与mihomo核心）的广告域名拦截rule-providers规则集</h2>
+[![GPL 3.0 license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+[![CC BY-SA 4.0 license](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](CC-BY-SA-4.0.md)
 
 <!-- 徽章（根据需要调整） -->
 <p align="center" style="margin-bottom: 40px;">
