@@ -1,3 +1,8 @@
+[![GPL 3.0 license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+[![CC BY-SA 4.0 license](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](CC-BY-SA-4.0.md)
+
+
+
 <!-- 居中的大标题 -->
 <h1 align="center" style="font-size: 70px; margin-bottom: 20px;">AdBlock_Rule_For_Clash</h1>
 
