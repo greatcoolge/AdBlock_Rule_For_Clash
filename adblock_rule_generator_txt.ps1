@@ -90,7 +90,7 @@ foreach ($rule in $uniqueRules) {
 
 # 第三步：将有效规则格式化为TXT列表的格式
 # 对规则进行排序并添加DOMAIN,前缀
-$formattedRules = $validRules | Sort-Object | ForEach-Object { "DOMAIN,$_" }
+$formattedRules = $validRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
 
 # 第四步：生成TXT文件内容
 # 统计生成的规则条目数量
@@ -100,6 +100,7 @@ $txtContent = @"
 # Generated AdBlock rules
 # Total entries: $ruleCount
 
+payload:
 $($formattedRules -join "`n")
 "@
 
