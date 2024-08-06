@@ -104,7 +104,7 @@ $yamlContent = @"
 # Title: AdBlock_Rule_For_Clash
 # Description: 适用于Clash的域名拦截rule-providers，每20分钟更新一次，确保即时同步上游减少误杀
 # Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
-
+# Licence: https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE
 # Generated AdBlock rules
 # Total entries: $ruleCount
 
