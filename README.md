@@ -1,5 +1,5 @@
 # 关于AdBlock_Rule_For_Clash
-##**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式，其中列表的每一项都写成了符合clash的Matcher Ruleset格式数组，一行仅一条规则。该列表可以用作Clash的rule-providers，以阻止广告域名， powershell脚本每20分钟自动执行生成新adblock_reject.txt和adblock_reject.yaml并发布在release中.五个文件的下载地址分别如下，其中adblock_reject.yaml和adblock_reject.txt是Matcher Ruleset格式数组构成的payload列表（直接作为外部规则集rule-providers使用），adblock_reject_change.yaml和adblock_reject_change.txt则是纯粹的Matcher Ruleset数组列表（需要复制到rules配置使用），adblock_reject.mrs则是由mihomo核心将adblock_reject.yaml转化得来的规则集。**
+**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式，其中列表的每一项都写成了符合clash的Matcher Ruleset格式数组，一行仅一条规则。该列表可以用作Clash的rule-providers，以阻止广告域名， powershell脚本每20分钟自动执行生成新adblock_reject.txt和adblock_reject.yaml并发布在release中.五个文件的下载地址分别如下，其中adblock_reject.yaml和adblock_reject.txt是Matcher Ruleset格式数组构成的payload列表（直接作为外部规则集rule-providers使用），adblock_reject_change.yaml和adblock_reject_change.txt则是纯粹的Matcher Ruleset数组列表（需要复制到rules配置使用），adblock_reject.mrs则是由mihomo核心将adblock_reject.yaml转化得来的规则集。**
 <br>
 <br>
 **前三个是外部远程规则集（payload列表）**
@@ -39,7 +39,7 @@
 
 
 
-##**二、理论上任何代理拦截域名且符合广告过滤器过滤语法的列表订阅URL都可加入此powershell脚本处理，请自行酌情添加过滤器订阅URL至adblock_rule_generator_yaml.ps1或者adblock_rule_generator_txt.ps1脚本中进行处理，你可将该脚本代码复制到本地文本编辑器制作成.ps1后缀的文件运行在powershell上，注意修改生成的yaml文件路径，最后在clash的yaml配置中实现调用本地生成的yaml文件作为规则集（RULE-SET)，且clash配置字段写成类似于如下两个例子（若要使用mihomo的.mrs格式配置文件则用下面这个）， 【path：生成本地yaml规则集文件路径】**
+**二、理论上任何代理拦截域名且符合广告过滤器过滤语法的列表订阅URL都可加入此powershell脚本处理，请自行酌情添加过滤器订阅URL至adblock_rule_generator_yaml.ps1或者adblock_rule_generator_txt.ps1脚本中进行处理，你可将该脚本代码复制到本地文本编辑器制作成.ps1后缀的文件运行在powershell上，注意修改生成的yaml文件路径，最后在clash的yaml配置中实现调用本地生成的yaml文件作为规则集（RULE-SET)，且clash配置字段写成类似于如下两个例子（若要使用mihomo的.mrs格式配置文件则用下面这个）， 【path：生成本地yaml规则集文件路径】**
 <br>
 *简而言之就是可以让你DIY出希望得到的yaml格式拦截域名列表，缺点是此做法只能本地定制使用，当然你也可以像我一样部署到GitHub上面，仁者见仁*
 
@@ -75,7 +75,7 @@ rules:
         
 
 
-##**三、本仓库引用多个广告过滤器，从这些广告过滤器中提取了被拦截条目的域名，剔除了非拦截项并去重，最后做成payload列表，虽无法做到全面保护但能减少广告带来的困扰，请自行斟酌考虑使用。本仓库采取域名完全匹配策略，即匹配到于拦截列表上的域名完全一致时触发拦截，除此之外的情况给予放行**
+**三、本仓库引用多个广告过滤器，从这些广告过滤器中提取了被拦截条目的域名，剔除了非拦截项并去重，最后做成payload列表，虽无法做到全面保护但能减少广告带来的困扰，请自行斟酌考虑使用。本仓库采取域名完全匹配策略，即匹配到于拦截列表上的域名完全一致时触发拦截，除此之外的情况给予放行**
 
 
 ##**四、关于本仓库使用方式：**
@@ -120,17 +120,17 @@ rules:
 
 
 
-##**五、关于本仓库的使用效果为什么没有普通广告过滤器效果好的疑问解答：**
+**五、关于本仓库的使用效果为什么没有普通广告过滤器效果好的疑问解答：**
 <br>
 *因为普通的广告过滤器包含域名过滤（拦截广告域名）、路径过滤（例如拦截URL路径中包含/ads/的所有请求）、正则表达式过滤（例如拦截所有包含ads.js或ad.js的URL）、类型过滤（例如只拦截图片资源）、隐藏元素等等多因素作用下使得在广告拦截测试网站中可以取得高分。**但碍于clash内核的路由模式（可参考相关内核文档）**，本仓库仅提取了被拦截域名进行域名完全匹配过滤，换言之，本仓库就是一个“删减版”的广告过滤器（仅保留了域名完全匹配过滤功能，规则数在25万条左右），所以最终效果没有广告过滤器效果好*
 
 
 
 
-##**六、本仓库引用的广告过滤规则来源请查看Referencing rule sources.txt，后续考虑添加更多上游规则列表进行处理整合（目前32个来源）。至于是否误杀域名完全取决于这些处于上游的广告过滤器的域名拦截行为，若不满意的话可按照第二条在本地使用adblock_rule_generator_yaml.ps1或者adblock_rule_generator_txt.ps1两个脚本进行DIY本地定制化，亦或可以像本仓库一样DIY定制后部署到github上面，或者fork本仓库自行DIY**
+**六、本仓库引用的广告过滤规则来源请查看Referencing rule sources.txt，后续考虑添加更多上游规则列表进行处理整合（目前32个来源）。至于是否误杀域名完全取决于这些处于上游的广告过滤器的域名拦截行为，若不满意的话可按照第二条在本地使用adblock_rule_generator_yaml.ps1或者adblock_rule_generator_txt.ps1两个脚本进行DIY本地定制化，亦或可以像本仓库一样DIY定制后部署到github上面，或者fork本仓库自行DIY**
 
 
-##**七、特别鸣谢**
+**七、特别鸣谢**
 
 1、anti-AD (https://github.com/privacy-protection-tools/anti-AD)
 
