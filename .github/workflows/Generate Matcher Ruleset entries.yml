@@ -1,45 +1,32 @@
-name: Generate Matcher Ruleset entries  # 工作流名称
-
+name: Generate Matcher Ruleset entries
 on:
   push:
-    branches: [ main ]  # 在推送到 main 分支时触发
+    branches: [ main ]
   pull_request:
-    branches: [ main ]  # 在 pull request 针对 main 分支时触发
-  workflow_dispatch:  # 允许手动触发工作流
+    branches: [ main ]
+  workflow_dispatch:
   schedule:
-    - cron: '*/20 * * * *'  # 每20分钟触发一次
-
+    - cron: '*/20 * * * *'
 jobs:
   process-files:
-    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 版本作为运行环境
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2  # 使用官方的 checkout 操作来检出代码
-
-    - name: Process adblock_reject.txt  # 处理 adblock_reject.txt 文件
+    - uses: actions/checkout@v2
+    - name: Process adblock_reject.txt
       run: |
-        # 保留注释行和以 '- DOMAIN' 开头的行
-        # 在每行末尾添加 ",REJECT"（注释行和空行除外），保存为新文件
-        grep -E '^#|^- DOMAIN' adblock_reject.txt | sed '/^- DOMAIN/{s/$/,REJECT/}' > adblock_reject_change.txt
-
-    - name: Process adblock_reject.yaml  # 处理 adblock_reject.yaml 文件
+        awk '/^#/ {print; next} /^- DOMAIN,/ {print $0 ",REJECT"; next} {next}' adblock_reject.txt > adblock_reject_change.txt
+    - name: Process adblock_reject.yaml
       run: |
-        # 保留注释行和以 '- DOMAIN' 开头的行
-        # 在每行末尾添加 ",REJECT"（注释行和空行除外），保存为新文件
-        grep -E '^#|^- DOMAIN' adblock_reject.yaml | sed '/^- DOMAIN/{s/$/,REJECT/}' > adblock_reject_change.yaml
+        awk '/^#/ {print; next} /^- DOMAIN,/ {print $0 ",REJECT"; next} {next}' adblock_reject.yaml > adblock_reject_change.yaml
   
-    - name: Commit changes  # 提交更改
+    - name: Commit changes
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用存储在仓库中的 TOKEN 密钥
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
       run: |
-        git config --global user.email "action@github.com"  # 配置 Git 用户邮箱
-        git config --global user.name "GitHub Action"  # 配置 Git 用户名
-        # 设置远程仓库 URL，使用 TOKEN 进行身份验证
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
         git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-        # 添加处理后的文件到 Git
         git add adblock_reject_change.txt adblock_reject_change.yaml
-        # 提交更改，如果没有更改则输出信息
-        git commit -m "Process adblock files: filter and add REJECT" || echo "No changes to commit"
-        # 拉取最新的远程更改并进行重建
+        git commit -m "Process adblock files: preserve comments and - DOMAIN, lines, add REJECT" || echo "No changes to commit"
         git pull origin main --rebase
-        # 推送更改到 main 分支
         git push origin main
