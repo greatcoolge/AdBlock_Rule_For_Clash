@@ -1,24 +1,40 @@
 # 关于AdBlock_Rule_For_Clash
 ##**一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式，其中列表的每一项都写成了符合clash的Matcher Ruleset格式数组，一行仅一条规则。该列表可以用作Clash的rule-providers，以阻止广告域名， powershell脚本每20分钟自动执行生成新adblock_reject.txt和adblock_reject.yaml并发布在release中.五个文件的下载地址分别如下，其中adblock_reject.yaml和adblock_reject.txt是Matcher Ruleset格式数组构成的payload列表（直接作为外部规则集rule-providers使用），adblock_reject_change.yaml和adblock_reject_change.txt则是纯粹的Matcher Ruleset数组列表（需要复制到rules配置使用），adblock_reject.mrs则是由mihomo核心将adblock_reject.yaml转化得来的规则集。**
-
-*1、YAML格式外部远程拦截域名规则集 adblock_reject.yaml* 
+<br>
+<br>
+**前三个是外部远程规则集**
+*1、YAML格式的外部远程拦截域名规则集 adblock_reject.yaml* 
 <br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.yaml*
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml*
 
 
-
-*2、MRS格式外部远程拦截域名规则集 adblock_reject.mrs* 
+*2、MRS格式的外部远程拦截域名规则集 adblock_reject.mrs* 
 <br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.mrs*
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.mrs*
 
 
+*3、文本格式的外部远程拦截域名规则集 adblock_reject.txt* 
+<br>
+*https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.txt*
+*https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.txt*
 
-*3、YMAL格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.yaml* 
+
+
+**后两个是Matcher Ruleset数组列表，可复制贴到yaml配置文件下的rules字段，注意对齐**
+*4、YMAL格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.yaml* 
 <br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.yaml*
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.yaml*
+
+
+
+*5、txt格式外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.txt* 
+<br>
+*https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.txt*
+*https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.txt*
+
 
 
 ##**二、理论上任何代理拦截域名且符合广告过滤器过滤语法的列表订阅URL都可加入此powershell脚本处理，请自行酌情添加过滤器订阅URL至adblock_rule_generator_yaml.ps1或者adblock_rule_generator_txt.ps1脚本中进行处理，你可将该脚本代码复制到本地文本编辑器制作成.ps1后缀的文件运行在powershell上，注意修改生成的yaml文件路径，最后在clash的yaml配置中实现调用本地生成的yaml文件作为规则集（RULE-SET)，且clash配置字段写成类似于如下两个例子（若要使用mihomo的.mrs格式配置文件则用下面这个）， 【path：生成本地yaml规则集文件路径】**
