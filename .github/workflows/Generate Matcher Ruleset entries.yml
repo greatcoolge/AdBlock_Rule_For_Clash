@@ -17,15 +17,15 @@ jobs:
 
     - name: Process adblock_reject.txt  # 处理 adblock_reject.txt 文件
       run: |
-        # 仅保留注释行和以 '- DOMAIN,example.com' 开头的行，其他行删除
+        # 保留注释行和以 '- DOMAIN' 开头的行
         # 在每行末尾添加 ",REJECT"（注释行和空行除外），保存为新文件
-        grep -E '^#|^- DOMAIN,example.com' adblock_reject.txt | sed '/^- DOMAIN/{s/$/,REJECT/}' > adblock_reject_change.txt
+        grep -E '^#|^- DOMAIN' adblock_reject.txt | sed '/^- DOMAIN/{s/$/,REJECT/}' > adblock_reject_change.txt
 
     - name: Process adblock_reject.yaml  # 处理 adblock_reject.yaml 文件
       run: |
-        # 仅保留注释行和以 '- DOMAIN,example.com' 开头的行，其他行删除
+        # 保留注释行和以 '- DOMAIN' 开头的行
         # 在每行末尾添加 ",REJECT"（注释行和空行除外），保存为新文件
-        grep -E '^#|^- DOMAIN,example.com' adblock_reject.yaml | sed '/^- DOMAIN/{s/$/,REJECT/}' > adblock_reject_change.yaml
+        grep -E '^#|^- DOMAIN' adblock_reject.yaml | sed '/^- DOMAIN/{s/$/,REJECT/}' > adblock_reject_change.yaml
   
     - name: Commit changes  # 提交更改
       env:
