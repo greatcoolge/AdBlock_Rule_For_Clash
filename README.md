@@ -78,7 +78,7 @@ rules:
 **三、本仓库引用多个广告过滤器，从这些广告过滤器中提取了被拦截条目的域名，剔除了非拦截项并去重，最后做成payload列表，虽无法做到全面保护但能减少广告带来的困扰，请自行斟酌考虑使用。本仓库采取域名完全匹配策略，即匹配到于拦截列表上的域名完全一致时触发拦截，除此之外的情况给予放行**
 
 
-##**四、关于本仓库使用方式：**
+**四、关于本仓库使用方式：**
 
   *使用方式一：下载releases中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yaml配置中的rules字段下作为拦截规则（需要手动下载更新），adblock_reject_change.yaml则可以直接保存作为本地rule-providers，压缩包的两个powershell脚本分别用来生成adblock_reject.txt和adblock_reject.yaml,使用脚本前应当自行先将脚本内的文件生成路径填入其中*
 
