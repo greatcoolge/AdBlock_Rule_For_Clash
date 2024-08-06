@@ -23,7 +23,7 @@
 
 
 
-**后两个是Matcher Ruleset数组列表，可打开然后复制粘贴到你的yaml配置文件下的rules字段，注意对齐**
+**后两个是Matcher Ruleset数组列表，两个文件处理拓展名不一样，内容是一样的，可打开然后复制粘贴到你的yaml配置文件下的rules字段，注意对齐**
 <br>
 *4、YMAL格式的外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.yaml* 
 <br>
