@@ -172,3 +172,7 @@ rules:
 11、ADguardTeam (https://github.com/AdguardTeam/AdGuardFilters)
 
 12、HyperADRules (https://github.com/Lynricsy/HyperADRules)
+
+## License
+
+Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
