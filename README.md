@@ -1,18 +1,18 @@
-
 <!-- 居中的标题 -->
-<h1 align="center">AdBlock_Rule_For_Clash</h1>
+<h1 align="center" style="margin-bottom: 20px;">AdBlock_Rule_For_Clash</h1>
 
 <!-- 居中的副标题 -->
-<h2 align="center">一个适用于Clash（premium核心与mihomo核心）的广告域名拦截rule-providers规则集</h2>
+<h2 align="center" style="margin-bottom: 40px;">一个适用于Clash（premium核心与mihomo核心）的广告域名拦截rule-providers规则集</h2>
 
 <!-- 徽章（根据需要调整） -->
-<p align="center">
-    <img src="https://img.shields.io/badge/last%20commit-today-brightgreen" alt="last commit">
-    <img src="https://img.shields.io/github/forks/REIJI007/AdBlock_Rule_For_Clash" alt="forks">
-    <img src="https://img.shields.io/github/stars/REIJI007/AdBlock_Rule_For_Clash" alt="stars">
-    <img src="https://img.shields.io/github/issues/REIJI007/AdBlock_Rule_For_Clash" alt="issues">
-    <img src="https://img.shields.io/github/license/REIJI007/AdBlock_Rule_For_Clash" alt="license">
+<p align="center" style="margin-bottom: 40px;">
+    <img src="https://img.shields.io/badge/last%20commit-today-brightgreen" alt="last commit" style="margin-right: 10px;">
+    <img src="https://img.shields.io/github/forks/REIJI007/AdBlock_Rule_For_Clash" alt="forks" style="margin-right: 10px;">
+    <img src="https://img.shields.io/github/stars/REIJI007/AdBlock_Rule_For_Clash" alt="stars" style="margin-right: 10px;">
+    <img src="https://img.shields.io/github/issues/REIJI007/AdBlock_Rule_For_Clash" alt="issues" style="margin-right: 10px;">
+    <img src="https://img.shields.io/github/license/REIJI007/AdBlock_Rule_For_Clash" alt="license" style="margin-right: 10px;">
 </p>
+
 
 
 **一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式，其中列表的每一项都写成了符合clash的Matcher Ruleset格式数组，一行仅一条规则。该列表可以用作Clash的rule-providers，以阻止广告域名， powershell脚本每20分钟自动执行并将生成的文件发布在release中.五个文件的下载地址分别如下，其中adblock_reject.yaml和adblock_reject.txt是Matcher Ruleset格式数组构成的payload列表（直接作为外部规则集rule-providers使用），adblock_reject_change.yaml和adblock_reject_change.txt则是纯粹的Matcher Ruleset数组列表（需要复制到rules配置使用），adblock_reject.mrs则是由mihomo核心将adblock_reject.yaml转化得来的规则集。**
