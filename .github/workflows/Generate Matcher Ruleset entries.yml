@@ -17,13 +17,15 @@ jobs:
 
     - name: Process adblock_reject.txt  # 处理 adblock_reject.txt 文件
       run: |
-        # 保留注释行，去掉"payload:"，在每行末尾添加",REJECT"（注释行除外），保存为新文件
-        awk '/^#/ {print; next} {gsub(/^payload:/, ""); print $0 ",REJECT"}' adblock_reject.txt > adblock_reject_change.txt
+        # 仅保留注释行和以 '- DOMAIN,example.com' 开头的行，其他行删除
+        # 在每行末尾添加 ",REJECT"（注释行和空行除外），保存为新文件
+        grep -E '^#|^- DOMAIN,example.com' adblock_reject.txt | sed '/^- DOMAIN/{s/$/,REJECT/}' > adblock_reject_change.txt
 
     - name: Process adblock_reject.yaml  # 处理 adblock_reject.yaml 文件
       run: |
-        # 保留注释行，去掉"payload:"，在每行末尾添加",REJECT"（注释行除外），保存为新文件
-        awk '/^#/ {print; next} {gsub(/^payload:/, ""); print $0 ",REJECT"}' adblock_reject.yaml > adblock_reject_change.yaml
+        # 仅保留注释行和以 '- DOMAIN,example.com' 开头的行，其他行删除
+        # 在每行末尾添加 ",REJECT"（注释行和空行除外），保存为新文件
+        grep -E '^#|^- DOMAIN,example.com' adblock_reject.yaml | sed '/^- DOMAIN/{s/$/,REJECT/}' > adblock_reject_change.yaml
   
     - name: Commit changes  # 提交更改
       env:
@@ -36,7 +38,7 @@ jobs:
         # 添加处理后的文件到 Git
         git add adblock_reject_change.txt adblock_reject_change.yaml
         # 提交更改，如果没有更改则输出信息
-        git commit -m "Process adblock files: keep comments, remove payload, add REJECT" || echo "No changes to commit"
+        git commit -m "Process adblock files: filter and add REJECT" || echo "No changes to commit"
         # 拉取最新的远程更改并进行重建
         git pull origin main --rebase
         # 推送更改到 main 分支
