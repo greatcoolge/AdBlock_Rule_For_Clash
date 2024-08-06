@@ -88,14 +88,18 @@ foreach ($rule in $uniqueRules) {
     }
 }
 
-# 第三步：将有效规则格式化为payload列表的格式
+# 第三步：将有效规则格式化为TXT列表的格式
 # 对规则进行排序并添加DOMAIN,前缀
-$formattedRules = $validRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
+$formattedRules = $validRules | Sort-Object | ForEach-Object { "DOMAIN,$_" }
 
 # 第四步：生成TXT文件内容
-# 创建TXT格式的字符串，包含所有格式化后的规则
+# 统计生成的规则条目数量
+$ruleCount = $validRules.Count
+# 创建TXT格式的字符串，包含所有格式化后的规则和注释
 $txtContent = @"
-payload:
+# Generated AdBlock rules
+# Total entries: $ruleCount
+
 $($formattedRules -join "`n")
 "@
 
@@ -105,9 +109,7 @@ $outputPath = "$PSScriptRoot/adblock_reject.txt"
 # 将TXT内容写入文件，使用UTF8编码
 $txtContent | Out-File -FilePath $outputPath -Encoding utf8
 
-# 第六步：统计生成的规则条目数量
-$ruleCount = $validRules.Count
-# 输出生成的有效规则总数
+# 第六步：输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
 Add-Content -Path $logFilePath -Value "生成的有效规则总数: $ruleCount"
 
