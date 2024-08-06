@@ -12,10 +12,6 @@
     <img src="https://img.shields.io/github/issues/REIJI007/AdBlock_Rule_For_Clash" alt="issues" style="margin-right: 10px;">
     <img src="https://img.shields.io/github/license/REIJI007/AdBlock_Rule_For_Clash" alt="license" style="margin-right: 10px;">
 </p>
-[![GPL 3.0 license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![CC BY-SA 4.0 license](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
-
-
 
 **一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式，其中列表的每一项都写成了符合clash的Matcher Ruleset格式数组，一行仅一条规则。该列表可以用作Clash的rule-providers，以阻止广告域名， powershell脚本每20分钟自动执行并将生成的文件发布在release中.五个文件的下载地址分别如下，其中adblock_reject.yaml和adblock_reject.txt是Matcher Ruleset格式数组构成的payload列表（直接作为外部规则集rule-providers使用），adblock_reject_change.yaml和adblock_reject_change.txt则是纯粹的Matcher Ruleset数组列表（需要复制到rules配置使用），adblock_reject.mrs则是由mihomo核心将adblock_reject.yaml转化得来的规则集。**
 <br>
