@@ -17,9 +17,27 @@ jobs:
 
     - name: Process adblock_reject.txt  # 处理 adblock_reject.txt 文件
       run: |
-        # 找到并处理 payload 列表部分，去掉表头并在每行末尾添加 ",REJECT"
-        awk '/^payload:/{flag=1; next} /:/{flag=0} flag' adblock_reject.txt | sed 's/$/,REJECT/' | sed 's/^[[:space:]]*//' > adblock_reject_change.txt
+        # 处理 payload 列表部分，去掉表头并在每行末尾添加 ",REJECT"
+        awk '/^payload:/{flag=1; next} /:/{flag=0} flag {print $0 ",REJECT"} !flag {print $0}' adblock_reject.txt > adblock_reject_change.txt
 
     - name: Process adblock_reject.yaml  # 处理 adblock_reject.yaml 文件
       run: |
-        # 找到并处理 payload 列表部分，去掉表头并在每行末尾添加
+        # 处理 payload 列表部分，去掉表头并在每行末尾添加 ",REJECT"
+        awk '/^payload:/{flag=1; next} /:/{flag=0} flag {print $0 ",REJECT"} !flag {print $0}' adblock_reject.yaml > adblock_reject_change.yaml
+
+    - name: Commit changes  # 提交更改
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用存储在仓库中的 TOKEN 密钥
+      run: |
+        git config --global user.email "action@github.com"  # 配置 Git 用户邮箱
+        git config --global user.name "GitHub Action"  # 配置 Git 用户名
+        # 设置远程仓库 URL，使用 TOKEN 进行身份验证
+        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+        # 添加处理后的文件到 Git
+        git add adblock_reject_change.txt adblock_reject_change.yaml
+        # 提交更改，如果没有更改则输出信息
+        git commit -m "Process adblock files: remove payload header, add REJECT to payload entries" || echo "No changes to commit"
+        # 拉取最新的远程更改并进行重建
+        git pull origin main --rebase
+        # 推送更改到 main 分支
+        git push origin main
