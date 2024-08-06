@@ -97,7 +97,7 @@ $($formattedRules -join "`n")
 # 第五步：保存生成的TXT文件
 # 定义输出文件路径
 $outputPath = "$PSScriptRoot/adblock_reject.txt"
-# 将YAML内容写入文件，使用UTF8编码
+# 将TXT内容写入文件，使用UTF8编码
 $txtContent | Out-File -FilePath $outputPath -Encoding utf8
 
 # 第六步：统计生成的规则条目数量
