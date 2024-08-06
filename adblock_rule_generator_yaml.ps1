@@ -36,9 +36,10 @@ $urlList = @(
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt",
     "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/rules.txt",
     "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/dns.txt"
-    
-    
 )
+
+# 日志文件路径
+$logFilePath = "$PSScriptRoot/adblock_log.txt"
 
 # 创建一个HashSet来存储唯一的规则
 # 使用HashSet可以自动去重，提高效率
@@ -54,6 +55,7 @@ $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) 
 
 foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
+    Add-Content -Path $logFilePath -Value "正在处理: $url"
     try {
         # 下载URL内容
         $content = $webClient.DownloadString($url)
@@ -61,8 +63,8 @@ foreach ($url in $urlList) {
         $lines = $content -split "`n"
 
         foreach ($line in $lines) {
-            # 使用正则表达式匹配拦截域名规则
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+)\^') {
+            # 支持多种广告规则格式的匹配
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+)\^' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1) ([a-zA-Z0-9.-]+)' -or $line -match '^address=/([a-zA-Z0-9.-]+)/') {
                 $domain = $Matches[1]
                 # 将匹配的域名添加到HashSet中
                 $uniqueRules.Add($domain) | Out-Null
@@ -72,6 +74,7 @@ foreach ($url in $urlList) {
     catch {
         # 如果处理某个URL时出错，输出错误信息但继续处理其他URL
         Write-Host "处理 $url 时出错: $_"
+        Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
 
@@ -106,6 +109,7 @@ $yamlContent | Out-File -FilePath $outputPath -Encoding utf8
 $ruleCount = $validRules.Count
 # 输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
+Add-Content -Path $logFilePath -Value "生成的有效规则总数: $ruleCount"
 
 # 确保脚本执行完后不自动退出
 Pause
