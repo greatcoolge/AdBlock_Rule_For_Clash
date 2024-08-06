@@ -1,10 +1,5 @@
-[![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa] [![GPL 3.0][gpl-3.0-shield]][gpl-3.0]
-
-[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
-[cc-by-sa]: [https://creativecommons.org/licenses/by-sa/4.0/](https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-CC%20BY-NC-SA%204.0)
-
-[gpl-3.0-shield]: https://img.shields.io/badge/License-GPL%20v3-blue.svg
-[gpl-3.0]: [https://www.gnu.org/licenses/gpl-3.0](https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0)
+[![GPL 3.0 license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![CC BY-SA 4.0 license](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 
 
 
