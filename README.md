@@ -174,9 +174,11 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-
-
-
+```conf
+#适用于Surge的远程拦截域名规则集
+[Rule]
+RULE-SET,https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_surge.txt,policy=REJECT
+```
 
 
 
