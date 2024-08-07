@@ -105,13 +105,13 @@ jobs:
           asset_name: adblock_reject_surge.txt
           asset_content_type: text/plain
 
-      # 上传timestamp.txt
-      - name: Upload timestamp.txt
+      # 上传adblock_reject.mrs
+      - name: Upload adblock_reject.mrs
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./timestamp.txt
-          asset_name: timestamp.txt
+          asset_path: ./adblock_reject.mrs
+          asset_name: adblock_reject.mrs
           asset_content_type: text/plain
