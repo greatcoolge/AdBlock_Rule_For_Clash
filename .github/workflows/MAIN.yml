@@ -1,75 +1,92 @@
-# 工作流名称
-name: Combined AdBlock Rule Generation
+name: Sequential Workflow Executor
 
-# 触发条件：可以手动触发，或者每20分钟自动运行一次
 on:
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
   schedule:
-    - cron: '*/20 * * * *'  # 每20分钟运行一次
+    - cron: '*/20 * * * *'
 
-# 定义作业
 jobs:
-  generate_rules:
-    runs-on: ubuntu-latest  # 在最新版本的Ubuntu上运行
+  run_workflows_sequentially:
+    runs-on: ubuntu-latest
     steps:
-      # 步骤1：检出仓库代码
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 步骤2：设置Python环境
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          python-version: '3.x'  # 使用最新的Python 3版本
+          node-version: '14'
 
-      # 步骤3：安装必要的Python依赖
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests pyyaml  # 安装脚本所需的包
+        run: npm install @actions/github @actions/core
 
-      # 步骤4：生成AdBlock规则（YAML和TXT格式）
-      - name: Generate AdBlock Rules (YAML and TXT)
-        run: |
-          python scripts/adblock_rule_generator.py --format yaml
-          python scripts/adblock_rule_generator.py --format txt
-
-      # 步骤5：将YAML格式的规则集转换为MRS格式
-      - name: Convert Ruleset YAML to MRS
-        run: python scripts/convert_yaml_to_mrs.py
-
-      # 步骤6：生成CLASH和SURGE格式的Matcher Ruleset条目
-      - name: Generate Matcher Ruleset entries (CLASH and SURGE)
-        run: |
-          python scripts/generate_matcher_entries.py --format clash
-          python scripts/generate_matcher_entries.py --format surge
-
-      # 步骤7：准备发布文件
-      - name: Prepare Release Files
-        run: |
-          mkdir -p release  # 创建release目录
-          # 复制所有生成的文件到release目录
-          cp output/*.yaml release/
-          cp output/*.txt release/
-          cp output/*.mrs release/
-          cp output/*_clash.yaml release/
-          cp output/*_surge.list release/
-
-      # 步骤8：创建GitHub Release
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: release/*  # 上传release目录中的所有文件
-          name: AdBlock Rules Update ${{ github.run_number }}  # 使用运行次数作为版本号
-          tag_name: v${{ github.run_number }}
+      - name: Run workflows sequentially
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub提供的token进行认证
-
-      # 步骤9：更新仓库
-      - name: Update Repository
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .  # 添加所有更改
-          git commit -m "Update AdBlock rules [skip ci]"  # 提交更改，并跳过CI
-          git push  # 推送更改到仓库
+          const github = require('@actions/github');
+          const core = require('@actions/core');
+
+          const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+          const { owner, repo } = github.context.repo;
+
+          const workflows = [
+            "Run_AdBlock_Rule_Generator_YAML.yml",
+            "Run_AdBlock_Rule_Generator_TXT.yml",
+            "Convert_Ruleset_YAML_to_MRS.yml",
+            "Generate_Matcher_Ruleset_entries_CLASH.yml",
+            "Generate_Matcher_Ruleset_entries_SURGE.yml",
+            "Release_Adblock_file.yml"
+          ];
+
+          async function triggerWorkflow(workflow) {
+            console.log(`Triggering workflow: ${workflow}`);
+            await octokit.rest.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              workflow_id: workflow,
+              ref: 'main'
+            });
+          }
+
+          async function getLatestWorkflowRun(workflow) {
+            const { data } = await octokit.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: workflow,
+              per_page: 1
+            });
+            return data.workflow_runs[0];
+          }
+
+          async function waitForWorkflowCompletion(workflow) {
+            while (true) {
+              const run = await getLatestWorkflowRun(workflow);
+              if (run.status === 'completed') {
+                if (run.conclusion !== 'success') {
+                  throw new Error(`Workflow ${workflow} failed with conclusion: ${run.conclusion}`);
+                }
+                return;
+              }
+              await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+          }
+
+          async function runWorkflows() {
+            for (const workflow of workflows) {
+              await triggerWorkflow(workflow);
+              await waitForWorkflowCompletion(workflow);
+              console.log(`Workflow ${workflow} completed successfully`);
+            }
+          }
+
+          runWorkflows().catch(error => {
+            core.setFailed(`Workflow execution failed: ${error.message}`);
+          });
+        shell: node {0}
+
+      - name: Check for failures
+        if: failure()
+        run: |
+          echo "One or more workflows failed. Please check the logs for details."
+          exit 1
