@@ -16,9 +16,8 @@ jobs:
       run: |
         # 处理 adblock_reject_change.txt 文件
         # 保留注释行和空行
-        # 去掉每行最前面的 '- ' 并将条目左对齐
-        # 直接覆盖 adblock_reject_surge.txt 文件
-        awk '/^#/ {print} /^[^#]/ {gsub(/^- /, ""); print}' adblock_reject_change.txt > adblock_reject_surge.txt
+        # 去掉每行最前面的 '- ' 和空格，并将条目左对齐
+        awk '/^#/ {print} /^[^#]/ {sub(/^[ \t]*-[ \t]*/, ""); print}' adblock_reject_change.txt > adblock_reject_surge.txt
     - name: Commit and push changes
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
