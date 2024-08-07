@@ -82,7 +82,6 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-<br>
 ```conf
 #MRS格式外部本地拦截域名规则集,适用于mihomo核心
 rule-providers:
@@ -95,7 +94,6 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-<br>
 ```conf
 #TEXT格式外部本地拦截域名规则集,适用于mihomo核心
 rule-providers:
@@ -108,12 +106,10 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
-<br>
 ```conf
 #适用于Surge的本地拦截域名规则集
 [Rule]
 RULE-SET,C:\Users\YourUsername\Documents\file.txt,policy=REJECT
-
 ```
 
 
