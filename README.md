@@ -123,12 +123,12 @@ RULE-SET,C:\Users\YourUsername\Documents\file.txt,REJECT  #你的外部本地拦
 
 **四、关于本仓库使用方式：**
 
-  *使用方式一：下载releases中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yaml配置中的rules字段下作为拦截规则（需要手动下载更新），adblock_reject_change.yaml则可以直接保存作为本地rule-providers，压缩包的两个powershell脚本分别用来生成adblock_reject.txt和adblock_reject.yaml,使用脚本前应当自行先将脚本内的文件生成路径填入其中*
+  *使用方式一：下载releases中的adblock_reject_change.txt文件，里面的内容可直接粘贴到clash的yaml配置中的rules字段下作为拦截规则（需要手动下载更新），adblock_reject_change.yaml则可以直接保存作为本地rule-providers，压缩包的两个powershell脚本分别用来生成adblock_reject.txt和adblock_reject.yaml,使用脚本前应当自行先将脚本内的文件生成路径填入其中，surge配置方式同里可得*
 
 
 
   *使用方式二：将下面对应格式的配置文件中rule-providers字段和rules字段内容添加到你的配置文件充当远程规则集，需要特别注意配置文件的缩进和对齐（同步本仓库的云端部署的远程规则集配置)*
-
+surge配置则修改[rule]字段
 
 
 ```conf
