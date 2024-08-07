@@ -128,7 +128,7 @@ RULE-SET,C:\Users\YourUsername\Documents\file.txt,REJECT  #你的外部本地拦
 
 
   *使用方式二：将下面对应格式的配置文件中rule-providers字段和rules字段内容添加到你的配置文件充当远程规则集，需要特别注意配置文件的缩进和对齐（同步本仓库的云端部署的远程规则集配置)*
-surge配置则修改[rule]字段
+，surge配置则修改[rule]字段即可
 
 
 ```conf
