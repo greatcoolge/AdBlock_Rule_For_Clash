@@ -39,7 +39,7 @@
 
 
 
-**后两个是Matcher Ruleset数组列表，两个文件除了拓展名不一样，内容是一样的，你可打开然后复制粘贴到你的yaml配置文件下的rules字段，注意对齐**
+**这两个是Matcher Ruleset数组列表，两个文件除了拓展名不一样，内容是一样的，你可打开然后复制粘贴到你的yaml配置文件下的rules字段，注意对齐**
 <br>
 *4、YMAL格式的外部拦截域名Matcher Ruleset条目列表 adblock_reject_change.yaml* 
 <br>
@@ -52,6 +52,13 @@
 <br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject_change.txt*
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_change.txt*
+
+
+
+**这个是适用于Surge的Matcher Ruleset数组列表** 
+<br>
+*6、使用于Surged1外部拦截域名Matcher Ruleset条目列表 adblock_reject_surge.txt* 
+<br>
 
 
 
