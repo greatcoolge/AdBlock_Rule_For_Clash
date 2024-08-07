@@ -1,32 +1,25 @@
-# 工作流名称
-name: Run Workflows in Parallel
+name: Run Workflows in Parallel (Ultra Fast)
 
-# 触发条件：手动触发或每20分钟自动运行一次
 on:
   workflow_dispatch:
   schedule:
     - cron: '*/20 * * * *'
 
-# 定义作业
 jobs:
   run_workflows:
     runs-on: ubuntu-latest
 
     steps:
-      # 步骤1：检出代码仓库
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 步骤2：安装jq工具，用于解析JSON
       - name: Install jq
         run: sudo apt-get install jq -y
 
-      # 步骤3：触发并等待工作流完成
       - name: Trigger and wait for workflows
         env:
-          TOKEN: ${{ secrets.TOKEN }}  # 使用GitHub token进行身份验证
+          TOKEN: ${{ secrets.TOKEN }}
         run: |
-          # 定义需要运行的工作流列表
           workflows=(
             "Run_AdBlock_Rule_Generator_YAML.yml"
             "Run_AdBlock_Rule_Generator_TXT.yml"
@@ -36,81 +29,69 @@ jobs:
             "Release_Adblock_file.yml"
           )
           
-          # 函数：触发指定的工作流
-          trigger_workflow() {
+          trigger_and_get_run_id() {
             local workflow_id=$1
             local ref="main"
-            curl -X POST -H "Authorization: token $TOKEN" \
+            response=$(curl -s -X POST -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
-              -d "{\"ref\":\"$ref\"}"
-            echo "Triggered workflow $workflow_id"
-          }
-          
-          # 函数：获取指定工作流的最新运行ID
-          get_run_id() {
-            local workflow_id=$1
-            local ref="main"
-            curl -s -H "Authorization: token $TOKEN" \
+              -d "{\"ref\":\"$ref\"}")
+            
+            run_id=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id'
+              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id')
+            echo "$run_id"
           }
           
-          # 函数：检查指定运行ID的工作流状态
-          check_workflow_status() {
-            local run_id=$1
-            curl -s -H "Authorization: token $TOKEN" \
+          check_workflows() {
+            local run_ids=("$@")
+            local statuses=($(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.status'
+              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?ids=${run_ids[*]}" \
+              | jq -r '.workflow_runs[] | "\(.id):\(.status):\(.conclusion)"'))
+            
+            local all_completed=true
+            local all_success=true
+            for status in "${statuses[@]}"; do
+              IFS=':' read -r id status conclusion <<< "$status"
+              if [ "$status" != "completed" ]; then
+                all_completed=false
+              elif [ "$conclusion" != "success" ]; then
+                all_success=false
+                echo "Workflow with run ID $id failed with conclusion $conclusion"
+              fi
+            done
+            
+            if $all_completed && $all_success; then
+              return 0
+            elif $all_completed && ! $all_success; then
+              return 1
+            else
+              return 2
+            fi
           }
           
-          # 函数：检查指定运行ID的工作流结论
-          check_workflow_conclusion() {
-            local run_id=$1
-            curl -s -H "Authorization: token $TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.conclusion'
-          }
-          
-          # 并行触发所有工作流
+          # 触发所有工作流并获取运行ID
+          run_ids=()
           for workflow in "${workflows[@]}"; do
-            trigger_workflow "$workflow" &
-          done
-          wait  # 等待所有触发操作完成
-          
-          # 获取所有触发的工作流的运行ID
-          declare -A run_ids
-          for workflow in "${workflows[@]}"; do
-            run_ids[$workflow]=$(get_run_id "$workflow")
-            echo "Run ID for $workflow: ${run_ids[$workflow]}"
+            run_id=$(trigger_and_get_run_id "$workflow")
+            run_ids+=("$run_id")
+            echo "Triggered workflow $workflow with run ID: $run_id"
           done
           
           # 等待所有工作流完成
           while true; do
-            all_completed=true
-            for workflow in "${workflows[@]}"; do
-              status=$(check_workflow_status "${run_ids[$workflow]}")
-              if [ "$status" != "completed" ]; then
-                all_completed=false
-                break
-              fi
-            done
+            check_workflows "${run_ids[@]}"
+            result=$?
             
-            if $all_completed; then
+            if [ $result -eq 0 ]; then
+              echo "All workflows completed successfully"
               break
-            fi
-            
-            echo "Waiting for workflows to complete..."
-            sleep 10  # 每10秒检查一次状态，减少API调用频率
-          done
-          
-          # 检查所有工作流的结论
-          for workflow in "${workflows[@]}"; do
-            conclusion=$(check_workflow_conclusion "${run_ids[$workflow]}")
-            if [ "$conclusion" != "success" ]; then
-              echo "Workflow $workflow failed with conclusion $conclusion"
-              exit 1  # 如果任何工作流失败，整个作业失败
+            elif [ $result -eq 1 ]; then
+              echo "Some workflows failed"
+              exit 1
+            else
+              echo "Waiting for workflows to complete..."
+              sleep 5
             fi
           done
-          
-          echo "All workflows completed successfully"
