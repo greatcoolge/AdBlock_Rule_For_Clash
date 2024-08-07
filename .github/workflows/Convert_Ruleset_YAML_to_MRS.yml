@@ -106,17 +106,29 @@ jobs:
         env:
           TOKEN: ${{ secrets.TOKEN }}  # 从 GitHub Secrets 中获取 TOKEN
         run: |
-          git config user.email "action@github.com"  # 配置 Git 用户邮箱
-          git config user.name "GitHub Action"  # 配置 Git 用户名
+          $maxAttempts = 5  # 定义最大重试次数
           
-          git pull https://${{ secrets.TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --rebase || exit 1  # 拉取最新更改并处理可能的合并冲突
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            try {
+              git config user.email "action@github.com"  # 配置 Git 用户邮箱
+              git config user.name "GitHub Action"  # 配置 Git 用户名
+              
+              git pull https://${{ secrets.TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --rebase  # 尝试拉取最新更改
+              break
+            } catch {
+              Write-Host "git pull attempt $attempt failed. Error: $_"
+              if ($attempt -eq $maxAttempts) {
+                Write-Host "Failed to pull changes after $maxAttempts attempts. Exiting."
+                exit 1
+              }
+              Start-Sleep -Seconds 30  # 等待30秒后重试
+            }
+          }
           
           git add adblock_reject.mrs mihomo.exe .mihomo_downloaded  # 添加转换后的文件和 mihomo.exe 以及标记文件到 Git
           
           if (git status --porcelain) {
             git commit -m "Update adblock_reject.mrs and add mihomo.exe"  # 如果有更改，进行提交
-            
-            $maxAttempts = 5  # 定义最大重试次数
             
             for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
               try {
