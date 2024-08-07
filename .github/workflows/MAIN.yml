@@ -1,15 +1,17 @@
 name: Run Workflows Sequentially
 
 on:
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
   schedule:
-    - cron: '*/20 * * * *'  # 每20分钟运行一次
+    - cron: '*/20 * * * *'
 
 jobs:
   run_workflows:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Run AdBlock Rule Generator YAML
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
       - name: Run AdBlock Rule Generator YAML
         uses: ./.github/actions/trigger-and-wait-action.yml
         with:
@@ -19,7 +21,6 @@ jobs:
           workflow_file_name: Run_AdBlock_Rule_Generator_YAML.yml
           wait_interval: 10
 
-      # Step 2: Run AdBlock Rule Generator TXT
       - name: Run AdBlock Rule Generator TXT
         uses: ./.github/actions/trigger-and-wait-action.yml
         with:
@@ -29,7 +30,6 @@ jobs:
           workflow_file_name: Run_AdBlock_Rule_Generator_TXT.yml
           wait_interval: 10
 
-      # Step 3: Convert Ruleset YAML to MRS
       - name: Convert Ruleset YAML to MRS
         uses: ./.github/actions/trigger-and-wait-action.yml
         with:
@@ -39,7 +39,6 @@ jobs:
           workflow_file_name: Convert_Ruleset_YAML_to_MRS.yml
           wait_interval: 10
 
-      # Step 4: Generate Matcher Ruleset entries (CLASH)
       - name: Generate Matcher Ruleset entries (CLASH)
         uses: ./.github/actions/trigger-and-wait-action.yml
         with:
@@ -49,7 +48,6 @@ jobs:
           workflow_file_name: Generate_Matcher_Ruleset_entries_CLASH.yml
           wait_interval: 10
 
-      # Step 5: Generate Matcher Ruleset entries (SURGE)
       - name: Generate Matcher Ruleset entries (SURGE)
         uses: ./.github/actions/trigger-and-wait-action.yml
         with:
@@ -59,12 +57,11 @@ jobs:
           workflow_file_name: Generate_Matcher_Ruleset_entries_SURGE.yml
           wait_interval: 10
 
-      # Step 6: Release Adblock file
       - name: Release Adblock file
         uses: ./.github/actions/trigger-and-wait-action.yml
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
-          workflow_file_name: Release_ADblock_file.yml
+          workflow_file_name: Release_Adblock_file.yml
           wait_interval: 10
