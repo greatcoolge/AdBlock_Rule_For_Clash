@@ -1,4 +1,4 @@
-name: Run Workflows in Parallel (Ultra Fast)
+name: Parallel Workflow Orchestrator
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     - cron: '*/20 * * * *'
 
 jobs:
-  run_workflows:
+  orchestrate_workflows:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,10 +16,12 @@ jobs:
       - name: Install jq
         run: sudo apt-get install jq -y
 
-      - name: Trigger and wait for workflows
+      - name: Trigger and monitor workflows
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
+          # 这些是我们要触发的现有工作流
+          # 这些工作流在仓库中已经定义，各自有自己的任务
           workflows=(
             "Run_AdBlock_Rule_Generator_YAML.yml"
             "Run_AdBlock_Rule_Generator_TXT.yml"
@@ -29,22 +31,27 @@ jobs:
             "Release_Adblock_file.yml"
           )
           
+          # 触发工作流并获取其运行ID
           trigger_and_get_run_id() {
             local workflow_id=$1
             local ref="main"
+            # 触发工作流
             response=$(curl -s -X POST -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
               -d "{\"ref\":\"$ref\"}")
             
+            # 获取刚刚触发的工作流的运行ID
             run_id=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id')
             echo "$run_id"
           }
           
+          # 检查所有工作流的状态
           check_workflows() {
             local run_ids=("$@")
+            # 批量获取所有工作流的状态
             local statuses=($(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?ids=${run_ids[*]}" \
@@ -63,15 +70,15 @@ jobs:
             done
             
             if $all_completed && $all_success; then
-              return 0
+              return 0  # 所有工作流成功完成
             elif $all_completed && ! $all_success; then
-              return 1
+              return 1  # 所有工作流完成，但有失败
             else
-              return 2
+              return 2  # 仍有工作流在运行
             fi
           }
           
-          # 触发所有工作流并获取运行ID
+          # 触发所有工作流并获取它们的运行ID
           run_ids=()
           for workflow in "${workflows[@]}"; do
             run_id=$(trigger_and_get_run_id "$workflow")
