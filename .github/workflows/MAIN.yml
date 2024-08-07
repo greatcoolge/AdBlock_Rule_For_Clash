@@ -9,19 +9,21 @@ jobs:
   run_workflows:
     runs-on: ubuntu-latest
     steps:
-      - name: Run AdBlock Rule Generator YAML
+      # Step 1: Run_AdBlock_Rule_Generator_YAML
+      - name: Run_AdBlock_Rule_Generator_YAML
         uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
-          github_token: ${{ secrets.TOKEN }}
-          workflow_file_name: Run_AdBlock_Rule_Generator_YAML.yml
-          wait_interval: 10
-          propagate_failure: true
-          trigger_workflow: true
-          wait_workflow: true
+          github_token: ${{ secrets.TOKEN }}  # 使用您的 GitHub token
+          workflow_file_name: Run_AdBlock_Rule_Generator_YAML.yml  # 触发的工作流文件名
+          wait_interval: 10  # 每10秒检查一次工作流状态
+          propagate_failure: true  # 如果触发的工作流失败，主工作流也将失败
+          trigger_workflow: true  # 触发工作流
+          wait_workflow: true  # 等待工作流完成
 
-      - name: Run AdBlock Rule Generator TXT
+      # Step 2: Run_AdBlock_Rule_Generator_TXT
+      - name: Run_AdBlock_Rule_Generator_TXT
         uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
           owner: ${{ github.repository_owner }}
@@ -33,7 +35,8 @@ jobs:
           trigger_workflow: true
           wait_workflow: true
 
-      - name: Convert Ruleset YAML to MRS
+      # Step 3: Convert_Ruleset_YAML_to_MRS
+      - name: Convert_Ruleset_YAML_to_MRS
         uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
           owner: ${{ github.repository_owner }}
@@ -45,7 +48,8 @@ jobs:
           trigger_workflow: true
           wait_workflow: true
 
-      - name: Generate Matcher Ruleset entries (CLASH)
+      # Step 4: Generate_Matcher_Ruleset_entries_CLASH
+      - name: Generate_Matcher_Ruleset_entries_CLASH
         uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
           owner: ${{ github.repository_owner }}
@@ -57,7 +61,8 @@ jobs:
           trigger_workflow: true
           wait_workflow: true
 
-      - name: Generate Matcher Ruleset entries (SURGE)
+      # Step 5: Generate_Matcher_Ruleset_entries_SURGE
+      - name: Generate_Matcher_Ruleset_entries_SURGE
         uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
           owner: ${{ github.repository_owner }}
@@ -69,7 +74,8 @@ jobs:
           trigger_workflow: true
           wait_workflow: true
 
-      - name: Release Adblock file
+      # Step 6: Release_Adblock_file
+      - name: Release_Adblock_file
         uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
           owner: ${{ github.repository_owner }}
