@@ -1,104 +1,75 @@
-name: Parallel Workflow Orchestrator
+# 工作流名称
+name: Combined AdBlock Rule Generation
 
+# 触发条件：可以手动触发，或者每20分钟自动运行一次
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # 允许手动触发
   schedule:
-    - cron: '*/20 * * * *'
+    - cron: '*/20 * * * *'  # 每20分钟运行一次
 
+# 定义作业
 jobs:
-  orchestrate_workflows:
-    runs-on: ubuntu-latest
-
+  generate_rules:
+    runs-on: ubuntu-latest  # 在最新版本的Ubuntu上运行
     steps:
+      # 步骤1：检出仓库代码
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install jq
-        run: sudo apt-get install jq -y
+      # 步骤2：设置Python环境
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'  # 使用最新的Python 3版本
 
-      - name: Trigger and monitor workflows
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
+      # 步骤3：安装必要的Python依赖
+      - name: Install dependencies
         run: |
-          # 这些是我们要触发的现有工作流
-          # 这些工作流在仓库中已经定义，各自有自己的任务
-          workflows=(
-            "Run_AdBlock_Rule_Generator_YAML.yml"
-            "Run_AdBlock_Rule_Generator_TXT.yml"
-            "Convert_Ruleset_YAML_to_MRS.yml"
-            "Generate_Matcher_Ruleset_entries_CLASH.yml"
-            "Generate_Matcher_Ruleset_entries_SURGE.yml"
-            "Release_Adblock_file.yml"
-          )
-          
-          # 触发工作流并获取其运行ID
-          trigger_and_get_run_id() {
-            local workflow_id=$1
-            local ref="main"
-            # 触发工作流
-            response=$(curl -s -X POST -H "Authorization: token $TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
-              -d "{\"ref\":\"$ref\"}")
-            
-            # 获取刚刚触发的工作流的运行ID
-            run_id=$(curl -s -H "Authorization: token $TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id')
-            echo "$run_id"
-          }
-          
-          # 检查所有工作流的状态
-          check_workflows() {
-            local run_ids=("$@")
-            # 批量获取所有工作流的状态
-            local statuses=($(curl -s -H "Authorization: token $TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?ids=${run_ids[*]}" \
-              | jq -r '.workflow_runs[] | "\(.id):\(.status):\(.conclusion)"'))
-            
-            local all_completed=true
-            local all_success=true
-            for status in "${statuses[@]}"; do
-              IFS=':' read -r id status conclusion <<< "$status"
-              if [ "$status" != "completed" ]; then
-                all_completed=false
-              elif [ "$conclusion" != "success" ]; then
-                all_success=false
-                echo "Workflow with run ID $id failed with conclusion $conclusion"
-              fi
-            done
-            
-            if $all_completed && $all_success; then
-              return 0  # 所有工作流成功完成
-            elif $all_completed && ! $all_success; then
-              return 1  # 所有工作流完成，但有失败
-            else
-              return 2  # 仍有工作流在运行
-            fi
-          }
-          
-          # 触发所有工作流并获取它们的运行ID
-          run_ids=()
-          for workflow in "${workflows[@]}"; do
-            run_id=$(trigger_and_get_run_id "$workflow")
-            run_ids+=("$run_id")
-            echo "Triggered workflow $workflow with run ID: $run_id"
-          done
-          
-          # 等待所有工作流完成
-          while true; do
-            check_workflows "${run_ids[@]}"
-            result=$?
-            
-            if [ $result -eq 0 ]; then
-              echo "All workflows completed successfully"
-              break
-            elif [ $result -eq 1 ]; then
-              echo "Some workflows failed"
-              exit 1
-            else
-              echo "Waiting for workflows to complete..."
-              sleep 5
-            fi
-          done
+          python -m pip install --upgrade pip
+          pip install requests pyyaml  # 安装脚本所需的包
+
+      # 步骤4：生成AdBlock规则（YAML和TXT格式）
+      - name: Generate AdBlock Rules (YAML and TXT)
+        run: |
+          python scripts/adblock_rule_generator.py --format yaml
+          python scripts/adblock_rule_generator.py --format txt
+
+      # 步骤5：将YAML格式的规则集转换为MRS格式
+      - name: Convert Ruleset YAML to MRS
+        run: python scripts/convert_yaml_to_mrs.py
+
+      # 步骤6：生成CLASH和SURGE格式的Matcher Ruleset条目
+      - name: Generate Matcher Ruleset entries (CLASH and SURGE)
+        run: |
+          python scripts/generate_matcher_entries.py --format clash
+          python scripts/generate_matcher_entries.py --format surge
+
+      # 步骤7：准备发布文件
+      - name: Prepare Release Files
+        run: |
+          mkdir -p release  # 创建release目录
+          # 复制所有生成的文件到release目录
+          cp output/*.yaml release/
+          cp output/*.txt release/
+          cp output/*.mrs release/
+          cp output/*_clash.yaml release/
+          cp output/*_surge.list release/
+
+      # 步骤8：创建GitHub Release
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*  # 上传release目录中的所有文件
+          name: AdBlock Rules Update ${{ github.run_number }}  # 使用运行次数作为版本号
+          tag_name: v${{ github.run_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub提供的token进行认证
+
+      # 步骤9：更新仓库
+      - name: Update Repository
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .  # 添加所有更改
+          git commit -m "Update AdBlock rules [skip ci]"  # 提交更改，并跳过CI
+          git push  # 推送更改到仓库
