@@ -1,5 +1,5 @@
 # 工作流名称
-name: Periodic Release
+name: Release_ADblock_file
 
 # 触发条件
 on:
