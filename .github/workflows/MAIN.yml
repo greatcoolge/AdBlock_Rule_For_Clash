@@ -10,14 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # 检出仓库代码
 
       - name: Trigger Run_AdBlock_Rule_Generator_YAML
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
+          # 设置工作流ID和引用
           workflow_id="Run_AdBlock_Rule_Generator_YAML.yml"
           ref="main"
+          # 触发 Run_AdBlock_Rule_Generator_YAML 工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
@@ -26,16 +28,19 @@ jobs:
 
   trigger_adblock_rule_generator_txt:
     runs-on: ubuntu-latest
+    needs: trigger_adblock_rule_generator_yaml  # 依赖上一个工作流的成功执行
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # 检出仓库代码
 
       - name: Trigger Run_AdBlock_Rule_Generator_TXT
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
+          # 设置工作流ID和引用
           workflow_id="Run_AdBlock_Rule_Generator_TXT.yml"
           ref="main"
+          # 触发 Run_AdBlock_Rule_Generator_TXT 工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
@@ -44,16 +49,19 @@ jobs:
 
   trigger_convert_ruleset_yaml_to_mrs:
     runs-on: ubuntu-latest
+    needs: trigger_adblock_rule_generator_txt  # 依赖上一个工作流的成功执行
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # 检出仓库代码
 
       - name: Trigger Convert_Ruleset_YAML_to_MRS
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
+          # 设置工作流ID和引用
           workflow_id="Convert_Ruleset_YAML_to_MRS.yml"
           ref="main"
+          # 触发 Convert_Ruleset_YAML_to_MRS 工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
@@ -62,16 +70,19 @@ jobs:
 
   trigger_generate_matcher_ruleset_entries_clash:
     runs-on: ubuntu-latest
+    needs: trigger_convert_ruleset_yaml_to_mrs  # 依赖上一个工作流的成功执行
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # 检出仓库代码
 
       - name: Trigger Generate_Matcher_Ruleset_entries_CLASH
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
+          # 设置工作流ID和引用
           workflow_id="Generate_Matcher_Ruleset_entries_CLASH.yml"
           ref="main"
+          # 触发 Generate_Matcher_Ruleset_entries_CLASH 工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
@@ -80,16 +91,19 @@ jobs:
 
   trigger_generate_matcher_ruleset_entries_surge:
     runs-on: ubuntu-latest
+    needs: trigger_generate_matcher_ruleset_entries_clash  # 依赖上一个工作流的成功执行
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # 检出仓库代码
 
       - name: Trigger Generate_Matcher_Ruleset_entries_SURGE
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
+          # 设置工作流ID和引用
           workflow_id="Generate_Matcher_Ruleset_entries_SURGE.yml"
           ref="main"
+          # 触发 Generate_Matcher_Ruleset_entries_SURGE 工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
@@ -98,18 +112,35 @@ jobs:
 
   trigger_release_adblock_file:
     runs-on: ubuntu-latest
+    needs: trigger_generate_matcher_ruleset_entries_surge  # 依赖上一个工作流的成功执行
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # 检出仓库代码
 
       - name: Trigger Release_Adblock_file
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
+          # 设置工作流ID和引用
           workflow_id="Release_Adblock_file.yml"
           ref="main"
+          # 触发 Release_Adblock_file 工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
+
+  check_all_workflows:
+    runs-on: ubuntu-latest
+    needs: 
+      - trigger_adblock_rule_generator_yaml
+      - trigger_adblock_rule_generator_txt
+      - trigger_convert_ruleset_yaml_to_mrs
+      - trigger_generate_matcher_ruleset_entries_clash
+      - trigger_generate_matcher_ruleset_entries_surge
+      - trigger_release_adblock_file
+    steps:
+      - name: Ensure all workflows succeeded
+        run: |
+          echo "All workflows completed successfully"
