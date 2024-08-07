@@ -47,18 +47,26 @@ runs:
     - name: Wait for workflow to complete
       run: |
         while [[ "$status" != "completed" ]]; do
-          sleep ${{ inputs.wait_interval }}
           status=$(curl -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ inputs.github_token }}" \
-            https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/actions/runs/$run_id \
-            | jq -r '.status')
+                      -H "Authorization: token ${{ inputs.github_token }}" \
+                      https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/actions/runs/$run_id \
+                      | jq -r '.status')
           conclusion=$(curl -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ inputs.github_token }}" \
-            https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/actions/runs/$run_id \
-            | jq -r '.conclusion')
-          echo "status=$status" >> $GITHUB_ENV
-          echo "conclusion=$conclusion" >> $GITHUB_ENV
+                         -H "Authorization: token ${{ inputs.github_token }}" \
+                         https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/actions/runs/$run_id \
+                         | jq -r '.conclusion')
+          if [[ "$status" == "completed" && "$conclusion" == "success" ]]; then
+            echo "Workflow completed successfully."
+            exit 0
+          elif [[ "$status" == "completed" && "$conclusion" != "success" ]]; then
+            echo "Workflow failed."
+            if [[ "${{ inputs.propagate_failure }}" == "true" ]]; then
+              exit 1
+            else
+              exit 0
+            fi
+          else
+            echo "Sleeping for ${{ inputs.wait_interval }} seconds..."
+            sleep ${{ inputs.wait_interval }}
+          fi
         done
-        if [[ "$conclusion" != "success" && "${{ inputs.propagate_failure }}" == "true" ]]; then
-          exit 1
-        fi
