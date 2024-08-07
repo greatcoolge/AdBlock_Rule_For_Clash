@@ -1,5 +1,4 @@
 name: Generate Matcher Ruleset entries(SURGE)
-
 on:
   push:
     branches: [ main ]
@@ -8,20 +7,17 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '*/20 * * * *'  # 每20分钟运行一次
-
 jobs:
   process-files:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2  # 检出仓库代码
-
     - name: Process adblock_reject_change.txt
       run: |
         # 处理 adblock_reject_change.txt 文件
         # 保留注释行和空行
         # 去掉每行最前面的 '- ' 并将条目左对齐
         awk '/^#/ {print} /^[^#]/ {gsub(/^- /, ""); print}' adblock_reject_change.txt > adblock_reject_surge.txt
-
     - name: Commit and push changes
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
@@ -29,18 +25,13 @@ jobs:
         # 配置 Git
         git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
-
         # 设置远程仓库 URL，使用 TOKEN 进行身份验证
         git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-
         # 添加生成的文件到 Git
         git add adblock_reject_surge.txt
-
         # 提交更改，如果没有更改则输出信息
         git commit -m "Generate adblock_reject_surge.txt with processed entries" || echo "No changes to commit"
-
         # 拉取最新的远程更改并进行重建
         git pull origin main --rebase
-
         # 强制推送更改到 main 分支
         git push origin main --force
