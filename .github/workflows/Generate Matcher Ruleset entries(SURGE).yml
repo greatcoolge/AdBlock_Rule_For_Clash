@@ -17,6 +17,7 @@ jobs:
         # 处理 adblock_reject_change.txt 文件
         # 保留注释行和空行
         # 去掉每行最前面的 '- ' 并将条目左对齐
+        # 直接覆盖 adblock_reject_surge.txt 文件
         awk '/^#/ {print} /^[^#]/ {gsub(/^- /, ""); print}' adblock_reject_change.txt > adblock_reject_surge.txt
     - name: Commit and push changes
       env:
@@ -29,9 +30,7 @@ jobs:
         git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
         # 添加生成的文件到 Git
         git add adblock_reject_surge.txt
-        # 提交更改，如果没有更改则输出信息
-        git commit -m "Generate adblock_reject_surge.txt with processed entries" || echo "No changes to commit"
-        # 拉取最新的远程更改并进行重建
-        git pull origin main --rebase
-        # 强制推送更改到 main 分支
+        # 强制提交更改，即使没有变化
+        git commit -m "Update adblock_reject_surge.txt with processed entries" --allow-empty
+        # 强制推送更改到 main 分支，覆盖远程文件
         git push origin main --force
