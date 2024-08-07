@@ -109,7 +109,7 @@ rules:
 ```conf
 #适用于Surge的本地拦截域名规则集
 [Rule]
-RULE-SET,C:\Users\YourUsername\Documents\file.txt,policy=REJECT
+RULE-SET,C:\Users\YourUsername\Documents\file.txt,REJECT
 #你的外部本地拦截域名规则集文件保存路径
 ```
 
@@ -178,7 +178,7 @@ rules:
 ```conf
 #适用于Surge的远程拦截域名规则集
 [Rule]
-RULE-SET,https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_surge.txt,policy=REJECT
+RULE-SET,https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject_surge.txt,REJECT
 ```
 
 
