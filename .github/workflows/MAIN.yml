@@ -9,8 +9,8 @@ jobs:
   run_workflows:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Run AdBlock Rule Generator YAML
         uses: ./.github/actions/trigger-and-wait-action
@@ -18,8 +18,11 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
-          workflow_file_name: Run_AdBlock_Rule_Generator_YAML.yml
+          workflow_file_name: Run AdBlock Rule Generator_YAML.yml
           wait_interval: 10
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
 
       - name: Run AdBlock Rule Generator TXT
         uses: ./.github/actions/trigger-and-wait-action
@@ -27,8 +30,11 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
-          workflow_file_name: Run_AdBlock_Rule_Generator_TXT.yml
+          workflow_file_name: Run AdBlock Rule Generator_TXT.yml
           wait_interval: 10
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
 
       - name: Convert Ruleset YAML to MRS
         uses: ./.github/actions/trigger-and-wait-action
@@ -36,8 +42,11 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
-          workflow_file_name: Convert_Ruleset_YAML_to_MRS.yml
+          workflow_file_name: Convert Ruleset_YAML_to_MRS.yml
           wait_interval: 10
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
 
       - name: Generate Matcher Ruleset entries (CLASH)
         uses: ./.github/actions/trigger-and-wait-action
@@ -45,8 +54,11 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
-          workflow_file_name: Generate_Matcher_Ruleset_entries_CLASH.yml
+          workflow_file_name: Generate Matcher Ruleset entries(CLASH).yml
           wait_interval: 10
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
 
       - name: Generate Matcher Ruleset entries (SURGE)
         uses: ./.github/actions/trigger-and-wait-action
@@ -54,8 +66,11 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
-          workflow_file_name: Generate_Matcher_Ruleset_entries_SURGE.yml
+          workflow_file_name: Generate Matcher Ruleset entries(SURGE).yml
           wait_interval: 10
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
 
       - name: Release Adblock file
         uses: ./.github/actions/trigger-and-wait-action
@@ -63,5 +78,8 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
-          workflow_file_name: Release_Adblock_file.yml
+          workflow_file_name: Release Adblock file.yml
           wait_interval: 10
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
