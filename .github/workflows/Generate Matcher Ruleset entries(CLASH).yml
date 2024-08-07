@@ -1,4 +1,4 @@
-name: Generate Matcher Ruleset entries
+name: Generate Matcher Ruleset entries(CLASH)
 
 on:
   push:
