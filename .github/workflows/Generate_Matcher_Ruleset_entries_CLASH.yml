@@ -51,5 +51,21 @@ jobs:
         # 拉取最新的远程更改并进行重建
         git pull origin main --rebase
 
-        # 推送更改到 main 分支
-        git push origin main
+        # 定义最大重试次数
+        max_retries=5
+        retry_count=0
+
+        # 尝试推送更改
+        until [ "$retry_count" -ge "$max_retries" ]
+        do
+          git push origin main && break
+          retry_count=$((retry_count+1))
+          echo "Push failed, retrying in 10 seconds... ($retry_count/$max_retries)"
+          sleep 10
+          git pull origin main --rebase
+        done
+
+        if [ "$retry_count" -ge "$max_retries" ]; then
+          echo "Max retries reached. Push failed."
+          exit 1
+        fi
