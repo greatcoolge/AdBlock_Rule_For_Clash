@@ -22,7 +22,7 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
-          echo "Triggered workflow $workflow_id"
+          echo "Triggered workflow $workflow_id: $response"
 
   trigger_adblock_rule_generator_txt:
     runs-on: ubuntu-latest
@@ -40,7 +40,7 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
-          echo "Triggered workflow $workflow_id"
+          echo "Triggered workflow $workflow_id: $response"
 
   trigger_convert_ruleset_yaml_to_mrs:
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
-          echo "Triggered workflow $workflow_id"
+          echo "Triggered workflow $workflow_id: $response"
 
   trigger_generate_matcher_ruleset_entries_clash:
     runs-on: ubuntu-latest
@@ -76,7 +76,7 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
-          echo "Triggered workflow $workflow_id"
+          echo "Triggered workflow $workflow_id: $response"
 
   trigger_generate_matcher_ruleset_entries_surge:
     runs-on: ubuntu-latest
@@ -94,7 +94,7 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
-          echo "Triggered workflow $workflow_id"
+          echo "Triggered workflow $workflow_id: $response"
 
   trigger_release_adblock_file:
     runs-on: ubuntu-latest
@@ -112,4 +112,4 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
-          echo "Triggered workflow $workflow_id"
+          echo "Triggered workflow $workflow_id: $response"
