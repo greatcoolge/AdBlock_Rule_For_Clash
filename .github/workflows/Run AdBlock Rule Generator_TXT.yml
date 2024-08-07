@@ -1,4 +1,4 @@
-name: Run AdBlock Rule Generator_TXT  # 工作流名称
+name: Run_AdBlock_Rule_Generator_TXT.yml  # 工作流名称
 
 on:
   schedule:
