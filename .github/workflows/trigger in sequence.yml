@@ -1,4 +1,4 @@
-name: Run Workflows in Parallel
+name: trigger in sequence
 
 on:
   workflow_dispatch:
