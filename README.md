@@ -86,6 +86,18 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
+```conf
+#TEXT格式外部本地拦截域名规则集,适用于mihomo核心
+rule-providers:
+  adblock:
+    type: file
+    behavior: domain
+    format: text
+    path: C:\Users\YourUsername\Documents\file.txt   #你的TEXT格式外部本地拦截域名rule-providers规则集文件保存路径
+    
+rules:
+  - RULE-SET,adblock,REJECT
+```
 
 
 
@@ -134,6 +146,26 @@ rule-providers:
 rules:
   - RULE-SET,adblock,REJECT
 ```
+
+```conf
+#TEXT格式外部远程拦截域名规则集
+rule-providers:
+  adblock:
+    type: http
+    behavior: domain
+    format: txt
+    url: https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.txt
+    path: ./ruleset/adblock_reject.txt
+    interval: 120
+    
+rules:
+  - RULE-SET,adblock,REJECT
+```
+
+
+
+
+
 
 
 
