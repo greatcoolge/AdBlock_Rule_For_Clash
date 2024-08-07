@@ -13,96 +13,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install GitHub CLI
+      - name: Trigger and Wait for AdBlock Rule Generator YAML
         run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages
-          sudo apt update
-          sudo apt install gh -y
-
-      - name: Authenticate GitHub CLI
-        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Run AdBlock Rule Generator YAML
-        run: gh workflow run Run_AdBlock_Rule_Generator_YAML.yml
-
-      - name: Wait for AdBlock Rule Generator YAML to complete
-        run: |
-          while [ "$(gh run list --workflow=Run_AdBlock_Rule_Generator_YAML.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
-            echo "Waiting for AdBlock Rule Generator YAML to complete..."
+          workflow_id="Run_AdBlock_Rule_Generator_YAML.yml"
+          run_id=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            -d '{"ref":"main"}' | jq -r '.id')
+          echo "Triggered workflow $workflow_id with run ID $run_id"
+          while [ "$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.status')" != "completed" ]; do
+            echo "Waiting for workflow $workflow_id to complete..."
             sleep 10
           done
-          if [ "$(gh run list --workflow=Run_AdBlock_Rule_Generator_YAML.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
-            echo "AdBlock Rule Generator YAML failed."
+          conclusion=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.conclusion')
+          if [ "$conclusion" != "success" ]; then
+            echo "Workflow $workflow_id failed with conclusion $conclusion"
             exit 1
           fi
 
-      - name: Run AdBlock Rule Generator TXT
-        run: gh workflow run Run_AdBlock_Rule_Generator_TXT.yml
-
-      - name: Wait for AdBlock Rule Generator TXT to complete
-        run: |
-          while [ "$(gh run list --workflow=Run_AdBlock_Rule_Generator_TXT.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
-            echo "Waiting for AdBlock Rule Generator TXT to complete..."
-            sleep 10
-          done
-          if [ "$(gh run list --workflow=Run_AdBlock_Rule_Generator_TXT.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
-            echo "AdBlock Rule Generator TXT failed."
-            exit 1
-          fi
-
-      - name: Convert Ruleset YAML to MRS
-        run: gh workflow run Convert_Ruleset_YAML_to_MRS.yml
-
-      - name: Wait for Convert Ruleset YAML to MRS to complete
-        run: |
-          while [ "$(gh run list --workflow=Convert_Ruleset_YAML_to_MRS.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
-            echo "Waiting for Convert Ruleset YAML to MRS to complete..."
-            sleep 10
-          done
-          if [ "$(gh run list --workflow=Convert_Ruleset_YAML_to_MRS.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
-            echo "Convert Ruleset YAML to MRS failed."
-            exit 1
-          fi
-
-      - name: Generate Matcher Ruleset entries (CLASH)
-        run: gh workflow run Generate_Matcher_Ruleset_entries_CLASH.yml
-
-      - name: Wait for Generate Matcher Ruleset entries (CLASH) to complete
-        run: |
-          while [ "$(gh run list --workflow=Generate_Matcher_Ruleset_entries_CLASH.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
-            echo "Waiting for Generate Matcher Ruleset entries (CLASH) to complete..."
-            sleep 10
-          done
-          if [ "$(gh run list --workflow=Generate_Matcher_Ruleset_entries_CLASH.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
-            echo "Generate Matcher Ruleset entries (CLASH) failed."
-            exit 1
-          fi
-
-      - name: Generate Matcher Ruleset entries (SURGE)
-        run: gh workflow run Generate_Matcher_Ruleset_entries_SURGE.yml
-
-      - name: Wait for Generate Matcher Ruleset entries (SURGE) to complete
-        run: |
-          while [ "$(gh run list --workflow=Generate_Matcher_Ruleset_entries_SURGE.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
-            echo "Waiting for Generate Matcher Ruleset entries (SURGE) to complete..."
-            sleep 10
-          done
-          if [ "$(gh run list --workflow=Generate_Matcher_Ruleset_entries_SURGE.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
-            echo "Generate Matcher Ruleset entries (SURGE) failed."
-            exit 1
-          fi
-
-      - name: Release Adblock file
-        run: gh workflow run Release_Adblock_file.yml
-
-      - name: Wait for Release Adblock file to complete
-        run: |
-          while [ "$(gh run list --workflow=Release_Adblock_file.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
-            echo "Waiting for Release Adblock file to complete..."
-            sleep 10
-          done
-          if [ "$(gh run list --workflow=Release_Adblock_file.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
-            echo "Release Adblock file failed."
-            exit 1
-          fi
+      # Repeat the above step for each workflow in your sequence
