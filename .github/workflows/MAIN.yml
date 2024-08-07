@@ -13,164 +13,96 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh -y
+
+      - name: Authenticate GitHub CLI
+        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
       - name: Run AdBlock Rule Generator YAML
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            execSync('gh workflow run Run_AdBlock_Rule_Generator_YAML.yml', { stdio: 'inherit' });
+        run: gh workflow run Run_AdBlock_Rule_Generator_YAML.yml
 
       - name: Wait for AdBlock Rule Generator YAML to complete
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            let runStatus;
-            do {
-              runStatus = execSync('gh run list --workflow=Run_AdBlock_Rule_Generator_YAML.yml --limit=1').toString();
-              if (runStatus.includes('completed')) {
-                if (runStatus.includes('success')) {
-                  console.log('AdBlock Rule Generator YAML completed successfully.');
-                  break;
-                } else {
-                  throw new Error('AdBlock Rule Generator YAML failed.');
-                }
-              }
-              console.log('Waiting for AdBlock Rule Generator YAML to complete...');
-              execSync('sleep 10');
-            } while (!runStatus.includes('completed'));
+        run: |
+          while [ "$(gh run list --workflow=Run_AdBlock_Rule_Generator_YAML.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
+            echo "Waiting for AdBlock Rule Generator YAML to complete..."
+            sleep 10
+          done
+          if [ "$(gh run list --workflow=Run_AdBlock_Rule_Generator_YAML.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
+            echo "AdBlock Rule Generator YAML failed."
+            exit 1
+          fi
 
       - name: Run AdBlock Rule Generator TXT
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            execSync('gh workflow run Run_AdBlock_Rule_Generator_TXT.yml', { stdio: 'inherit' });
+        run: gh workflow run Run_AdBlock_Rule_Generator_TXT.yml
 
       - name: Wait for AdBlock Rule Generator TXT to complete
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            let runStatus;
-            do {
-              runStatus = execSync('gh run list --workflow=Run_AdBlock_Rule_Generator_TXT.yml --limit=1').toString();
-              if (runStatus.includes('completed')) {
-                if (runStatus.includes('success')) {
-                  console.log('AdBlock Rule Generator TXT completed successfully.');
-                  break;
-                } else {
-                  throw new Error('AdBlock Rule Generator TXT failed.');
-                }
-              }
-              console.log('Waiting for AdBlock Rule Generator TXT to complete...');
-              execSync('sleep 10');
-            } while (!runStatus.includes('completed'));
+        run: |
+          while [ "$(gh run list --workflow=Run_AdBlock_Rule_Generator_TXT.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
+            echo "Waiting for AdBlock Rule Generator TXT to complete..."
+            sleep 10
+          done
+          if [ "$(gh run list --workflow=Run_AdBlock_Rule_Generator_TXT.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
+            echo "AdBlock Rule Generator TXT failed."
+            exit 1
+          fi
 
       - name: Convert Ruleset YAML to MRS
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            execSync('gh workflow run Convert_Ruleset_YAML_to_MRS.yml', { stdio: 'inherit' });
+        run: gh workflow run Convert_Ruleset_YAML_to_MRS.yml
 
       - name: Wait for Convert Ruleset YAML to MRS to complete
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            let runStatus;
-            do {
-              runStatus = execSync('gh run list --workflow=Convert_Ruleset_YAML_to_MRS.yml --limit=1').toString();
-              if (runStatus.includes('completed')) {
-                if (runStatus.includes('success')) {
-                  console.log('Convert Ruleset YAML to MRS completed successfully.');
-                  break;
-                } else {
-                  throw new Error('Convert Ruleset YAML to MRS failed.');
-                }
-              }
-              console.log('Waiting for Convert Ruleset YAML to MRS to complete...');
-              execSync('sleep 10');
-            } while (!runStatus.includes('completed'));
+        run: |
+          while [ "$(gh run list --workflow=Convert_Ruleset_YAML_to_MRS.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
+            echo "Waiting for Convert Ruleset YAML to MRS to complete..."
+            sleep 10
+          done
+          if [ "$(gh run list --workflow=Convert_Ruleset_YAML_to_MRS.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
+            echo "Convert Ruleset YAML to MRS failed."
+            exit 1
+          fi
 
       - name: Generate Matcher Ruleset entries (CLASH)
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            execSync('gh workflow run Generate_Matcher_Ruleset_entries_CLASH.yml', { stdio: 'inherit' });
+        run: gh workflow run Generate_Matcher_Ruleset_entries_CLASH.yml
 
       - name: Wait for Generate Matcher Ruleset entries (CLASH) to complete
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            let runStatus;
-            do {
-              runStatus = execSync('gh run list --workflow=Generate_Matcher_Ruleset_entries_CLASH.yml --limit=1').toString();
-              if (runStatus.includes('completed')) {
-                if (runStatus.includes('success')) {
-                  console.log('Generate Matcher Ruleset entries (CLASH) completed successfully.');
-                  break;
-                } else {
-                  throw new Error('Generate Matcher Ruleset entries (CLASH) failed.');
-                }
-              }
-              console.log('Waiting for Generate Matcher Ruleset entries (CLASH) to complete...');
-              execSync('sleep 10');
-            } while (!runStatus.includes('completed'));
+        run: |
+          while [ "$(gh run list --workflow=Generate_Matcher_Ruleset_entries_CLASH.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
+            echo "Waiting for Generate Matcher Ruleset entries (CLASH) to complete..."
+            sleep 10
+          done
+          if [ "$(gh run list --workflow=Generate_Matcher_Ruleset_entries_CLASH.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
+            echo "Generate Matcher Ruleset entries (CLASH) failed."
+            exit 1
+          fi
 
       - name: Generate Matcher Ruleset entries (SURGE)
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            execSync('gh workflow run Generate_Matcher_Ruleset_entries_SURGE.yml', { stdio: 'inherit' });
+        run: gh workflow run Generate_Matcher_Ruleset_entries_SURGE.yml
 
       - name: Wait for Generate Matcher Ruleset entries (SURGE) to complete
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            let runStatus;
-            do {
-              runStatus = execSync('gh run list --workflow=Generate_Matcher_Ruleset_entries_SURGE.yml --limit=1').toString();
-              if (runStatus.includes('completed')) {
-                if (runStatus.includes('success')) {
-                  console.log('Generate Matcher Ruleset entries (SURGE) completed successfully.');
-                  break;
-                } else {
-                  throw new Error('Generate Matcher Ruleset entries (SURGE) failed.');
-                }
-              }
-              console.log('Waiting for Generate Matcher Ruleset entries (SURGE) to complete...');
-              execSync('sleep 10');
-            } while (!runStatus.includes('completed'));
+        run: |
+          while [ "$(gh run list --workflow=Generate_Matcher_Ruleset_entries_SURGE.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
+            echo "Waiting for Generate Matcher Ruleset entries (SURGE) to complete..."
+            sleep 10
+          done
+          if [ "$(gh run list --workflow=Generate_Matcher_Ruleset_entries_SURGE.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
+            echo "Generate Matcher Ruleset entries (SURGE) failed."
+            exit 1
+          fi
 
       - name: Release Adblock file
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            execSync('gh workflow run Release_Adblock_file.yml', { stdio: 'inherit' });
+        run: gh workflow run Release_Adblock_file.yml
 
       - name: Wait for Release Adblock file to complete
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            let runStatus;
-            do {
-              runStatus = execSync('gh run list --workflow=Release_Adblock_file.yml --limit=1').toString();
-              if (runStatus.includes('completed')) {
-                if (runStatus.includes('success')) {
-                  console.log('Release Adblock file completed successfully.');
-                  break;
-                } else {
-                  throw new Error('Release Adblock file failed.');
-                }
-              }
-              console.log('Waiting for Release Adblock file to complete...');
-              execSync('sleep 10');
-            } while (!runStatus.includes('completed'));
+        run: |
+          while [ "$(gh run list --workflow=Release_Adblock_file.yml --limit=1 --json status --jq '.[0].status')" != "completed" ]; do
+            echo "Waiting for Release Adblock file to complete..."
+            sleep 10
+          done
+          if [ "$(gh run list --workflow=Release_Adblock_file.yml --limit=1 --json conclusion --jq '.[0].conclusion')" != "success" ]; then
+            echo "Release Adblock file failed."
+            exit 1
+          fi
