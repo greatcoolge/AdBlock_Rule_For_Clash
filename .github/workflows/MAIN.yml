@@ -9,80 +9,62 @@ jobs:
   run_workflows:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Run_AdBlock_Rule_Generator_YAML
-      - name: Run_AdBlock_Rule_Generator_YAML
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
+      # Step 1: Run AdBlock Rule Generator YAML
+      - name: Run AdBlock Rule Generator YAML
+        uses: ./.github/actions/trigger-and-wait-action.yml
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
-          github_token: ${{ secrets.TOKEN }}  # 使用您的 GitHub token
-          workflow_file_name: Run_AdBlock_Rule_Generator_YAML.yml  # 触发的工作流文件名
-          wait_interval: 10  # 每10秒检查一次工作流状态
-          propagate_failure: true  # 如果触发的工作流失败，主工作流也将失败
-          trigger_workflow: true  # 触发工作流
-          wait_workflow: true  # 等待工作流完成
+          github_token: ${{ secrets.TOKEN }}
+          workflow_file_name: Run_AdBlock_Rule_Generator_YAML.yml
+          wait_interval: 10
 
-      # Step 2: Run_AdBlock_Rule_Generator_TXT
-      - name: Run_AdBlock_Rule_Generator_TXT
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
+      # Step 2: Run AdBlock Rule Generator TXT
+      - name: Run AdBlock Rule Generator TXT
+        uses: ./.github/actions/trigger-and-wait-action.yml
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
           workflow_file_name: Run_AdBlock_Rule_Generator_TXT.yml
           wait_interval: 10
-          propagate_failure: true
-          trigger_workflow: true
-          wait_workflow: true
 
-      # Step 3: Convert_Ruleset_YAML_to_MRS
-      - name: Convert_Ruleset_YAML_to_MRS
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
+      # Step 3: Convert Ruleset YAML to MRS
+      - name: Convert Ruleset YAML to MRS
+        uses: ./.github/actions/trigger-and-wait-action.yml
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
           workflow_file_name: Convert_Ruleset_YAML_to_MRS.yml
           wait_interval: 10
-          propagate_failure: true
-          trigger_workflow: true
-          wait_workflow: true
 
-      # Step 4: Generate_Matcher_Ruleset_entries_CLASH
-      - name: Generate_Matcher_Ruleset_entries_CLASH
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
+      # Step 4: Generate Matcher Ruleset entries (CLASH)
+      - name: Generate Matcher Ruleset entries (CLASH)
+        uses: ./.github/actions/trigger-and-wait-action.yml
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
           workflow_file_name: Generate_Matcher_Ruleset_entries_CLASH.yml
           wait_interval: 10
-          propagate_failure: true
-          trigger_workflow: true
-          wait_workflow: true
 
-      # Step 5: Generate_Matcher_Ruleset_entries_SURGE
-      - name: Generate_Matcher_Ruleset_entries_SURGE
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
+      # Step 5: Generate Matcher Ruleset entries (SURGE)
+      - name: Generate Matcher Ruleset entries (SURGE)
+        uses: ./.github/actions/trigger-and-wait-action.yml
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
           workflow_file_name: Generate_Matcher_Ruleset_entries_SURGE.yml
           wait_interval: 10
-          propagate_failure: true
-          trigger_workflow: true
-          wait_workflow: true
 
-      # Step 6: Release_Adblock_file
-      - name: Release_Adblock_file
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
+      # Step 6: Release Adblock file
+      - name: Release Adblock file
+        uses: ./.github/actions/trigger-and-wait-action.yml
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.TOKEN }}
           workflow_file_name: Release_ADblock_file.yml
           wait_interval: 10
-          propagate_failure: true
-          trigger_workflow: true
-          wait_workflow: true
