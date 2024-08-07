@@ -1,4 +1,4 @@
-name: Generate Matcher Ruleset entries(SURGE)
+name: Generate_Matcher_Ruleset_entries_SURGE
 on:
   push:
     branches: [ main ]
