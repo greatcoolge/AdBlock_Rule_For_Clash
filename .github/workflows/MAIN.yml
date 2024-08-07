@@ -13,14 +13,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Trigger and Wait for AdBlock Rule Generator YAML
+      - name: Trigger and Wait for Run_AdBlock_Rule_Generator_YAML
+        id: run_adblock_rule_generator_yaml
         run: |
           workflow_id="Run_AdBlock_Rule_Generator_YAML.yml"
-          run_id=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          ref="main"
+          response=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
-            -d '{"ref":"main"}' | jq -r '.id')
-          echo "Triggered workflow $workflow_id with run ID $run_id"
+            -d "{\"ref\":\"$ref\"}")
+          echo "Triggered workflow $workflow_id"
+          sleep 10
+          run_id=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id')
+          echo "Run ID: $run_id"
           while [ "$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.status')" != "completed" ]; do
@@ -35,4 +42,148 @@ jobs:
             exit 1
           fi
 
-      # Repeat the above step for each workflow in your sequence
+      # Repeat for the other workflows
+      - name: Trigger and Wait for Run_AdBlock_Rule_Generator_TXT
+        id: run_adblock_rule_generator_txt
+        run: |
+          workflow_id="Run_AdBlock_Rule_Generator_TXT.yml"
+          ref="main"
+          response=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            -d "{\"ref\":\"$ref\"}")
+          echo "Triggered workflow $workflow_id"
+          sleep 10
+          run_id=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id')
+          echo "Run ID: $run_id"
+          while [ "$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.status')" != "completed" ]; do
+            echo "Waiting for workflow $workflow_id to complete..."
+            sleep 10
+          done
+          conclusion=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.conclusion')
+          if [ "$conclusion" != "success" ]; then
+            echo "Workflow $workflow_id failed with conclusion $conclusion"
+            exit 1
+          fi
+
+      - name: Trigger and Wait for Convert_Ruleset_YAML_to_MRS
+        id: convert_ruleset_yaml_to_mrs
+        run: |
+          workflow_id="Convert_Ruleset_YAML_to_MRS.yml"
+          ref="main"
+          response=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            -d "{\"ref\":\"$ref\"}")
+          echo "Triggered workflow $workflow_id"
+          sleep 10
+          run_id=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id')
+          echo "Run ID: $run_id"
+          while [ "$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.status')" != "completed" ]; do
+            echo "Waiting for workflow $workflow_id to complete..."
+            sleep 10
+          done
+          conclusion=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.conclusion')
+          if [ "$conclusion" != "success" ]; then
+            echo "Workflow $workflow_id failed with conclusion $conclusion"
+            exit 1
+          fi
+
+      - name: Trigger and Wait for Generate_Matcher_Ruleset_entries_CLASH
+        id: generate_matcher_ruleset_entries_clash
+        run: |
+          workflow_id="Generate_Matcher_Ruleset_entries_CLASH.yml"
+          ref="main"
+          response=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            -d "{\"ref\":\"$ref\"}")
+          echo "Triggered workflow $workflow_id"
+          sleep 10
+          run_id=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id')
+          echo "Run ID: $run_id"
+          while [ "$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.status')" != "completed" ]; do
+            echo "Waiting for workflow $workflow_id to complete..."
+            sleep 10
+          done
+          conclusion=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.conclusion')
+          if [ "$conclusion" != "success" ]; then
+            echo "Workflow $workflow_id failed with conclusion $conclusion"
+            exit 1
+          fi
+
+      - name: Trigger and Wait for Generate_Matcher_Ruleset_entries_SURGE
+        id: generate_matcher_ruleset_entries_surge
+        run: |
+          workflow_id="Generate_Matcher_Ruleset_entries_SURGE.yml"
+          ref="main"
+          response=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            -d "{\"ref\":\"$ref\"}")
+          echo "Triggered workflow $workflow_id"
+          sleep 10
+          run_id=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id')
+          echo "Run ID: $run_id"
+          while [ "$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.status')" != "completed" ]; do
+            echo "Waiting for workflow $workflow_id to complete..."
+            sleep 10
+          done
+          conclusion=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.conclusion')
+          if [ "$conclusion" != "success" ]; then
+            echo "Workflow $workflow_id failed with conclusion $conclusion"
+            exit 1
+          fi
+
+      - name: Trigger and Wait for Release_Adblock_file
+        id: release_adblock_file
+        run: |
+          workflow_id="Release_Adblock_file.yml"
+          ref="main"
+          response=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            -d "{\"ref\":\"$ref\"}")
+          echo "Triggered workflow $workflow_id"
+          sleep 10
+          run_id=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/runs?branch=$ref&status=in_progress" | jq -r '.workflow_runs[0].id')
+          echo "Run ID: $run_id"
+          while [ "$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.status')" != "completed" ]; do
+            echo "Waiting for workflow $workflow_id to complete..."
+            sleep 10
+          done
+          conclusion=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs/$run_id" | jq -r '.conclusion')
+          if [ "$conclusion" != "success" ]; then
+            echo "Workflow $workflow_id failed with conclusion $conclusion"
+            exit 1
+          fi
