@@ -1,4 +1,4 @@
-name: Process adblock_reject_change.txt
+name: Generate Matcher Ruleset entries(SURGE)
 
 on:
   push:
