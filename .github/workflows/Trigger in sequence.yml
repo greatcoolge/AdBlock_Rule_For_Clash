@@ -1,4 +1,4 @@
-name: trigger in sequence
+name: Trigger in sequence
 
 on:
   workflow_dispatch:
