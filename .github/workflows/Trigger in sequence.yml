@@ -44,6 +44,9 @@ jobs:
             fi
           done
 
+          # 等待90秒
+          sleep 90
+
   trigger_adblock_rule_generator_txt:
     runs-on: ubuntu-latest
     needs: trigger_adblock_rule_generator_yaml
@@ -82,6 +85,9 @@ jobs:
               sleep 30
             fi
           done
+
+          # 等待90秒
+          sleep 90
 
   trigger_convert_ruleset_yaml_to_mrs:
     runs-on: ubuntu-latest
@@ -122,6 +128,9 @@ jobs:
             fi
           done
 
+          # 等待90秒
+          sleep 90
+
   trigger_generate_matcher_ruleset_entries_clash:
     runs-on: ubuntu-latest
     needs: trigger_convert_ruleset_yaml_to_mrs
@@ -160,6 +169,9 @@ jobs:
               sleep 30
             fi
           done
+
+          # 等待90秒
+          sleep 90
 
   trigger_generate_matcher_ruleset_entries_surge:
     runs-on: ubuntu-latest
@@ -200,6 +212,9 @@ jobs:
             fi
           done
 
+          # 等待90秒
+          sleep 90
+
   trigger_release_adblock_file:
     runs-on: ubuntu-latest
     needs: trigger_generate_matcher_ruleset_entries_surge
@@ -238,6 +253,9 @@ jobs:
               sleep 30
             fi
           done
+
+          # 等待90秒
+          sleep 90
 
   check_all_workflows:
     runs-on: ubuntu-latest
