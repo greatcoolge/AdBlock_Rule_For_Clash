@@ -6,6 +6,7 @@ on:
     - cron: '*/20 * * * *'  # 每20分钟触发一次
 
 jobs:
+
   trigger_adblock_rule_generator_yaml:
     runs-on: ubuntu-latest
     steps:
