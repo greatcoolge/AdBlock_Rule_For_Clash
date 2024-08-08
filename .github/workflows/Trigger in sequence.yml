@@ -16,10 +16,8 @@ jobs:
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
-          # 设置工作流ID和引用
           workflow_id="Run_AdBlock_Rule_Generator_YAML.yml"
           ref="main"
-
           # 触发工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
@@ -240,3 +238,17 @@ jobs:
               sleep 30
             fi
           done
+
+  check_all_workflows:
+    runs-on: ubuntu-latest
+    needs: 
+      - trigger_adblock_rule_generator_yaml
+      - trigger_adblock_rule_generator_txt
+      - trigger_convert_ruleset_yaml_to_mrs
+      - trigger_generate_matcher_ruleset_entries_clash
+      - trigger_generate_matcher_ruleset_entries_surge
+      - trigger_release_adblock_file
+    steps:
+      - name: Ensure all workflows succeeded
+        run: |
+          echo "All workflows completed successfully"
