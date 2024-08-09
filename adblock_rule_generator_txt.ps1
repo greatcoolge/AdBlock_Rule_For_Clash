@@ -44,14 +44,16 @@ $logFilePath = "$PSScriptRoot/adblock_log.txt"
 # 创建一个HashSet来存储唯一的规则
 $uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
 
-# 遍历每个广告过滤器URL，下载并提取拦截域名规则
-$webClient = New-Object System.Net.WebClient
-$webClient.Encoding = [System.Text.Encoding]::UTF8
-$webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-
-foreach ($url in $urlList) {
+# 定义下载和处理每个URL的函数
+function Process-Url {
+    param($url)
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
+
+    $webClient = New-Object System.Net.WebClient
+    $webClient.Encoding = [System.Text.Encoding]::UTF8
+    $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+
     try {
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
@@ -72,6 +74,11 @@ foreach ($url in $urlList) {
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
+
+# 使用并行处理URL列表
+$urlList | ForEach-Object -Parallel {
+    Process-Url -url $_
+} -ThrottleLimit 10 # ThrottleLimit可以控制同时运行的并行作业数量
 
 # 将有效规则格式化为带有“- DOMAIN,”前缀的格式
 $formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
