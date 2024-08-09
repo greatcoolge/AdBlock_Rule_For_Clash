@@ -52,7 +52,7 @@ $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) 
 # 创建任务列表
 $jobs = @()
 foreach ($url in $urlList) {
-    $job = Start-Job -ScriptBlock {
+    $jobs += [powershell]::Create().AddScript({
         param($url, $webClient, $logFilePath)
         Write-Host "正在处理: $url"
         Add-Content -Path $logFilePath -Value "正在处理: $url"
@@ -78,22 +78,16 @@ foreach ($url in $urlList) {
             Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
             return $null
         }
-    } -ArgumentList $url, $webClient, $logFilePath
-    $jobs += $job
+    }).AddArgument($url).AddArgument($webClient).AddArgument($logFilePath).AddScript('return $rules').Invoke()
 }
 
 # 等待所有任务完成
-$jobs | Wait-Job
-
-# 收集结果并将规则添加到HashSet中
 foreach ($job in $jobs) {
-    $result = Receive-Job -Job $job
-    if ($result) {
-        foreach ($domain in $result) {
+    if ($job) {
+        foreach ($domain in $job) {
             $uniqueRules.Add($domain) | Out-Null
         }
     }
-    Remove-Job -Job $job
 }
 
 # 创建新的HashSet来存储有效的规则
