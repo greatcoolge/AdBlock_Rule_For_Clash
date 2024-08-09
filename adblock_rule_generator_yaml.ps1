@@ -49,23 +49,18 @@ $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
-# 使用 ForEach-Object -Parallel 进行并行处理
-$urlList | ForEach-Object -Parallel {
-    param (
-        $url,
-        $uniqueRules,
-        $logFilePath,
-        $webClient
-    )
-
+foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
     try {
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
+
         foreach ($line in $lines) {
+            # 匹配完整域名
             if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1) ([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/') {
                 $domain = $Matches[1]
+                # 确保只添加完整的域名
                 if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
                     $uniqueRules.Add($domain) | Out-Null
                 }
@@ -76,7 +71,7 @@ $urlList | ForEach-Object -Parallel {
         Write-Host "处理 $url 时出错: $_"
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
-} -ArgumentList $_, $uniqueRules, $logFilePath, $webClient -ThrottleLimit 10
+}
 
 # 创建新的HashSet来存储有效的规则
 $validRules = [System.Collections.Generic.HashSet[string]]::new()
