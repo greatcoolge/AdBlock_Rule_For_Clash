@@ -73,8 +73,8 @@ foreach ($url in $urlList) {
     }
 }
 
-# 将有效规则格式化为TXT列表的格式
-$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "DOMAIN,$_" }
+# 将有效规则格式化为带有“- DOMAIN,”前缀的格式
+$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
 
 # 生成TXT文件内容
 $ruleCount = $uniqueRules.Count
