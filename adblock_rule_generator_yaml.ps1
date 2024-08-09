@@ -49,7 +49,10 @@ $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
-foreach ($url in $urlList) {
+# 并行处理URL列表
+$urlList | ForEach-Object -Parallel {
+    param($url, $webClient, $uniqueRules, $logFilePath)
+    
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
     try {
@@ -71,7 +74,7 @@ foreach ($url in $urlList) {
         Write-Host "处理 $url 时出错: $_"
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
-}
+} -ArgumentList $_, $webClient, $uniqueRules, $logFilePath
 
 # 创建新的HashSet来存储有效的规则
 $validRules = [System.Collections.Generic.HashSet[string]]::new()
