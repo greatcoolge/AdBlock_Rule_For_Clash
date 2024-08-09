@@ -49,32 +49,52 @@ $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
-# 并行处理URL列表
-$urlList | ForEach-Object -Parallel {
-    param($url, $webClient, $uniqueRules, $logFilePath)
-    
-    Write-Host "正在处理: $url"
-    Add-Content -Path $logFilePath -Value "正在处理: $url"
-    try {
-        $content = $webClient.DownloadString($url)
-        $lines = $content -split "`n"
+# 创建任务列表
+$jobs = @()
+foreach ($url in $urlList) {
+    $job = Start-Job -ScriptBlock {
+        param($url, $webClient, $logFilePath)
+        Write-Host "正在处理: $url"
+        Add-Content -Path $logFilePath -Value "正在处理: $url"
+        try {
+            $content = $webClient.DownloadString($url)
+            $lines = $content -split "`n"
 
-        foreach ($line in $lines) {
-            # 匹配完整域名
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1) ([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/') {
-                $domain = $Matches[1]
-                # 确保只添加完整的域名
-                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
-                    $uniqueRules.Add($domain) | Out-Null
+            $rules = @()
+            foreach ($line in $lines) {
+                # 匹配完整域名
+                if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1) ([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/') {
+                    $domain = $Matches[1]
+                    # 确保只添加完整的域名
+                    if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
+                        $rules += $domain
+                    }
                 }
             }
+            return $rules
+        }
+        catch {
+            Write-Host "处理 $url 时出错: $_"
+            Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
+            return $null
+        }
+    } -ArgumentList $url, $webClient, $logFilePath
+    $jobs += $job
+}
+
+# 等待所有任务完成
+$jobs | Wait-Job
+
+# 收集结果并将规则添加到HashSet中
+foreach ($job in $jobs) {
+    $result = Receive-Job -Job $job
+    if ($result) {
+        foreach ($domain in $result) {
+            $uniqueRules.Add($domain) | Out-Null
         }
     }
-    catch {
-        Write-Host "处理 $url 时出错: $_"
-        Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
-    }
-} -ArgumentList $_, $webClient, $uniqueRules, $logFilePath
+    Remove-Job -Job $job
+}
 
 # 创建新的HashSet来存储有效的规则
 $validRules = [System.Collections.Generic.HashSet[string]]::new()
