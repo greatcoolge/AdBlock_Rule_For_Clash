@@ -45,7 +45,7 @@ $logFilePath = "$PSScriptRoot/adblock_log.txt"
 # 创建一个HashSet来存储唯一的规则
 $uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
 
-# 遍历每个广告过滤器URL，下载并提取拦截域名规则
+# 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
@@ -58,12 +58,16 @@ foreach ($url in $urlList) {
         $lines = $content -split "`n"
 
         foreach ($line in $lines) {
-            # 支持多种广告规则格式的匹配，只提取被阻止的完整域名
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+)\^$' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1) ([a-zA-Z0-9.-]+)$' -or $line -match '^address=/([a-zA-Z0-9.-]+)/$') {
+            # 原有的匹配条件
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
                 $domain = $Matches[1]
-                # 验证提取的内容是否为完整的域名，并且过滤掉只包含数字的域名
-                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$' -and $domain -notmatch '^[0-9]+$') {
+
+                # 新增的额外验证以确保域名格式正确
+                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
                     $uniqueRules.Add($domain) | Out-Null
+                } else {
+                    # 记录无效域名到日志中
+                    Add-Content -Path $logFilePath -Value "无效域名: $domain"
                 }
             }
         }
@@ -74,12 +78,14 @@ foreach ($url in $urlList) {
     }
 }
 
-# 将有效规则格式化为带有“- DOMAIN,”前缀的格式
-$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
+# 对规则进行排序
+$sortedRules = $uniqueRules | Sort-Object
 
-# 生成TXT文件内容
+# 统计生成的规则条目数量
 $ruleCount = $uniqueRules.Count
-$txtContent = @"
+
+# 创建文本格式的字符串
+$textContent = @"
 # Title: AdBlock_Rule_For_Clash
 # Description: 适用于Clash的域名拦截rule-providers，同时提供兼容Surge的规则集配置，每20分钟更新一次，确保即时同步上游减少误杀
 # Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
@@ -89,13 +95,12 @@ $txtContent = @"
 # Generated AdBlock rules
 # Total entries: $ruleCount
 
-payload:
-$($formattedRules -join "`n")
+$($sortedRules -join "`n")
 "@
 
-# 保存生成的TXT文件
+# 定义输出文件路径
 $outputPath = "$PSScriptRoot/adblock_reject.txt"
-$txtContent | Out-File -FilePath $outputPath -Encoding utf8
+$textContent | Out-File -FilePath $outputPath -Encoding utf8
 
 # 输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
