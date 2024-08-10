@@ -58,10 +58,11 @@ foreach ($url in $urlList) {
         $lines = $content -split "`n"
 
         foreach ($line in $lines) {
-            # 匹配完整域名且确保是被拦截的
+            # 原有的匹配条件
             if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
                 $domain = $Matches[1]
-                # 确保只添加完整的域名
+
+                # 新增的额外验证以确保域名格式正确
                 if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
                     $uniqueRules.Add($domain) | Out-Null
                 }
@@ -74,19 +75,11 @@ foreach ($url in $urlList) {
     }
 }
 
-# 创建新的HashSet来存储有效的规则
-$validRules = [System.Collections.Generic.HashSet[string]]::new()
-foreach ($rule in $uniqueRules) {
-    if ($rule -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
-        $validRules.Add($rule) | Out-Null
-    }
-}
-
 # 对规则进行排序并添加DOMAIN,前缀
-$formattedRules = $validRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
+$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
 
 # 统计生成的规则条目数量
-$ruleCount = $validRules.Count
+$ruleCount = $uniqueRules.Count
 
 # 创建YAML格式的字符串
 $yamlContent = @"
