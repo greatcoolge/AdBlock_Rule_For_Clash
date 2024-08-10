@@ -65,6 +65,9 @@ foreach ($url in $urlList) {
                 # 新增的额外验证以确保域名格式正确
                 if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
                     $uniqueRules.Add($domain) | Out-Null
+                } else {
+                    # 记录无效域名到日志中
+                    Add-Content -Path $logFilePath -Value "无效域名: $domain"
                 }
             }
         }
