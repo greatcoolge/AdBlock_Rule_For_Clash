@@ -61,8 +61,8 @@ foreach ($url in $urlList) {
             # 支持多种广告规则格式的匹配，只提取被阻止的完整域名
             if ($line -match '^\|\|([a-zA-Z0-9.-]+)\^$' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1) ([a-zA-Z0-9.-]+)$' -or $line -match '^address=/([a-zA-Z0-9.-]+)/$') {
                 $domain = $Matches[1]
-                # 验证提取的内容是否为完整的域名
-                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
+                # 验证提取的内容是否为完整的域名，并且过滤掉只包含数字的域名
+                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$' -and $domain -notmatch '^[0-9]+$') {
                     $uniqueRules.Add($domain) | Out-Null
                 }
             }
