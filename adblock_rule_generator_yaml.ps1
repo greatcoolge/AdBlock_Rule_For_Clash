@@ -49,44 +49,27 @@ $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
-# 创建任务列表
-$jobs = @()
 foreach ($url in $urlList) {
-    $jobs += [powershell]::Create().AddScript({
-        param($url, $webClient, $logFilePath)
-        Write-Host "正在处理: $url"
-        Add-Content -Path $logFilePath -Value "正在处理: $url"
-        try {
-            $content = $webClient.DownloadString($url)
-            $lines = $content -split "`n"
+    Write-Host "正在处理: $url"
+    Add-Content -Path $logFilePath -Value "正在处理: $url"
+    try {
+        $content = $webClient.DownloadString($url)
+        $lines = $content -split "`n"
 
-            $rules = @()
-            foreach ($line in $lines) {
-                # 匹配完整域名
-                if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1) ([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/') {
-                    $domain = $Matches[1]
-                    # 确保只添加完整的域名
-                    if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
-                        $rules += $domain
-                    }
+        foreach ($line in $lines) {
+            # 匹配完整域名且确保是被拦截的
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
+                $domain = $Matches[1]
+                # 确保只添加完整的域名
+                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
+                    $uniqueRules.Add($domain) | Out-Null
                 }
             }
-            return $rules
         }
-        catch {
-            Write-Host "处理 $url 时出错: $_"
-            Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
-            return $null
-        }
-    }).AddArgument($url).AddArgument($webClient).AddArgument($logFilePath).AddScript('return $rules').Invoke()
-}
-
-# 等待所有任务完成
-foreach ($job in $jobs) {
-    if ($job) {
-        foreach ($domain in $job) {
-            $uniqueRules.Add($domain) | Out-Null
-        }
+    }
+    catch {
+        Write-Host "处理 $url 时出错: $_"
+        Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
 
