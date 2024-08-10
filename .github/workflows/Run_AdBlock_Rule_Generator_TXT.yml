@@ -18,18 +18,18 @@ jobs:
     - name: Checkout repository  # 检出代码仓库
       uses: actions/checkout@v3  # 使用官方的 checkout 操作来检出代码
 
-    - name: Install PowerShell  # 安装 PowerShell
+    - name: Install PowerShell 7  # 安装 PowerShell 7
       run: |
         sudo apt-get update  # 更新包列表
         sudo apt-get install -y wget apt-transport-https software-properties-common  # 安装必要的包
         wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb  # 下载微软的包配置文件
         sudo dpkg -i packages-microsoft-prod.deb  # 安装包配置文件
         sudo apt-get update  # 更新包列表
-        sudo apt-get install -y powershell  # 安装 PowerShell
+        sudo apt-get install -y powershell  # 安装 PowerShell 7
         rm packages-microsoft-prod.deb  # 删除包配置文件
 
-    - name: Run adblock_rule_generator_txt.ps1  # 运行adblock_rule_generator_txt.ps1 脚本
-      run: pwsh ./adblock_rule_generator_txt.ps1  # 使用PowerShell运行脚本
+    - name: Run adblock_rule_generator_txt.ps1  # 运行 adblock_rule_generator_txt.ps1 脚本
+      run: pwsh -File ./adblock_rule_generator_txt.ps1  # 使用 PowerShell 7 运行脚本
 
     - name: Force Add and Commit TXT file  # 强制添加并提交 TXT 文件
       run: |
