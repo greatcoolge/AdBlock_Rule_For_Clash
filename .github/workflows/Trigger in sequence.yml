@@ -213,8 +213,8 @@ jobs:
             fi
           done
 
-          # 等待90秒
-          sleep 90
+          # 等待180秒
+          sleep 180
 
   trigger_release_adblock_file:
     runs-on: ubuntu-latest
