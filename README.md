@@ -220,6 +220,10 @@ RULE-SET,https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adbloc
 
 12、HyperADRules (https://github.com/Lynricsy/HyperADRules)
 
+13、guandasheng (https://github.com/guandasheng/TheBestAdrules)
+
 ## License
 
 Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+
