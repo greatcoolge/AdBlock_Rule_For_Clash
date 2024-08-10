@@ -62,12 +62,12 @@ foreach ($url in $urlList) {
             if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
                 $domain = $Matches[1]
 
-                # 新增的额外验证以确保域名格式正确
-                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
+                # 新增的额外验证以确保域名格式正确且长度不超过50个字符
+                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$' -and $domain.Length -le 50) {
                     $uniqueRules.Add($domain) | Out-Null
                 } else {
-                    # 记录无效域名到日志中
-                    Add-Content -Path $logFilePath -Value "无效域名: $domain"
+                    # 记录无效域名或超长域名到日志中
+                    Add-Content -Path $logFilePath -Value "无效或超长域名: $domain"
                 }
             }
         }
