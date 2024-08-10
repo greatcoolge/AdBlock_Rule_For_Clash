@@ -224,6 +224,8 @@ RULE-SET,https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adbloc
 
 ## License
 
+GNU GENERAL PUBLIC LICENSE
+
 Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
 
