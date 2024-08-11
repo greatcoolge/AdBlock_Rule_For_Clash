@@ -6,13 +6,11 @@ on:
     - cron: '*/20 * * * *'  # 每20分钟触发一次
 
 jobs:
-
   trigger_adblock_rule_generator_yaml:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # 检出仓库代码
-
+        uses: actions/checkout@v3
       - name: Trigger and verify Run_AdBlock_Rule_Generator_YAML
         env:
           TOKEN: ${{ secrets.TOKEN }}
@@ -22,15 +20,15 @@ jobs:
           # 触发工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
-          # 验证工作流成功触发
+          # 验证工作流成功触发和完成
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
 
             if [[ "$status" == "success" ]]; then
@@ -49,12 +47,11 @@ jobs:
           sleep 90
 
   trigger_adblock_rule_generator_txt:
-    runs-on: ubuntu-latest
     needs: trigger_adblock_rule_generator_yaml
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # 检出仓库代码
-
+        uses: actions/checkout@v3
       - name: Trigger and verify Run_AdBlock_Rule_Generator_TXT
         env:
           TOKEN: ${{ secrets.TOKEN }}
@@ -64,15 +61,15 @@ jobs:
           # 触发工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
-          # 验证工作流成功触发
+          # 验证工作流成功触发和完成
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
 
             if [[ "$status" == "success" ]]; then
@@ -91,12 +88,11 @@ jobs:
           sleep 90
 
   trigger_convert_ruleset_yaml_to_mrs:
-    runs-on: ubuntu-latest
     needs: trigger_adblock_rule_generator_txt
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # 检出仓库代码
-
+        uses: actions/checkout@v3
       - name: Trigger and verify Convert_Ruleset_YAML_to_MRS
         env:
           TOKEN: ${{ secrets.TOKEN }}
@@ -106,15 +102,15 @@ jobs:
           # 触发工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
-          # 验证工作流成功触发
+          # 验证工作流成功触发和完成
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
 
             if [[ "$status" == "success" ]]; then
@@ -133,12 +129,11 @@ jobs:
           sleep 90
 
   trigger_generate_matcher_ruleset_entries_clash:
-    runs-on: ubuntu-latest
     needs: trigger_convert_ruleset_yaml_to_mrs
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # 检出仓库代码
-
+        uses: actions/checkout@v3
       - name: Trigger and verify Generate_Matcher_Ruleset_entries_CLASH
         env:
           TOKEN: ${{ secrets.TOKEN }}
@@ -148,15 +143,15 @@ jobs:
           # 触发工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
-          # 验证工作流成功触发
+          # 验证工作流成功触发和完成
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
 
             if [[ "$status" == "success" ]]; then
@@ -173,74 +168,31 @@ jobs:
 
           # 等待90秒
           sleep 90
-
-  trigger_generate_matcher_ruleset_entries_surge:
-    runs-on: ubuntu-latest
-    needs: trigger_generate_matcher_ruleset_entries_clash
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3  # 检出仓库代码
-
-      - name: Trigger and verify Generate_Matcher_Ruleset_entries_SURGE
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
-        run: |
-          workflow_id="Generate_Matcher_Ruleset_entries_SURGE.yml"
-          ref="main"
-          # 触发工作流
-          response=$(curl -X POST -H "Authorization: token $TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
-            -d "{\"ref\":\"$ref\"}")
-          echo "Triggered workflow $workflow_id: $response"
-
-          # 验证工作流成功触发
-          while : ; do
-            status=$(curl -s -H "Authorization: token $TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
-              | jq -r '.workflow_runs[0].conclusion')
-
-            if [[ "$status" == "success" ]]; then
-              echo "Workflow $workflow_id completed successfully."
-              break
-            elif [[ "$status" == "failure" ]]; then
-              echo "Workflow $workflow_id failed."
-              exit 1
-            else
-              echo "Waiting for workflow $workflow_id to complete..."
-              sleep 30
-            fi
-          done
-
-          # 等待180秒
-          sleep 180
 
   trigger_release_adblock_file:
+    needs: trigger_generate_matcher_ruleset_entries_clash
     runs-on: ubuntu-latest
-    needs: trigger_generate_matcher_ruleset_entries_surge
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # 检出仓库代码
-
-      - name: Trigger and verify Release_Adblock_file
+        uses: actions/checkout@v3
+      - name: Trigger and verify Release_ADblock_file
         env:
           TOKEN: ${{ secrets.TOKEN }}
         run: |
-          workflow_id="Release_Adblock_file.yml"
+          workflow_id="Release_ADblock_file.yml"
           ref="main"
           # 触发工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
-          # 验证工作流成功触发
+          # 验证工作流成功触发和完成
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Surge/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
 
             if [[ "$status" == "success" ]]; then
@@ -254,20 +206,3 @@ jobs:
               sleep 30
             fi
           done
-
-          # 等待90秒
-          sleep 90
-
-  check_all_workflows:
-    runs-on: ubuntu-latest
-    needs: 
-      - trigger_adblock_rule_generator_yaml
-      - trigger_adblock_rule_generator_txt
-      - trigger_convert_ruleset_yaml_to_mrs
-      - trigger_generate_matcher_ruleset_entries_clash
-      - trigger_generate_matcher_ruleset_entries_surge
-      - trigger_release_adblock_file
-    steps:
-      - name: Ensure all workflows succeeded
-        run: |
-          echo "All workflows completed successfully"
