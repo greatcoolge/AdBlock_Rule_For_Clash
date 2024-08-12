@@ -18,7 +18,7 @@
 **一、从多个广告过滤器中提取拦截域名条目，删除重复项，并将它们转换为兼容Clash的payload列表格式，其中列表的每一项都写成了Matcher Ruleset格式数组，一行仅一条规则。该列表可以用作Clash的rule-providers.以阻止广告域名， powershell脚本每20分钟自动执行并将生成的文件发布在release中.五个文件的下载地址分别如下，其中adblock_reject.yaml和adblock_reject.txt是Matcher Ruleset格式数组构成的payload列表（直接作为外部规则集rule-providers使用），adblock_reject_change.yaml和adblock_reject_change.txt则是纯粹的Matcher Ruleset数组列表（需要复制到rules配置使用），adblock_reject.mrs则是由mihomo核心将adblock_reject.yaml转化得来的规则集**
 <br>
 <br>
-**前三个是适用于Clash的外部远程规则集（payload列表）**
+**前三个是适用于Clash的外部远程规则集（yaml的是payload列表）**
 <br>
 *1、YAML格式的外部远程拦截域名规则集 adblock_reject.yaml* 
 <br>
