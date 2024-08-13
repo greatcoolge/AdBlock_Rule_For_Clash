@@ -43,8 +43,8 @@ $urlList = @(
     "https://raw.githubusercontent.com/guandasheng/adguardhome/main/rule/all.txt"
 )
 
-# 创建一个HashSet来存储唯一的规则
-$uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
+# 创建一个HashSet来存储唯一的域名规则
+$uniqueDomains = [System.Collections.Generic.HashSet[string]]::new()
 
 # 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
@@ -58,9 +58,13 @@ foreach ($url in $urlList) {
         $lines = $content -split "`n"
 
         foreach ($line in $lines) {
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+)\^') {
+            # 匹配精确的域名规则
+            if ($line -match '^\|\|([a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9])\^$') {
                 $domain = $Matches[1]
-                $uniqueRules.Add($domain) | Out-Null
+                # 验证域名的有效性
+                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
+                    $uniqueDomains.Add($domain) | Out-Null
+                }
             }
         }
     }
@@ -69,19 +73,21 @@ foreach ($url in $urlList) {
     }
 }
 
-# 去除无效域名规则
-$validRules = [System.Collections.Generic.HashSet[string]]::new()
-foreach ($rule in $uniqueRules) {
-    if ($rule -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
-        $validRules.Add($rule) | Out-Null
-    }
-}
+# 将有效域名格式化为Clash规则集格式
+$formattedRules = $uniqueDomains | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
 
-# 将有效规则格式化为payload列表的格式
-$formattedRules = $validRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
-
-# 生成TXT文件内容
+# 生成YAML文件内容
+$ruleCount = $uniqueDomains.Count
+$timeZoneOffset = 8  # 东八区时区偏移量
 $txtContent = @"
+# Title: AdBlock_Rule_For_Clash
+# Description: 适用于Clash的域名拦截规则集，每20分钟更新一次，确保即时同步上游减少误杀
+# Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
+# LICENSE1：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
+# LICENSE2：https://github.com/REIJI007/AdBlock_Rule_For_Calsh/blob/main/LICENSE-CC%20BY-NC-SA%204.0
+# 生成时间: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss" -UFormat "%Z" | ForEach-Object { (Get-Date).AddHours($timeZoneOffset) })
+# 规则条目数量: $ruleCount
+
 payload:
 $($formattedRules -join "`n")
 "@
@@ -90,9 +96,8 @@ $($formattedRules -join "`n")
 $outputPath = "$PSScriptRoot/adblock_reject.txt"
 $txtContent | Out-File -FilePath $outputPath -Encoding utf8
 
-# 统计生成的规则条目数量
-$ruleCount = $validRules.Count
 Write-Host "生成的有效规则总数: $ruleCount"
+Write-Host "规则集已保存至: $outputPath"
 
-# 确保脚本执行完后不自动退出
+# 保持控制台窗口打开
 Pause
