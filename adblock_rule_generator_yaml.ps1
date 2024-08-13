@@ -89,8 +89,15 @@ foreach ($rule in $uniqueRules) {
 $formattedRules = $validRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
 
 # 第四步：生成YAML文件内容
-# 创建YAML格式的字符串，包含所有格式化后的规则
+# 统计生成的规则条目数量
+$ruleCount = $validRules.Count
+
+# 创建YAML格式的字符串，包含注释和所有格式化后的规则
 $yamlContent = @"
+# AdBlock Rule For Clash
+# 生成时间: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+# 规则条目数量: $ruleCount
+
 payload:
 $($formattedRules -join "`n")
 "@
@@ -101,9 +108,7 @@ $outputPath = "$PSScriptRoot/adblock_reject.yaml"
 # 将YAML内容写入文件，使用UTF8编码
 $yamlContent | Out-File -FilePath $outputPath -Encoding utf8
 
-# 第六步：统计生成的规则条目数量
-$ruleCount = $validRules.Count
-# 输出生成的有效规则总数
+# 第六步：输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
 
 # 确保脚本执行完后不自动退出
