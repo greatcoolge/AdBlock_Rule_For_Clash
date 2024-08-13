@@ -1,10 +1,6 @@
-<#
 # Title: AdBlock_Rule_For_Clash
 # Description: 适用于Clash的域名拦截规则集，每20分钟更新一次，确保即时同步上游减少误杀
 # Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
-# LICENSE1：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
-# LICENSE2：https://github.com/REIJI007/AdBlock_Rule_For_Calsh/blob/main/LICENSE-CC%20BY-NC-SA%204.0
-#>
 
 # 定义广告过滤器URL列表
 $urlList = @(
@@ -43,8 +39,11 @@ $urlList = @(
     "https://raw.githubusercontent.com/guandasheng/adguardhome/main/rule/all.txt"
 )
 
-# 创建一个HashSet来存储唯一的域名规则
-$uniqueDomains = [System.Collections.Generic.HashSet[string]]::new()
+# 日志文件路径
+$logFilePath = "$PSScriptRoot/adblock_log.txt"
+
+# 创建一个HashSet来存储唯一的规则
+$uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
 
 # 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
@@ -53,51 +52,60 @@ $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) 
 
 foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
+    Add-Content -Path $logFilePath -Value "正在处理: $url"
     try {
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
 
         foreach ($line in $lines) {
-            # 匹配精确的域名规则
-            if ($line -match '^\|\|([a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9])\^$') {
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
                 $domain = $Matches[1]
-                # 验证域名的有效性
-                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
-                    $uniqueDomains.Add($domain) | Out-Null
+                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$' -and $domain.Length -le 50) {
+                    $uniqueRules.Add($domain) | Out-Null
+                } else {
+                    Add-Content -Path $logFilePath -Value "无效或超长域名: $domain"
                 }
             }
         }
     }
     catch {
         Write-Host "处理 $url 时出错: $_"
+        Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
 
-# 将有效域名格式化为Clash规则集格式
-$formattedRules = $uniqueDomains | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
+# 对规则进行排序并添加前缀
+$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "DOMAIN,$_ " }
 
-# 生成YAML文件内容
-$ruleCount = $uniqueDomains.Count
-$timeZoneOffset = 8  # 东八区时区偏移量
-$txtContent = @"
+# 统计生成的规则条目数量
+$ruleCount = $uniqueRules.Count
+
+# 获取当前东八区时间
+$timeZoneInfo = [System.TimeZoneInfo]::FindSystemTimeZoneById("China Standard Time")
+$localTime = [System.TimeZoneInfo]::ConvertTime([System.DateTime]::UtcNow, $timeZoneInfo)
+$generatedTime = $localTime.ToString("yyyy-MM-dd HH:mm:ss")
+
+# 创建文本格式的字符串
+$textContent = @"
 # Title: AdBlock_Rule_For_Clash
 # Description: 适用于Clash的域名拦截规则集，每20分钟更新一次，确保即时同步上游减少误杀
 # Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
 # LICENSE1：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
 # LICENSE2：https://github.com/REIJI007/AdBlock_Rule_For_Calsh/blob/main/LICENSE-CC%20BY-NC-SA%204.0
-# 生成时间: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss" -UFormat "%Z" | ForEach-Object { (Get-Date).AddHours($timeZoneOffset) })
-# 规则条目数量: $ruleCount
 
+# Generated AdBlock rules
+# Generated on: $generatedTime (GMT+8)
+# Total entries: $ruleCount
 payload:
 $($formattedRules -join "`n")
 "@
 
-# 保存生成的TXT文件
+# 定义输出文件路径
 $outputPath = "$PSScriptRoot/adblock_reject.txt"
-$txtContent | Out-File -FilePath $outputPath -Encoding utf8
+$textContent | Out-File -FilePath $outputPath -Encoding utf8
 
+# 输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
-Write-Host "规则集已保存至: $outputPath"
+Add-Content -Path $logFilePath -Value "生成的有效规则总数: $ruleCount"
 
-# 保持控制台窗口打开
 Pause
