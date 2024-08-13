@@ -4,7 +4,7 @@
 # 定义广告过滤器URL列表
 # 这些URL包含了各种广告拦截规则的源
 $urlList = @(
-    "https://anti-ad.net/adguard.txt",
+        "https://anti-ad.net/adguard.txt",
     "https://anti-ad.net/easylist.txt",
     "https://easylist-downloads.adblockplus.org/easylist.txt",
     "https://easylist-downloads.adblockplus.org/easylistchina.txt",
@@ -33,7 +33,10 @@ $urlList = @(
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt",
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_7_Japanese/filter.txt",
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt"
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt",
+    "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/rules.txt",
+    "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/dns.txt",
+    "https://raw.githubusercontent.com/guandasheng/adguardhome/main/rule/all.txt"
 )
 
 # 创建一个HashSet来存储唯一的规则
