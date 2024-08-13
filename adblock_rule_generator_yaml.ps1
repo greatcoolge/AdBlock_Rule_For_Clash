@@ -95,7 +95,7 @@ $($formattedRules -join "`n")
 $outputPath = "$PSScriptRoot/adblock_reject.yaml"
 $yamlContent | Out-File -FilePath $outputPath -Encoding utf8
 
-Write-Host "生成的有效域名规则总数: $ruleCount"
+Write-Host "生成的有效规则总数: $ruleCount"
 Write-Host "规则集已保存至: $outputPath"
 
 # 保持控制台窗口打开
