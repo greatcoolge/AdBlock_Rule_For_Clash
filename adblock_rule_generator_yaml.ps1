@@ -78,13 +78,14 @@ $formattedRules = $uniqueDomains | Sort-Object | ForEach-Object { "  - DOMAIN,$_
 
 # 生成YAML文件内容
 $ruleCount = $uniqueDomains.Count
+$timeZoneOffset = 8  # 东八区时区偏移量
 $yamlContent = @"
 # Title: AdBlock_Rule_For_Clash
 # Description: 适用于Clash的域名拦截规则集，每20分钟更新一次，确保即时同步上游减少误杀
 # Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
 # LICENSE1：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
 # LICENSE2：https://github.com/REIJI007/AdBlock_Rule_For_Calsh/blob/main/LICENSE-CC%20BY-NC-SA%204.0
-# 生成时间: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+# 生成时间: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss" -UFormat "%Z" | ForEach-Object { (Get-Date).AddHours($timeZoneOffset) })
 # 规则条目数量: $ruleCount
 
 payload:
