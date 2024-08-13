@@ -9,16 +9,20 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
+      # 步骤1：检出代码
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # 步骤2：获取当前时间
       - name: Get current time
         id: current-time
-        run: echo "time=$(date +'%y%m%d%H%M')" >> $GITHUB_ENV
+        run: echo "time=$(date +'%y%m%d%H%M')" >> $GITHUB_ENV  # 将时间保存为环境变量
 
+      # 步骤3：更新时间戳文件
       - name: Update timestamp file
-        run: echo "${{ env.time }}" > timestamp.txt
+        run: echo "${{ env.time }}" > timestamp.txt  # 将时间写入 timestamp.txt 文件
 
+      # 步骤4：强制添加、提交并推送更改
       - name: Force add and commit changes
         run: |
           git config --global user.name 'github-actions[bot]'
@@ -27,19 +31,21 @@ jobs:
           git commit -m "Forced update of adblock files and timestamp"
           git push origin main --force
         env:
-          TOKEN: ${{ secrets.TOKEN }}
+          TOKEN: ${{ secrets.TOKEN }}  # 使用存储在仓库密钥中的 TOKEN
 
+      # 步骤5：创建新的发布
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # 使用 TOKEN 进行身份验证
         with:
-          tag_name: release-${{ env.time }}
-          release_name: Release ${{ env.time }}
-          body: "Periodic release of adblock files."
-          draft: false
+          tag_name: release-${{ env.time }}  # 使用时间戳作为标签名
+          release_name: Release ${{ env.time }}  # 使用时间戳作为发布名称
+          body: "Periodic release of adblock files."  # 发布说明
+          draft: false  # 创建正式发布，而非草稿
 
+      # 步骤6：上传 adblock_reject.yaml
       - name: Upload adblock_reject.yaml
         uses: actions/upload-release-asset@v1
         env:
@@ -50,6 +56,7 @@ jobs:
           asset_name: adblock_reject.yaml
           asset_content_type: application/x-yaml
 
+      # 步骤7：上传 adblock_reject.txt
       - name: Upload adblock_reject.txt
         uses: actions/upload-release-asset@v1
         env:
@@ -60,6 +67,7 @@ jobs:
           asset_name: adblock_reject.txt
           asset_content_type: text/plain
 
+      # 步骤8：上传 adblock_reject.mrs
       - name: Upload adblock_reject.mrs
         uses: actions/upload-release-asset@v1
         env:
