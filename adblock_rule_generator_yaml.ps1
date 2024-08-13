@@ -1,8 +1,8 @@
-# Title: AdBlock_Rule_For_Clash
-# Description: 适用于Clash的域名拦截rule-providers，每20分钟更新一次，确保即时同步上游减少误杀
-# Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
+# AdBlock Rule For Clash
+# 这个脚本用于生成广告拦截规则，并将其保存为YAML格式
 
 # 定义广告过滤器URL列表
+# 这些URL包含了各种广告拦截规则的源
 $urlList = @(
     "https://anti-ad.net/adguard.txt",
     "https://anti-ad.net/easylist.txt",
@@ -33,78 +33,75 @@ $urlList = @(
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt",
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_7_Japanese/filter.txt",
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_11_Mobile/filter.txt",
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt",
-    "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/rules.txt",
-    "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/dns.txt",
-    "https://raw.githubusercontent.com/guandasheng/adguardhome/main/rule/all.txt"
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt"
 )
 
-# 日志文件路径
-$logFilePath = "$PSScriptRoot/adblock_log.txt"
-
 # 创建一个HashSet来存储唯一的规则
+# 使用HashSet可以自动去重，提高效率
 $uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
 
+# 第一步：遍历每个广告过滤器URL，下载并提取拦截域名规则
 # 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
+# 设置编码为UTF8，确保正确处理非ASCII字符
 $webClient.Encoding = [System.Text.Encoding]::UTF8
+# 添加User-Agent头，模拟浏览器请求，避免被某些服务器拒绝
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
 foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
-    Add-Content -Path $logFilePath -Value "正在处理: $url"
     try {
+        # 下载URL内容
         $content = $webClient.DownloadString($url)
+        # 将内容按行分割
         $lines = $content -split "`n"
 
         foreach ($line in $lines) {
-            # 原有的匹配条件
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$' -or $line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$' -or $line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
+            # 使用正则表达式匹配拦截域名规则
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+)\^') {
                 $domain = $Matches[1]
-
-                # 新增的额外验证以确保域名格式正确且长度不超过50个字符
-                if ($domain -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$' -and $domain.Length -le 50) {
-                    $uniqueRules.Add($domain) | Out-Null
-                } else {
-                    # 记录无效域名或超长域名到日志中
-                    Add-Content -Path $logFilePath -Value "无效或超长域名: $domain"
-                }
+                # 将匹配的域名添加到HashSet中
+                $uniqueRules.Add($domain) | Out-Null
             }
         }
     }
     catch {
+        # 如果处理某个URL时出错，输出错误信息但继续处理其他URL
         Write-Host "处理 $url 时出错: $_"
-        Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
 
+# 第二步：去除无效域名规则
+# 创建新的HashSet来存储有效的规则
+$validRules = [System.Collections.Generic.HashSet[string]]::new()
+foreach ($rule in $uniqueRules) {
+    # 使用正则表达式验证域名的有效性
+    if ($rule -match '^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$') {
+        $validRules.Add($rule) | Out-Null
+    }
+}
+
+# 第三步：将有效规则格式化为payload列表的格式
 # 对规则进行排序并添加DOMAIN,前缀
-$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
+$formattedRules = $validRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_" }
 
-# 统计生成的规则条目数量
-$ruleCount = $uniqueRules.Count
-
-# 创建YAML格式的字符串
+# 第四步：生成YAML文件内容
+# 创建YAML格式的字符串，包含所有格式化后的规则
 $yamlContent = @"
-# Title: AdBlock_Rule_For_Clash
-# Description: 适用于Clash的域名拦截rule-providers，同时提供兼容Surge的规则集配置，每20分钟更新一次，确保即时同步上游减少误杀
-# Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
-# LICENSE1：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
-# LICENSE2：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-CC%20BY-NC-SA%204.0
-
-# Generated AdBlock rules
-# Total entries: $ruleCount
-
 payload:
 $($formattedRules -join "`n")
 "@
 
+# 第五步：保存生成的YAML文件
 # 定义输出文件路径
 $outputPath = "$PSScriptRoot/adblock_reject.yaml"
+# 将YAML内容写入文件，使用UTF8编码
 $yamlContent | Out-File -FilePath $outputPath -Encoding utf8
 
+# 第六步：统计生成的规则条目数量
+$ruleCount = $validRules.Count
 # 输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
-Add-Content -Path $logFilePath -Value "生成的有效规则总数: $ruleCount"
 
+# 确保脚本执行完后不自动退出
 Pause
