@@ -190,7 +190,7 @@ rules:
 
 12、HyperADRules (https://github.com/Lynricsy/HyperADRules)
 
-13、guandasheng (https://github.com/guandasheng/TheBestAdrules)
+13、guandasheng (https://github.com/guandasheng/adguardhome)
 
 ## License
 
