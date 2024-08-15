@@ -22,27 +22,27 @@
 <br>
 *1、YAML格式的外部远程拦截域名规则集 adblock_reject.yaml* 
 <br>
-<br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.yaml*
 <br>
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml*
 <br>
+<br>
 
 *2、MRS格式的外部远程拦截域名规则集 adblock_reject.mrs* 
-<br>
 <br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.mrs*
 <br>
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.mrs*
-
+<br>
+<br>
 
 *3、文本格式的外部远程拦截域名规则集 adblock_reject.txt* 
-<br>
 <br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.txt*
 <br>
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.txt*
-
+<br>
+<br>
 
 **二、理论上任何代理拦截域名且符合广告过滤器过滤语法的列表订阅URL都可加入此powershell脚本处理，请自行酌情添加过滤器订阅URL至adblock_rule_generator_yaml.ps1或者adblock_rule_generator_txt.ps1脚本中进行处理，你可将该脚本代码复制到本地文本编辑器制作成.ps1后缀的文件运行在powershell上，注意修改生成的yaml文件路径，最后在clash的yaml配置中实现调用本地生成的yaml文件或者mrs文件作为rule-providers)，且clash配置字段写成类似于如下两个例子（若要使用mihomo的.mrs格式配置文件则用下面这个）**
 <br>
