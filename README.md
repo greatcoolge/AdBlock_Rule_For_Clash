@@ -22,19 +22,25 @@
 <br>
 *1、YAML格式的外部远程拦截域名规则集 adblock_reject.yaml* 
 <br>
+<br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.yaml*
+<br>
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.yaml*
-
+<br>
 
 *2、MRS格式的外部远程拦截域名规则集 adblock_reject.mrs* 
 <br>
+<br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.mrs*
+<br>
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.mrs*
 
 
 *3、文本格式的外部远程拦截域名规则集 adblock_reject.txt* 
 <br>
+<br>
 *https://raw.githubusercontent.com/REIJI007/AdBlock_Rule_For_Clash/main/adblock_reject.txt*
+<br>
 *https://cdn.jsdelivr.net/gh/REIJI007/AdBlock_Rule_For_Clash@main/adblock_reject.txt*
 
 
