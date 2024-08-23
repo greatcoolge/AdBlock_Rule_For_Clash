@@ -63,38 +63,25 @@ foreach ($url in $urlList) {
 
         foreach ($line in $lines) 
         {
-            # Adblock/Easylist 格式
+            # 匹配 Adblock/Easylist 格式的规则
             if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 $domain = $Matches[1]
-                if ($domain -cmatch '^([a-zA-Z0-9-]+\.[a-zA-Z]{2,})$') {
-                    # 完整域名
-                    $uniqueRules.Add("- DOMAIN,$domain") | Out-Null
-                } else {
-                    # 子域名
-                    $uniqueRules.Add("- DOMAIN-SUFFIX,$domain") | Out-Null
-                }
+                $uniqueRules.Add($domain) | Out-Null
             }
-            # Hosts 文件格式
+            # 匹配 Hosts 文件格式的规则
             elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                 $domain = $Matches[2]
-                if ($domain -cmatch '^([a-zA-Z0-9-]+\.[a-zA-Z]{2,})$') {
-                    # 完整域名
-                    $uniqueRules.Add("- DOMAIN,$domain") | Out-Null
-                } else {
-                    # 子域名
-                    $uniqueRules.Add("- DOMAIN-SUFFIX,$domain") | Out-Null
-                }
+                $uniqueRules.Add($domain) | Out-Null
             }
-            # Dnsmasq/AdGuard 格式
+            # 匹配 Dnsmasq/AdGuard 格式的规则
             elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
                 $domain = $Matches[1]
-                if ($domain -cmatch '^([a-zA-Z0-9-]+\.[a-zA-Z]{2,})$') {
-                    # 完整域名
-                    $uniqueRules.Add("- DOMAIN,$domain") | Out-Null
-                } else {
-                    # 子域名
-                    $uniqueRules.Add("- DOMAIN-SUFFIX,$domain") | Out-Null
-                }
+                $uniqueRules.Add($domain) | Out-Null
+            }
+            # 匹配通配符匹配格式的规则
+            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                $domain = $Matches[1]
+                $uniqueRules.Add($domain) | Out-Null
             }
         }
     }
@@ -104,8 +91,8 @@ foreach ($url in $urlList) {
     }
 }
 
-# 对规则进行排序
-$formattedRules = $uniqueRules | Sort-Object
+# 对规则进行排序并添加前缀
+$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "  - '+.$_' " }
 
 # 统计生成的规则条目数量
 $ruleCount = $uniqueRules.Count
