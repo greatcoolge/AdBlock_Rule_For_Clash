@@ -45,9 +45,8 @@ $urlList = @(
 # 日志文件路径
 $logFilePath = "$PSScriptRoot/adblock_log.txt"
 
-# 创建两个HashSet来存储唯一的规则
-$domainRules = [System.Collections.Generic.HashSet[string]]::new()
-$domainSuffixRules = [System.Collections.Generic.HashSet[string]]::new()
+# 创建一个HashSet来存储唯一的规则
+$uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
 
 # 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
@@ -64,35 +63,25 @@ foreach ($url in $urlList) {
 
         foreach ($line in $lines) 
         {
-            # 匹配 Adblock/Easylist 格式的规则 (匹配子域名)
+            # 匹配 Adblock/Easylist 格式的规则
             if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 $domain = $Matches[1]
-                $domainSuffixRules.Add($domain) | Out-Null
+                $uniqueRules.Add($domain) | Out-Null
             }
-            # 匹配 Adblock/Easylist 格式的规则 (匹配完整域名)
-            elseif ($line -match '^\|https?://([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/\^$') {
-                $domain = $Matches[1]
-                $domainRules.Add($domain) | Out-Null
-            }
-            # 匹配 Hosts 文件格式的规则 (匹配子域名)
-            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+\*\.\s*([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
-                $domain = $Matches[2]
-                $domainSuffixRules.Add($domain) | Out-Null
-            }
-            # 匹配 Hosts 文件格式的规则 (匹配完整域名)
+            # 匹配 Hosts 文件格式的规则
             elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                 $domain = $Matches[2]
-                $domainRules.Add($domain) | Out-Null
+                $uniqueRules.Add($domain) | Out-Null
             }
-            # 匹配 Dnsmasq/AdGuard 格式的规则 (匹配子域名)
-            elseif ($line -match '^address=/\*\.\s*([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
-                $domain = $Matches[1]
-                $domainSuffixRules.Add($domain) | Out-Null
-            }
-            # 匹配 Dnsmasq/AdGuard 格式的规则 (匹配完整域名)
+            # 匹配 Dnsmasq/AdGuard 格式的规则
             elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
                 $domain = $Matches[1]
-                $domainRules.Add($domain) | Out-Null
+                $uniqueRules.Add($domain) | Out-Null
+            }
+            # 匹配通配符匹配格式的规则
+            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                $domain = $Matches[1]
+                $uniqueRules.Add($domain) | Out-Null
             }
         }
     }
@@ -103,14 +92,10 @@ foreach ($url in $urlList) {
 }
 
 # 对规则进行排序并添加前缀
-$formattedDomainRules = $domainRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_ " }
-$formattedDomainSuffixRules = $domainSuffixRules | Sort-Object | ForEach-Object { "  - DOMAIN-SUFFIX,$_ " }
-
-# 合并规则列表
-$allFormattedRules = $formattedDomainRules + $formattedDomainSuffixRules
+$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "  - DOMAIN,$_ " }
 
 # 统计生成的规则条目数量
-$ruleCount = $allFormattedRules.Count
+$ruleCount = $uniqueRules.Count
 
 # 获取当前东八区时间
 $timeZoneInfo = [System.TimeZoneInfo]::FindSystemTimeZoneById("China Standard Time")
@@ -129,7 +114,7 @@ $textContent = @"
 # Total entries: $ruleCount
 
 payload:
-$($allFormattedRules -join "`n")
+$($formattedRules -join "`n")
 "@
 
 # 定义输出文件路径
