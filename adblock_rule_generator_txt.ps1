@@ -63,52 +63,23 @@ foreach ($url in $urlList) {
 
         foreach ($line in $lines) 
         {
-            # 匹配 Adblock/Easylist 格式的规则，包括子域名
+            # 匹配 Adblock/Easylist 格式的规则
             if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 $domain = $Matches[1]
                 $uniqueRules.Add($domain) | Out-Null
-
-                # 提取子域名部分
-                if ($domain -match '^([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,})$') {
-                    $subdomain = '*.' + $Matches[2]
-                    $uniqueRules.Add($subdomain) | Out-Null
-                }
             }
             # 匹配 Hosts 文件格式的规则
             elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                 $domain = $Matches[2]
                 $uniqueRules.Add($domain) | Out-Null
-
-                # 提取子域名部分
-                if ($domain -match '^([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,})$') {
-                    $subdomain = '*.' + $Matches[2]
-                    $uniqueRules.Add($subdomain) | Out-Null
-                }
             }
             # 匹配 Dnsmasq/AdGuard 格式的规则
             elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
                 $domain = $Matches[1]
                 $uniqueRules.Add($domain) | Out-Null
-
-                # 提取子域名部分
-                if ($domain -match '^([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,})$') {
-                    $subdomain = '*.' + $Matches[2]
-                    $uniqueRules.Add($subdomain) | Out-Null
-                }
             }
             # 匹配通配符匹配格式的规则
             elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                $domain = $Matches[1]
-                $uniqueRules.Add($domain) | Out-Null
-
-                # 提取子域名部分
-                if ($domain -match '^([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,})$') {
-                    $subdomain = '*.' + $Matches[2]
-                    $uniqueRules.Add($subdomain) | Out-Null
-                }
-            }
-            # 匹配通配符域名，如 *.example.com
-            elseif ($line -match '^\*\.([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                 $domain = $Matches[1]
                 $uniqueRules.Add($domain) | Out-Null
             }
