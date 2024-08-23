@@ -68,10 +68,10 @@ foreach ($url in $urlList) {
                 $domain = $Matches[1]
                 if ($domain -cmatch '^([a-zA-Z0-9-]+\.[a-zA-Z]{2,})$') {
                     # 完整域名
-                    $uniqueRules.Add("DOMAIN,$domain") | Out-Null
+                    $uniqueRules.Add("- DOMAIN,$domain") | Out-Null
                 } else {
                     # 子域名
-                    $uniqueRules.Add("DOMAIN-SUFFIX,$domain") | Out-Null
+                    $uniqueRules.Add("- DOMAIN-SUFFIX,$domain") | Out-Null
                 }
             }
             # Hosts 文件格式
@@ -79,10 +79,10 @@ foreach ($url in $urlList) {
                 $domain = $Matches[2]
                 if ($domain -cmatch '^([a-zA-Z0-9-]+\.[a-zA-Z]{2,})$') {
                     # 完整域名
-                    $uniqueRules.Add("DOMAIN,$domain") | Out-Null
+                    $uniqueRules.Add("- DOMAIN,$domain") | Out-Null
                 } else {
                     # 子域名
-                    $uniqueRules.Add("DOMAIN-SUFFIX,$domain") | Out-Null
+                    $uniqueRules.Add("- DOMAIN-SUFFIX,$domain") | Out-Null
                 }
             }
             # Dnsmasq/AdGuard 格式
@@ -90,10 +90,10 @@ foreach ($url in $urlList) {
                 $domain = $Matches[1]
                 if ($domain -cmatch '^([a-zA-Z0-9-]+\.[a-zA-Z]{2,})$') {
                     # 完整域名
-                    $uniqueRules.Add("DOMAIN,$domain") | Out-Null
+                    $uniqueRules.Add("- DOMAIN,$domain") | Out-Null
                 } else {
                     # 子域名
-                    $uniqueRules.Add("DOMAIN-SUFFIX,$domain") | Out-Null
+                    $uniqueRules.Add("- DOMAIN-SUFFIX,$domain") | Out-Null
                 }
             }
         }
