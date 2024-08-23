@@ -65,16 +65,12 @@ foreach ($url in $urlList) {
         foreach ($line in $lines) 
         {
             # 匹配 Adblock/Easylist 格式的规则 (匹配子域名)
-            if ($line -match '^\|\|([a-zA-Z0-9-]+\.[a-zA-Z]{2,})\^$') {
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 $domain = $Matches[1]
-                if ($domain -match '^\*\.') {
-                    $domainSuffixRules.Add($domain.Substring(2)) | Out-Null
-                } else {
-                    $domainSuffixRules.Add($domain) | Out-Null
-                }
+                $domainSuffixRules.Add($domain) | Out-Null
             }
             # 匹配 Adblock/Easylist 格式的规则 (匹配完整域名)
-            elseif ($line -match '^\|https?://([a-zA-Z0-9-]+\.[a-zA-Z]{2,})/\^$') {
+            elseif ($line -match '^\|https?://([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/\^$') {
                 $domain = $Matches[1]
                 $domainRules.Add($domain) | Out-Null
             }
