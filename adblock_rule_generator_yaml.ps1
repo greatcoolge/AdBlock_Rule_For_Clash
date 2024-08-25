@@ -112,6 +112,11 @@ foreach ($url in $urlList) {
 
         foreach ($line in $lines) 
         {
+            # 排除例外规则
+            if ($line -match '^@@') {
+                continue
+            }
+
             # 匹配 Adblock/Easylist 格式的规则
             if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 $domain = $Matches[1]
@@ -139,6 +144,7 @@ foreach ($url in $urlList) {
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
+
 
 # 对规则进行排序并添加前缀
 $formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "  - '+.$_' " }
