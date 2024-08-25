@@ -93,43 +93,94 @@ $urlList = @(
 # 日志文件路径
 $logFilePath = "$PSScriptRoot/adblock_log.txt"
 
-# 创建一个HashSet来存储唯一的规则和例外规则
+# 创建一个HashSet来存储唯一的规则
 $uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
+
+# 创建一个HashSet来存储例外规则
 $exceptionDomains = [System.Collections.Generic.HashSet[string]]::new()
 
 # 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
-$webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
+$webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
-# 遍历URL列表，下载内容并处理
-foreach ($url in $urlList) {
-    Write-Host "正在处理 $url"
-    try {
+foreach ($url in $urlList) 
+{
+    Write-Host "正在处理: $url"
+    Add-Content -Path $logFilePath -Value "正在处理: $url"
+    
+    try 
+    {
         $content = $webClient.DownloadString($url)
-
-        # 分割内容为行
         $lines = $content -split "`n"
+        
+        # 首先收集所有例外规则
+        foreach ($line in $lines) 
+        {
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})') 
+            {
+                $exceptionDomain = $Matches[1]
+                # 移除任何路径、参数或其他后缀
+                $exceptionDomain = $exceptionDomain -replace '/.*$', ''
+                $exceptionDomain = $exceptionDomain -replace '\^.*$', ''
+                $exceptionDomains.Add($exceptionDomain) | Out-Null
+            }
+        }
 
-        foreach ($line in $lines) {
-            $line = $line.Trim()
+        foreach ($line in $lines) 
+        {
+            # 排除注释和空行
+            if ($line -match '^\s*(#|$)') 
+            {
+                continue
+            }
 
-            # 忽略空行和注释行
-            if (-not [string]::IsNullOrWhiteSpace($line) -and -not $line.StartsWith("#")) {
-                # 初步筛选规则（忽略包含 @@|| 的规则）
-                if (-not $line.StartsWith("@@||")) {
-                    if ($line -match "^(http[s]?://)?([^/]+)") {
-                        $domain = $matches[2]
-                        if ($domain -notin $exceptionDomains) {
-                            # 添加域名到唯一规则集合
-                            $uniqueRules.Add($line) | Out-Null
-                        }
+            # 函数：检查是否为有效域名
+            function Is-ValidDomain 
+            {
+                param ([string]$domain)
+                return $domain -match '^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\.)+[a-zA-Z]{2,}$'
+            }
+
+            # 筛选完整拦截的域名
+            $domain = ""
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') 
+            {
+                $domain = $Matches[1]
+            }
+            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') 
+            {
+                $domain = $Matches[2]
+            }
+            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/(?:0\.0\.0\.0|\s*|$)') 
+            {
+                $domain = $Matches[1]
+            }
+
+            # 检查域名是否有效且不在例外列表中
+            if ($domain -ne "" -and (Is-ValidDomain $domain)) 
+            {
+                $isException = $false
+                foreach ($exceptionDomain in $exceptionDomains) 
+                {
+                    if ($domain -eq $exceptionDomain -or $domain.EndsWith(".$exceptionDomain")) 
+                    {
+                        $isException = $true
+                        break
                     }
+                }
+                
+                if (-not $isException) 
+                {
+                    $uniqueRules.Add($domain) | Out-Null
                 }
             }
         }
-    } catch {
-        Write-Host "下载或处理 $url 时发生错误: $_"
+    } 
+    catch 
+    {
+        Write-Host "处理 $url 时出错: $_"
+        Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
 
@@ -166,4 +217,3 @@ $textContent | Out-File -FilePath $outputPath -Encoding utf8
 # 输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
 Add-Content -Path $logFilePath -Value "Total entries: $ruleCount"
-Add-Content -Path $log
