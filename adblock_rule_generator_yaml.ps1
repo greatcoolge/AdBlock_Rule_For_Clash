@@ -133,13 +133,11 @@ foreach ($url in $urlList) {
     }
 }
 
-# 处理并格式化规则
-$formattedRules = $uniqueRules | ForEach-Object {
-    $_
-}
+# 对规则进行排序并格式化
+$formattedRules = $uniqueRules | Sort-Object | ForEach-Object {"- '+.$_'"}
 
-# 计算有效规则总数
-$ruleCount = $formattedRules.Count
+# 统计生成的规则条目数量
+$ruleCount = $uniqueRules.Count
 
 # 获取当前时间并转换为东八区时间
 $generationTime = (Get-Date).ToUniversalTime().AddHours(8).ToString("yyyy-MM-dd HH:mm:ss")
@@ -149,11 +147,13 @@ $textContent = @"
 # Title: AdBlock_Rule_For_Clash
 # Description: 适用于Clash的域名拦截规则集，每20分钟更新一次，确保即时同步上游减少误杀
 # Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
-# LICENSE1: https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
-# LICENSE2: https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-CC%20BY-NC-SA%204.0
+# LICENSE1：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
+# LICENSE2：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-CC%20BY-NC-SA%204.0
 # Generated on: $generationTime
 # Generated AdBlock rules
 # Total entries: $ruleCount
+
+
 
 payload:
 $($formattedRules -join "`n")
@@ -166,4 +166,4 @@ $textContent | Out-File -FilePath $outputPath -Encoding utf8
 # 输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
 Add-Content -Path $logFilePath -Value "Total entries: $ruleCount"
-Add-Content -Path $logFilePath -Value "Generated on: $generationTime"
+Add-Content -Path $log
