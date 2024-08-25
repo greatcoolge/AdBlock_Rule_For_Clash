@@ -88,7 +88,6 @@ $urlList = @(
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty.txt",
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty-cname.txt",
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-unbreak.txt"
-
 )
 
 # 日志文件路径
@@ -100,31 +99,106 @@ $uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
 # 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
-$webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+$webClient.Proxy = $null
 
-foreach ($line in $lines) 
-{
-    # 条目需要忽略的情况
-    if ($line -match '^@@\|\|') {
-        continue
-    }
+# 域名验证函数
+function IsValidDomain($domain) {
+    return $domain -match '^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+}
 
-    # 条目需要加上前缀 "'+." 和后缀 "'" 的情况
-    if ($line -match '^(example\.com|address=/example\.com/127\.0\.0\.1|address=/example\.com/0\.0\.0\.0|/^[a-z0-9-]+\.)?example\.com$|^\|\|\*\.example\.com\^$|^\|\|example\.com\^\$all)') {
-        $domain = $Matches[1]
-        $formattedRule = "'+.$domain'"
-        $uniqueRules.Add($formattedRule) | Out-Null
+foreach ($url in $urlList) {
+    Write-Host "正在处理: $url"
+    Add-Content -Path $logFilePath -Value "正在处理: $url"
+    try 
+    {
+        $content = $webClient.DownloadString($url)
+        $lines = $content -split "`n"
+
+        foreach ($line in $lines) 
+        {
+            # 直接忽略以@@开头的规则
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                continue
+            }
+
+            # 处理形如example.com的域名，加上前缀'+.和后缀'
+            elseif ($line -match '^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '+.$domain'") | Out-Null
+                }
+            }
+
+            # 处理形如||example.com^的域名，加上前缀'和后缀'
+            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '$domain'") | Out-Null
+                }
+            }
+
+            # 处理形如||*.example.com^的域名，加上前缀'+.和后缀'
+            elseif ($line -match '^\|\|\*\.(example\.com)\^$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '+.$domain'") | Out-Null
+                }
+            }
+
+            # 处理形如||example.com^$all的域名，加上前缀'+.和后缀'
+            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^\$all$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '+.$domain'") | Out-Null
+                }
+            }
+
+            # 处理形如||example.com^$的域名，直接忽略
+            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^\$') {
+                continue
+            }
+
+            # 处理形如address=/example.com/127.0.0.1的域名，加上前缀'和后缀'
+            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/127\.0\.0\.1$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '$domain'") | Out-Null
+                }
+            }
+
+            # 处理形如address=/example.com/0.0.0.0的域名，加上前缀'+.和后缀'
+            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/0\.0\.0\.0$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '+.$domain'") | Out-Null
+                }
+            }
+
+            # 处理形如127.0.0.1 example.com的域名，加上前缀'和后缀'
+            elseif ($line -match '^127\.0\.0\.1\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '$domain'") | Out-Null
+                }
+            }
+
+            # 处理形如0.0.0.0 example.com的域名，加上前缀'和后缀'
+            elseif ($line -match '^0\.0\.0\.0\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '$domain'") | Out-Null
+                }
+            }
+        }
     }
-    # 条目需要加上前缀 "'" 和后缀 "'" 的情况
-    elseif ($line -match '^\|\|example\.com\^$|^\|\|example\.com\^\$all|/^example\.com$|127\.0\.0\.1 example\.com|0\.0\.0\.0 example\.com') {
-        $domain = $Matches[1]
-        $formattedRule = "'$domain'"
-        $uniqueRules.Add($formattedRule) | Out-Null
+    catch {
+        Write-Host "处理 $url 时出错: $_"
+        Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
 
 # 对规则进行排序
-$formattedRules = $uniqueRules | Sort-Object
+$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "$_" }
 
 # 统计生成的规则条目数量
 $ruleCount = $uniqueRules.Count
