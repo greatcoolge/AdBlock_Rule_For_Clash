@@ -102,52 +102,29 @@ $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
-foreach ($url in $urlList) {
-    Write-Host "正在处理: $url"
-    Add-Content -Path $logFilePath -Value "正在处理: $url"
-    try 
-    {
-        $content = $webClient.DownloadString($url)
-        $lines = $content -split "`n"
-
-        foreach ($line in $lines) 
-        {
-            # 排除例外规则
-            if ($line -match '^@@') {
-                continue
-            }
-
-            # 匹配 Adblock/Easylist 格式的规则
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                $domain = $Matches[1]
-                $uniqueRules.Add($domain) | Out-Null
-            }
-            # 匹配 Hosts 文件格式的规则
-            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
-                $domain = $Matches[2]
-                $uniqueRules.Add($domain) | Out-Null
-            }
-            # 匹配 Dnsmasq/AdGuard 格式的规则
-            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
-                $domain = $Matches[1]
-                $uniqueRules.Add($domain) | Out-Null
-            }
-            # 匹配通配符匹配格式的规则
-            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                $domain = $Matches[1]
-                $uniqueRules.Add($domain) | Out-Null
-            }
-        }
+foreach ($line in $lines) 
+{
+    # 条目需要忽略的情况
+    if ($line -match '^@@\|\|') {
+        continue
     }
-    catch {
-        Write-Host "处理 $url 时出错: $_"
-        Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
+
+    # 条目需要加上前缀 "'+." 和后缀 "'" 的情况
+    if ($line -match '^(example\.com|address=/example\.com/127\.0\.0\.1|address=/example\.com/0\.0\.0\.0|/^[a-z0-9-]+\.)?example\.com$|^\|\|\*\.example\.com\^$|^\|\|example\.com\^\$all)') {
+        $domain = $Matches[1]
+        $formattedRule = "'+.$domain'"
+        $uniqueRules.Add($formattedRule) | Out-Null
+    }
+    # 条目需要加上前缀 "'" 和后缀 "'" 的情况
+    elseif ($line -match '^\|\|example\.com\^$|^\|\|example\.com\^\$all|/^example\.com$|127\.0\.0\.1 example\.com|0\.0\.0\.0 example\.com') {
+        $domain = $Matches[1]
+        $formattedRule = "'$domain'"
+        $uniqueRules.Add($formattedRule) | Out-Null
     }
 }
 
-
-# 对规则进行排序并添加前缀
-$formattedRules = $uniqueRules | Sort-Object | ForEach-Object { "  - '+.$_' " }
+# 对规则进行排序
+$formattedRules = $uniqueRules | Sort-Object
 
 # 统计生成的规则条目数量
 $ruleCount = $uniqueRules.Count
