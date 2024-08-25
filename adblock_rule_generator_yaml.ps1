@@ -1,6 +1,8 @@
 # Title: AdBlock_Rule_For_Clash
 # Description: 适用于Clash的域名拦截规则集，每20分钟更新一次，确保即时同步上游减少误杀
 # Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
+# LICENSE1：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
+# LICENSE2：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-CC%20BY-NC-SA%204.0
 
 # 定义广告过滤器URL列表
 $urlList = @(
@@ -93,12 +95,12 @@ $urlList = @(
 # 日志文件路径
 $logFilePath = "$PSScriptRoot/adblock_log.txt"
 
-# 创建一个HashSet来存储唯一的规则
+# 创建两个HashSet来存储唯一的规则和排除的域名
 $uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
+$excludedDomains = [System.Collections.Generic.HashSet[string]]::new()
 
-# 创建WebClient对象用于下载URL内容
+# 创建WebClient对象用于下载规则
 $webClient = New-Object System.Net.WebClient
-$webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
 foreach ($url in $urlList) {
@@ -111,30 +113,33 @@ foreach ($url in $urlList) {
 
         foreach ($line in $lines) 
         {
-            # 排除例外规则
-            if ($line -match '^@@') {
-                continue
+            # 匹配所有以 @@|| 开头的规则，并提取域名
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})') {
+                $excludedDomain = $Matches[1]
+                $excludedDomains.Add($excludedDomain) | Out-Null
             }
-
-            # 匹配 Adblock/Easylist 格式的规则
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                $domain = $Matches[1]
-                $uniqueRules.Add($domain) | Out-Null
-            }
-            # 匹配 Hosts 文件格式的规则
-            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
-                $domain = $Matches[2]
-                $uniqueRules.Add($domain) | Out-Null
-            }
-            # 匹配 Dnsmasq 格式的规则
-            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
-                $domain = $Matches[1]
-                $uniqueRules.Add($domain) | Out-Null
-            }
-            # 匹配通配符匹配格式的规则
-            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                $domain = $Matches[1]
-                $uniqueRules.Add($domain) | Out-Null
+            else 
+            {
+                # 匹配 Adblock/Easylist 格式的规则
+                if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                    $domain = $Matches[1]
+                    $uniqueRules.Add($domain) | Out-Null
+                }
+                # 匹配 Hosts 文件格式的规则
+                elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
+                    $domain = $Matches[2]
+                    $uniqueRules.Add($domain) | Out-Null
+                }
+                # 匹配 Dnsmasq 格式的规则
+                elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
+                    $domain = $Matches[1]
+                    $uniqueRules.Add($domain) | Out-Null
+                }
+                # 匹配通配符匹配格式的规则
+                elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                    $domain = $Matches[1]
+                    $uniqueRules.Add($domain) | Out-Null
+                }
             }
         }
     }
@@ -144,12 +149,14 @@ foreach ($url in $urlList) {
     }
 }
 
+# 排除以 @@|| 开头规则中提取的域名
+$finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
 
 # 对规则进行排序并格式化
-$formattedRules = $uniqueRules | Sort-Object | ForEach-Object {"- '+.$_'"}
+$formattedRules = $finalRules | Sort-Object | ForEach-Object {"- '+.$_'"}
 
 # 统计生成的规则条目数量
-$ruleCount = $uniqueRules.Count
+$ruleCount = $finalRules.Count
 
 # 获取当前时间并转换为东八区时间
 $generationTime = (Get-Date).ToUniversalTime().AddHours(8).ToString("yyyy-MM-dd HH:mm:ss")
@@ -164,8 +171,6 @@ $textContent = @"
 # Generated on: $generationTime
 # Generated AdBlock rules
 # Total entries: $ruleCount
-
-
 
 payload:
 $($formattedRules -join "`n")
