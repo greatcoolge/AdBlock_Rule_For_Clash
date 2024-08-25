@@ -111,12 +111,12 @@ foreach ($url in $urlList)
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
         
-        # 收集所有例外规则的域名
+        # 收集所有 @@|| 开头规则的域名
         $exceptionDomains = @()
 
         foreach ($line in $lines) 
         {
-            # 收集@@开头的例外规则
+            # 收集 @@|| 开头的例外规则
             if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') 
             {
                 $exceptionDomains += $Matches[1]
@@ -153,10 +153,12 @@ foreach ($url in $urlList)
                 $domain = $Matches[1]
             }
 
-            # 进行第二步筛选，剔除与@@例外规则的域名相同的条目
+            # 进行第二步筛选
             if ($domain -ne "" -and (Is-ValidDomain $domain)) 
             {
-                if (-not ($exceptionDomains -contains $domain)) 
+                $isException = $exceptionDomains -contains $domain
+                
+                if (-not $isException) 
                 {
                     $uniqueRules.Add($domain) | Out-Null
                 }
@@ -169,6 +171,7 @@ foreach ($url in $urlList)
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
+
 
 # 对规则进行排序并格式化
 $formattedRules = $uniqueRules | Sort-Object | ForEach-Object {"- '+.$_'"}
