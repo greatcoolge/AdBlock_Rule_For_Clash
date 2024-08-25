@@ -167,8 +167,13 @@ $textContent = @"
 # Generated AdBlock rules
 # Total entries: $ruleCount
 
+
+
+payload:
 $($formattedRules -join "`n")
 "@
+
+
 
 # 定义输出文件路径
 $outputPath = "$PSScriptRoot/adblock_reject.yaml"
