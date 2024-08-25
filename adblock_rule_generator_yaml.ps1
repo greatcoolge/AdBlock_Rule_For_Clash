@@ -99,7 +99,7 @@ $uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
 # 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
-$webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+$webClient.Headers.Add("User-Agent", "Mozilla/5.0")
 
 foreach ($url in $urlList) 
 {
@@ -111,13 +111,13 @@ foreach ($url in $urlList)
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
         
-        # 收集所有 @@|| 开头规则的域名
+        # 收集所有例外规则的域名
         $exceptionDomains = @()
 
         foreach ($line in $lines) 
         {
-            # 收集 @@|| 开头的例外规则
-            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') 
+            # 收集@@||开头的例外规则
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^.*$') 
             {
                 $exceptionDomains += $Matches[1]
             }
@@ -125,7 +125,7 @@ foreach ($url in $urlList)
 
         foreach ($line in $lines) 
         {
-            # 排除注释、空行和例外规则
+            # 排除注释、空行和@@开头的例外规则
             if ($line -match '^\s*(#|$)' -or $line -match '^@@') 
             {
                 continue
@@ -153,12 +153,10 @@ foreach ($url in $urlList)
                 $domain = $Matches[1]
             }
 
-            # 进行第二步筛选
-            if ($domain -ne "" -and (Is-ValidDomain $domain)) 
+            # 进行第二步筛选，剔除例外规则的域名
+            if ($domain -ne "" -and Is-ValidDomain $domain) 
             {
-                $isException = $exceptionDomains -contains $domain
-                
-                if (-not $isException) 
+                if (-not ($exceptionDomains -contains $domain)) 
                 {
                     $uniqueRules.Add($domain) | Out-Null
                 }
@@ -171,7 +169,6 @@ foreach ($url in $urlList)
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
-
 
 # 对规则进行排序并格式化
 $formattedRules = $uniqueRules | Sort-Object | ForEach-Object {"- '+.$_'"}
@@ -192,8 +189,6 @@ $textContent = @"
 # Generated on: $generationTime
 # Generated AdBlock rules
 # Total entries: $ruleCount
-
-
 
 payload:
 $($formattedRules -join "`n")
