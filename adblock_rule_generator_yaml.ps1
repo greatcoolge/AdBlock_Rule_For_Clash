@@ -2,9 +2,11 @@
 # Description: 适用于Clash的域名拦截规则集，每20分钟更新一次，确保即时同步上游减少误杀
 # Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
 
+
+
 # 定义广告过滤器URL列表
 $urlList = @(
-"https://anti-ad.net/adguard.txt",
+   "https://anti-ad.net/adguard.txt",
 "https://anti-ad.net/easylist.txt",
 "https://easylist.to/easylist/easylist.txt",
 "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_adservers.txt",
@@ -144,7 +146,7 @@ foreach ($url in $urlList) {
             }
 
             # 进行第二步筛选：剔除放行规则域名
-            if ($domain -ne "" -and Is-ValidDomain $domain) {
+            if ($domain -ne "" -and (Is-ValidDomain -domain $domain)) {
                 $isException = $false
                 foreach ($exception in $exceptionDomains) {
                     if ($domain -eq $exception -or $domain.EndsWith("." + $exception)) {
