@@ -103,7 +103,13 @@ $webClient.Proxy = $null
 
 # 域名验证函数
 function IsValidDomain($domain) {
-    return $domain -match '^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    # 正则表达式用于验证域名的基本格式
+    $regex = '^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,}$'
+    if ($domain -match $regex) {
+        return $true
+    } else {
+        return $false
+    }
 }
 
 foreach ($url in $urlList) {
