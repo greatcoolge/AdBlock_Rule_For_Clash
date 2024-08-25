@@ -88,7 +88,6 @@ $urlList = @(
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty.txt",
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty-cname.txt",
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-unbreak.txt"
-
 )
 
 # 日志文件路径
@@ -102,24 +101,39 @@ $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
-foreach ($line in $lines) 
-{
-    # 条目需要忽略的情况
-    if ($line -match '^@@\|\|') {
-        continue
-    }
+foreach ($url in $urlList) {
+    Write-Host "正在处理: $url"
+    Add-Content -Path $logFilePath -Value "正在处理: $url"
+    try 
+    {
+        $content = $webClient.DownloadString($url)
+        $lines = $content -split "`n"
 
-    # 条目需要加上前缀 "'+." 和后缀 "'" 的情况
-    if ($line -match '^(example\.com|address=/example\.com/127\.0\.0\.1|address=/example\.com/0\.0\.0\.0|/^[a-z0-9-]+\.)?example\.com$|^\|\|\*\.example\.com\^$|^\|\|example\.com\^\$all)') {
-        $domain = $Matches[1]
-        $formattedRule = "'+.$domain'"
-        $uniqueRules.Add($formattedRule) | Out-Null
+        foreach ($line in $lines) 
+        {
+            # 条目需要忽略的情况
+            if ($line -match '^@@\|\|') {
+                continue
+            }
+
+            # 条目需要加上前缀 "+." 和后缀 "'" 的情况
+            if ($line -match '^(example\.com|address=/example\.com/127\.0\.0\.1|address=/example\.com/0\.0\.0\.0|/^[a-z0-9-]+\.)?example\.com$|^\|\|\*\.example\.com\^$|^\|\|example\.com\^\$all)') {
+                $domain = $Matches[1]
+                $formattedRule = "'+.$domain'"
+                $uniqueRules.Add($formattedRule) | Out-Null
+            }
+            # 条目需要加上前缀 "'" 和后缀 "'" 的情况
+            elseif ($line -match '^\|\|example\.com\^$|^\|\|example\.com\^\$all|/^example\.com$|127\.0\.0\.1 example\.com|0\.0\.0\.0 example\.com') {
+                $domain = $Matches[1]
+                $formattedRule = "'$domain'"
+                $uniqueRules.Add($formattedRule) | Out-Null
+            }
+        }
     }
-    # 条目需要加上前缀 "'" 和后缀 "'" 的情况
-    elseif ($line -match '^\|\|example\.com\^$|^\|\|example\.com\^\$all|/^example\.com$|127\.0\.0\.1 example\.com|0\.0\.0\.0 example\.com') {
-        $domain = $Matches[1]
-        $formattedRule = "'$domain'"
-        $uniqueRules.Add($formattedRule) | Out-Null
+    catch 
+    {
+        Write-Host "无法处理URL: $url"
+        Add-Content -Path $logFilePath -Value "无法处理URL: $url"
     }
 }
 
@@ -156,5 +170,3 @@ $textContent | Out-File -FilePath $outputPath -Encoding utf8
 # 输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
 Add-Content -Path $logFilePath -Value "生成的有效规则总数: $ruleCount"
-
-Pause
