@@ -148,7 +148,7 @@ foreach ($url in $urlList) {
 
 
 # 对规则进行排序并格式化
-$formattedRules = $uniqueRules | Sort-Object | ForEach-Object {"'+.$_'"}
+$formattedRules = $uniqueRules | Sort-Object | ForEach-Object {"- '+.$_'"}
 
 # 统计生成的规则条目数量
 $ruleCount = $uniqueRules.Count
@@ -167,8 +167,10 @@ $textContent = @"
 # Generated AdBlock rules
 # Total entries: $ruleCount
 
+payload:
 $($formattedRules -join "`n")
 "@
+
 
 # 定义输出文件路径
 $outputPath = "$PSScriptRoot/adblock_reject.txt"
