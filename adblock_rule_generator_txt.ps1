@@ -117,9 +117,13 @@ foreach ($url in $urlList)
         # 首先收集所有例外规则
         foreach ($line in $lines) 
         {
-            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^?$') 
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})') 
             {
-                $exceptionDomains.Add($Matches[1]) | Out-Null
+                $exceptionDomain = $Matches[1]
+                # 移除任何路径、参数或其他后缀
+                $exceptionDomain = $exceptionDomain -replace '/.*$', ''
+                $exceptionDomain = $exceptionDomain -replace '\^.*$', ''
+                $exceptionDomains.Add($exceptionDomain) | Out-Null
             }
         }
 
@@ -207,7 +211,7 @@ $($formattedRules -join "`n")
 "@
 
 # 定义输出文件路径
-$outputPath = "$PSScriptRoot/adblock_reject.txt"
+$outputPath = "$PSScriptRoot/adblock_reject.yaml"
 $textContent | Out-File -FilePath $outputPath -Encoding utf8
 
 # 输出生成的有效规则总数
