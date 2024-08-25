@@ -88,7 +88,6 @@ $urlList = @(
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty.txt",
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty-cname.txt",
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-unbreak.txt"
-
 )
 
 # 日志文件路径
@@ -96,6 +95,9 @@ $logFilePath = "$PSScriptRoot/adblock_log.txt"
 
 # 创建一个HashSet来存储唯一的规则
 $uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
+
+# 创建一个HashSet来存储例外规则
+$exceptionDomains = [System.Collections.Generic.HashSet[string]]::new()
 
 # 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
@@ -112,22 +114,19 @@ foreach ($url in $urlList)
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
         
-        # 收集所有 @@|| 开头规则的域名
-        $exceptionDomains = @()
-
+        # 首先收集所有例外规则
         foreach ($line in $lines) 
         {
-            # 收集 @@|| 开头的例外规则
-            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') 
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^?$') 
             {
-                $exceptionDomains += $Matches[1]
+                $exceptionDomains.Add($Matches[1]) | Out-Null
             }
         }
 
         foreach ($line in $lines) 
         {
-            # 排除注释、空行和例外规则
-            if ($line -match '^\s*(#|$)' -or $line -match '^@@') 
+            # 排除注释和空行
+            if ($line -match '^\s*(#|$)') 
             {
                 continue
             }
@@ -139,7 +138,7 @@ foreach ($url in $urlList)
                 return $domain -match '^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\.)+[a-zA-Z]{2,}$'
             }
 
-            # 初步筛选匹配的域名
+            # 筛选完整拦截的域名
             $domain = ""
             if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') 
             {
@@ -154,10 +153,18 @@ foreach ($url in $urlList)
                 $domain = $Matches[1]
             }
 
-            # 进行第二步筛选
+            # 检查域名是否有效且不在例外列表中
             if ($domain -ne "" -and (Is-ValidDomain $domain)) 
             {
-                $isException = $exceptionDomains -contains $domain
+                $isException = $false
+                foreach ($exceptionDomain in $exceptionDomains) 
+                {
+                    if ($domain -eq $exceptionDomain -or $domain.EndsWith(".$exceptionDomain")) 
+                    {
+                        $isException = $true
+                        break
+                    }
+                }
                 
                 if (-not $isException) 
                 {
@@ -172,8 +179,6 @@ foreach ($url in $urlList)
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
-
-
 
 # 对规则进行排序并格式化
 $formattedRules = $uniqueRules | Sort-Object | ForEach-Object {"- '+.$_'"}
@@ -201,8 +206,6 @@ payload:
 $($formattedRules -join "`n")
 "@
 
-
-
 # 定义输出文件路径
 $outputPath = "$PSScriptRoot/adblock_reject.yaml"
 $textContent | Out-File -FilePath $outputPath -Encoding utf8
@@ -210,6 +213,4 @@ $textContent | Out-File -FilePath $outputPath -Encoding utf8
 # 输出生成的有效规则总数
 Write-Host "生成的有效规则总数: $ruleCount"
 Add-Content -Path $logFilePath -Value "Total entries: $ruleCount"
-Add-Content -Path $logFilePath -Value "Generated at: $generationTime"
-
-Pause
+Add-Content -Path $log
