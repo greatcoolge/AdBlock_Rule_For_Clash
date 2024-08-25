@@ -96,93 +96,54 @@ $logFilePath = "$PSScriptRoot/adblock_log.txt"
 # 创建一个HashSet来存储唯一的规则
 $uniqueRules = [System.Collections.Generic.HashSet[string]]::new()
 
-# 创建一个HashSet来存储例外规则
-$exceptionDomains = [System.Collections.Generic.HashSet[string]]::new()
-
 # 创建WebClient对象用于下载URL内容
 $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
-foreach ($url in $urlList) 
-{
+foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
-    
     try 
     {
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
-        
-        # 首先收集所有例外规则
-        foreach ($line in $lines) 
-        {
-            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})') 
-            {
-                $exceptionDomain = $Matches[1]
-                # 移除任何路径、参数或其他后缀
-                $exceptionDomain = $exceptionDomain -replace '/.*$', ''
-                $exceptionDomain = $exceptionDomain -replace '\^.*$', ''
-                $exceptionDomains.Add($exceptionDomain) | Out-Null
-            }
-        }
 
         foreach ($line in $lines) 
         {
-            # 排除注释和空行
-            if ($line -match '^\s*(#|$)') 
-            {
+            # 排除例外规则
+            if ($line -match '^@@') {
                 continue
             }
 
-            # 函数：检查是否为有效域名
-            function Is-ValidDomain 
-            {
-                param ([string]$domain)
-                return $domain -match '^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\.)+[a-zA-Z]{2,}$'
-            }
-
-            # 筛选完整拦截的域名
-            $domain = ""
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') 
-            {
+            # 匹配 Adblock/Easylist 格式的规则
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 $domain = $Matches[1]
+                $uniqueRules.Add($domain) | Out-Null
             }
-            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') 
-            {
+            # 匹配 Hosts 文件格式的规则
+            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                 $domain = $Matches[2]
+                $uniqueRules.Add($domain) | Out-Null
             }
-            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/(?:0\.0\.0\.0|\s*|$)') 
-            {
+            # 匹配 Dnsmasq 格式的规则
+            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
                 $domain = $Matches[1]
+                $uniqueRules.Add($domain) | Out-Null
             }
-
-            # 检查域名是否有效且不在例外列表中
-            if ($domain -ne "" -and (Is-ValidDomain $domain)) 
-            {
-                $isException = $false
-                foreach ($exceptionDomain in $exceptionDomains) 
-                {
-                    if ($domain -eq $exceptionDomain -or $domain.EndsWith(".$exceptionDomain")) 
-                    {
-                        $isException = $true
-                        break
-                    }
-                }
-                
-                if (-not $isException) 
-                {
-                    $uniqueRules.Add($domain) | Out-Null
-                }
+            # 匹配通配符匹配格式的规则
+            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                $domain = $Matches[1]
+                $uniqueRules.Add($domain) | Out-Null
             }
         }
-    } 
-    catch 
-    {
+    }
+    catch {
         Write-Host "处理 $url 时出错: $_"
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
+
 
 # 对规则进行排序并格式化
 $formattedRules = $uniqueRules | Sort-Object | ForEach-Object {"- '+.$_'"}
