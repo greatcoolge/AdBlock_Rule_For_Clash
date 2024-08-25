@@ -117,9 +117,13 @@ foreach ($url in $urlList)
         # 首先收集所有例外规则
         foreach ($line in $lines) 
         {
-            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^?$') 
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})') 
             {
-                $exceptionDomains.Add($Matches[1]) | Out-Null
+                $exceptionDomain = $Matches[1]
+                # 移除任何路径、参数或其他后缀
+                $exceptionDomain = $exceptionDomain -replace '/.*$', ''
+                $exceptionDomain = $exceptionDomain -replace '\^.*$', ''
+                $exceptionDomains.Add($exceptionDomain) | Out-Null
             }
         }
 
