@@ -118,84 +118,107 @@ function IsValidDomain {
 foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
-    try {
+    try 
+    {
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
-
-        foreach ($line in $lines) {
-            # 直接忽略以@@开头的规则
-            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+        foreach ($line in $lines) 
+        {
+            $line = $line.Trim()
+            
+            # 忽略空行和注释
+            if ([string]::IsNullOrWhiteSpace($line) -or $line.StartsWith("#")) {
                 continue
             }
 
-            # 处理形如example.com的域名，加上前缀'+.和后缀'
+            # 直接忽略以@@开头的规则
+            if ($line -match '^@@\|\|') {
+                continue
+            }
+            # 处理形如example.com的域名
             elseif ($line -match '^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '+.$domain'") | Out-Null
                 }
             }
-
-            # 处理形如||example.com^的域名，加上前缀'和后缀'
+            # 处理形如||example.com^的域名
             elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '$domain'") | Out-Null
                 }
             }
-
-            # 处理形如||*.example.com^的域名，加上前缀'+.和后缀'
-            elseif ($line -match '^\|\|\*\.(example\.com)\^$') {
+            # 处理形如||*.example.com^的域名
+            elseif ($line -match '^\|\|\*\.([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '+.$domain'") | Out-Null
                 }
             }
-
-            # 处理形如||example.com^$all的域名，加上前缀'+.和后缀'
+            # 处理形如||example.com^$all的域名
             elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^\$all$') {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '+.$domain'") | Out-Null
                 }
             }
-
-            # 处理形如||example.com^$的域名，直接忽略
+            # 忽略其他形如||example.com^$的域名
             elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^\$') {
                 continue
             }
-
-            # 处理形如address=/example.com/127.0.0.1的域名，加上前缀'和后缀'
-            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/127\.0\.0\.1$') {
-                $domain = $Matches[1]
-                if (IsValidDomain($domain)) {
-                    $uniqueRules.Add("- '$domain'") | Out-Null
-                }
-            }
-
-            # 处理形如address=/example.com/0.0.0.0的域名，加上前缀'+.和后缀'
-            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/0\.0\.0\.0$') {
+            # 处理形如/^[a-z0-9-]+\.example\.com$/的域名
+            elseif ($line -match '^/\^[a-z0-9-]+\.([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\$/$') {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '+.$domain'") | Out-Null
                 }
             }
-
-            # 处理形如127.0.0.1 example.com的域名，加上前缀'和后缀'
+            # 处理形如/^example\.com$/的域名
+            elseif ($line -match '^/\^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\$/$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '$domain'") | Out-Null
+                }
+            }
+            # 处理形如/^([a-z0-9-]+\.)?example\.com$/的域名
+            elseif ($line -match '^/\^([a-z0-9-]+\.)?\s*([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\$/$') {
+                $domain = $Matches[2]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '$domain'") | Out-Null
+                }
+            }
+            # 处理形如address=/example.com/127.0.0.1的域名
+            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/127\.0\.0\.1$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '$domain'") | Out-Null
+                    $uniqueRules.Add("- '+.$domain'") | Out-Null
+                }
+            }
+            # 处理形如address=/example.com/0.0.0.0的域名
+            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/0\.0\.0\.0$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '$domain'") | Out-Null
+                    $uniqueRules.Add("- '+.$domain'") | Out-Null
+                }
+            }
+            # 处理形如127.0.0.1 example.com的域名
             elseif ($line -match '^127\.0\.0\.1\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '$domain'") | Out-Null
                 }
             }
-
-            # 处理形如0.0.0.0 example.com的域名，加上前缀'和后缀'
+            # 处理形如0.0.0.0 example.com的域名
             elseif ($line -match '^0\.0\.0\.0\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '$domain'") | Out-Null
                 }
             }
+            # 其余不符合上述处理逻辑的条目一律忽略
         }
     }
     catch {
