@@ -2,11 +2,9 @@
 # Description: 适用于Clash的域名拦截规则集，每20分钟更新一次，确保即时同步上游减少误杀
 # Homepage: https://github.com/REIJI007/AdBlock_Rule_For_Clash
 
-
-
 # 定义广告过滤器URL列表
 $urlList = @(
-   "https://anti-ad.net/adguard.txt",
+"https://anti-ad.net/adguard.txt",
 "https://anti-ad.net/easylist.txt",
 "https://easylist.to/easylist/easylist.txt",
 "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_adservers.txt",
@@ -90,6 +88,7 @@ $urlList = @(
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty.txt",
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty-cname.txt",
 "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-unbreak.txt"
+
 )
 
 # 日志文件路径
@@ -103,68 +102,78 @@ $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
-foreach ($url in $urlList) {
+foreach ($url in $urlList) 
+{
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
     
-    try {
+    try 
+    {
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
         
-        # 收集所有例外规则的域名
+        # 收集所有 @@|| 开头规则的域名
         $exceptionDomains = @()
 
-        foreach ($line in $lines) {
-            # 匹配所有形式的放行规则
-            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\^|\$|\/|\~|$)' -or $line -match '^@@\|[^\|]+?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})[\/\^]?' -or $line -match '^@@\/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\/') {
+        foreach ($line in $lines) 
+        {
+            # 收集 @@|| 开头的例外规则
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') 
+            {
                 $exceptionDomains += $Matches[1]
             }
         }
 
-        foreach ($line in $lines) {
+        foreach ($line in $lines) 
+        {
             # 排除注释、空行和例外规则
-            if ($line -match '^\s*(#|$)' -or $line -match '^@@') {
+            if ($line -match '^\s*(#|$)' -or $line -match '^@@') 
+            {
                 continue
             }
 
             # 函数：检查是否为有效域名
-            function Is-ValidDomain {
+            function Is-ValidDomain 
+            {
                 param ([string]$domain)
                 return $domain -match '^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\.)+[a-zA-Z]{2,}$'
             }
 
             # 初步筛选匹配的域名
             $domain = ""
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') 
+            {
                 $domain = $Matches[1]
             }
-            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
+            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') 
+            {
                 $domain = $Matches[2]
             }
-            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/(?:0\.0\.0\.0|\s*|$)') {
+            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/(?:0\.0\.0\.0|\s*|$)') 
+            {
                 $domain = $Matches[1]
             }
 
-            # 进行第二步筛选：剔除放行规则域名
-            if ($domain -ne "" -and (Is-ValidDomain -domain $domain)) {
-                $isException = $false
-                foreach ($exception in $exceptionDomains) {
-                    if ($domain -eq $exception -or $domain.EndsWith("." + $exception)) {
-                        $isException = $true
-                        break
-                    }
-                }
-
-                if (-not $isException) {
+            # 进行第二步筛选
+            if ($domain -ne "" -and (Is-ValidDomain $domain)) 
+            {
+                $isException = $exceptionDomains -contains $domain
+                
+                if (-not $isException) 
+                {
                     $uniqueRules.Add($domain) | Out-Null
                 }
             }
         }
-    } catch {
+    } 
+    catch 
+    {
         Write-Host "处理 $url 时出错: $_"
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
+
+
 
 # 对规则进行排序并格式化
 $formattedRules = $uniqueRules | Sort-Object | ForEach-Object {"- '+.$_'"}
@@ -191,6 +200,8 @@ $textContent = @"
 payload:
 $($formattedRules -join "`n")
 "@
+
+
 
 # 定义输出文件路径
 $outputPath = "$PSScriptRoot/adblock_reject.yaml"
