@@ -101,21 +101,28 @@ $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Proxy = $null
 
-# 域名验证函数
-function IsValidDomain($domain) {
-    return $domain -match '^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+# 定义域名验证函数
+function IsValidDomain {
+    param (
+        [string]$domain
+    )
+
+    # 使用正则表达式验证域名
+    if ($domain -match '^(?!\-)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$') {
+        return $true
+    } else {
+        return $false
+    }
 }
 
 foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
-    try 
-    {
+    try {
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
 
-        foreach ($line in $lines) 
-        {
+        foreach ($line in $lines) {
             # 直接忽略以@@开头的规则
             if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 continue
