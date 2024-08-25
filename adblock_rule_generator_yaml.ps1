@@ -109,16 +109,16 @@ foreach ($line in $lines)
         continue
     }
 
-    # 条目需要加上前缀 '+.' 和后缀 '' 的情况
+    # 条目需要加上前缀 "'+." 和后缀 "'" 的情况
     if ($line -match '^(example\.com|address=/example\.com/127\.0\.0\.1|address=/example\.com/0\.0\.0\.0|/^[a-z0-9-]+\.)?example\.com$|^\|\|\*\.example\.com\^$|^\|\|example\.com\^\$all)') {
         $domain = $Matches[1]
-        $formattedRule = "+.$domain+"
+        $formattedRule = "'+.$domain'"
         $uniqueRules.Add($formattedRule) | Out-Null
     }
-    # 条目需要加上前缀 '' 和后缀 '' 的情况
+    # 条目需要加上前缀 "'" 和后缀 "'" 的情况
     elseif ($line -match '^\|\|example\.com\^$|^\|\|example\.com\^\$all|/^example\.com$|127\.0\.0\.1 example\.com|0\.0\.0\.0 example\.com') {
         $domain = $Matches[1]
-        $formattedRule = "$domain"
+        $formattedRule = "'$domain'"
         $uniqueRules.Add($formattedRule) | Out-Null
     }
 }
