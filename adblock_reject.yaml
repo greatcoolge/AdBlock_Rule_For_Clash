@@ -4,8 +4,11 @@
 # LICENSE1：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
 # LICENSE2：https://github.com/REIJI007/AdBlock_Rule_For_Clash/blob/main/LICENSE-CC%20BY-NC-SA%204.0
 # Generated AdBlock rules
-# Generated on: 2024-08-25 12:21:59 (GMT+8)
-# Total entries: 0
+# Generated on: 2024-08-25 12:28:03 (GMT+8)
+# Total entries: 4
 
 payload:
-
++.||pgl.example.com^+
++.||wpad.example.com^+
++.||your-dns.example.com^+
++.||yourdns.example.com^+
