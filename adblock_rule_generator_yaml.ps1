@@ -115,6 +115,7 @@ function IsValidDomain {
     }
 }
 
+
 foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
@@ -135,8 +136,8 @@ foreach ($url in $urlList) {
             if ($line -match '^@@\|\|') {
                 continue
             }
-            # 处理形如example.com的域名，加上前缀'+.和后缀'
-            elseif ($line -match '^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
+            # 处理形如||example.com^的域名，加上前缀'+.和后缀'
+            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '+.$domain'") | Out-Null
@@ -144,6 +145,13 @@ foreach ($url in $urlList) {
             }
             # 处理形如||*.example.com^的域名，加上前缀'+.和后缀'
             elseif ($line -match '^\|\|\*\.([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                $domain = $Matches[1]
+                if (IsValidDomain($domain)) {
+                    $uniqueRules.Add("- '+.$domain'") | Out-Null
+                }
+            }
+            # 处理形如example.com的域名，加上前缀'+.和后缀'
+            elseif ($line -match '^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '+.$domain'") | Out-Null
@@ -168,13 +176,6 @@ foreach ($url in $urlList) {
                 $domain = $Matches[1]
                 if (IsValidDomain($domain)) {
                     $uniqueRules.Add("- '+.$domain'") | Out-Null
-                }
-            }
-            # 处理形如||example.com^的域名，加上前缀'和后缀'
-            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                $domain = $Matches[1]
-                if (IsValidDomain($domain)) {
-                    $uniqueRules.Add("- '$domain'") | Out-Null
                 }
             }
             # 处理形如/^example\.com$/的域名，加上前缀'和后缀'
