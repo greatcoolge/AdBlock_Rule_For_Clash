@@ -101,11 +101,14 @@ $webClient = New-Object System.Net.WebClient
 $webClient.Encoding = [System.Text.Encoding]::UTF8
 $webClient.Proxy = $null
 
-# 域名验证函数
-function IsValidDomain($domain) {
-    # 正则表达式用于验证域名的基本格式
-    $regex = '^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,}$'
-    if ($domain -match $regex) {
+# 定义域名验证函数
+function IsValidDomain {
+    param (
+        [string]$domain
+    )
+
+    # 使用正则表达式验证域名
+    if ($domain -match '^(?!\-)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$') {
         return $true
     } else {
         return $false
@@ -115,13 +118,11 @@ function IsValidDomain($domain) {
 foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
-    try 
-    {
+    try {
         $content = $webClient.DownloadString($url)
         $lines = $content -split "`n"
 
-        foreach ($line in $lines) 
-        {
+        foreach ($line in $lines) {
             # 直接忽略以@@开头的规则
             if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                 continue
