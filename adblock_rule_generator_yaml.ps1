@@ -6,7 +6,7 @@
 
 # 定义广告过滤器URL列表
 $urlList = @(
-        "https://anti-ad.net/adguard.txt",
+    "https://anti-ad.net/adguard.txt",
     "https://anti-ad.net/easylist.txt",
     "https://easylist.to/easylist/easylist.txt",
     "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_adservers.txt",
