@@ -141,26 +141,35 @@ foreach ($url in $urlList) {
                 $excludedDomain = $Matches[1]
                 $excludedDomains.Add($excludedDomain) | Out-Null
             }
-            else 
-            {
-                # 匹配 Adblock/Easylist 格式的规则
-                if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                    $domain = $Matches[1]
+        }
+
+        foreach ($line in $lines) 
+        {
+            # 匹配 Adblock/Easylist 格式的规则
+            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                $domain = $Matches[1]
+                if (-not $excludedDomains.Contains($domain)) {
                     $uniqueRules.Add($domain) | Out-Null
                 }
-                # 匹配 Hosts 文件格式的规则
-                elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
-                    $domain = $Matches[2]
+            }
+            # 匹配 Hosts 文件格式的规则
+            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
+                $domain = $Matches[2]
+                if (-not $excludedDomains.Contains($domain)) {
                     $uniqueRules.Add($domain) | Out-Null
                 }
-                # 匹配 Dnsmasq 格式的规则
-                elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
-                    $domain = $Matches[1]
+            }
+            # 匹配 Dnsmasq 格式的规则
+            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
+                $domain = $Matches[1]
+                if (-not $excludedDomains.Contains($domain)) {
                     $uniqueRules.Add($domain) | Out-Null
                 }
-                # 匹配通配符匹配格式的规则
-                elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                    $domain = $Matches[1]
+            }
+            # 匹配通配符匹配格式的规则
+            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                $domain = $Matches[1]
+                if (-not $excludedDomains.Contains($domain)) {
                     $uniqueRules.Add($domain) | Out-Null
                 }
             }
@@ -172,8 +181,9 @@ foreach ($url in $urlList) {
     }
 }
 
-# 排除以 @@|| 开头规则中提取的域名
+# 最终规则集合已自动排除 excludedDomains 列表中的域名
 $finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
+
 
 # 检查是否某个域名应该被排除
 function IsExcluded($domain, $excludedDomains) {
