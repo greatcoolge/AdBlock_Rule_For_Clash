@@ -146,22 +146,46 @@ foreach ($url in $urlList) {
                 # 匹配 Adblock/Easylist 格式的规则
                 if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                     $domain = $Matches[1]
-                    $uniqueRules.Add($domain) | Out-Null
+                    
+                    # 检查是否已有更具体的子域名，如果有则不添加顶级域名
+                    $isSubdomainPresent = $uniqueRules | Where-Object { $domain -eq $_ -or $_.EndsWith(".$domain") }
+                    
+                    if (-not $isSubdomainPresent) {
+                        # 如果没有更具体的子域名，删除顶级域名并添加当前域名
+                        $uniqueRules.RemoveWhere({ $domain.EndsWith(".$_") }) | Out-Null
+                        $uniqueRules.Add($domain) | Out-Null
+                    }
                 }
-                # 匹配 Hosts 文件格式的规则
+                # 其他格式规则的匹配
                 elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
                     $domain = $Matches[2]
-                    $uniqueRules.Add($domain) | Out-Null
+
+                    $isSubdomainPresent = $uniqueRules | Where-Object { $domain -eq $_ -or $_.EndsWith(".$domain") }
+                    
+                    if (-not $isSubdomainPresent) {
+                        $uniqueRules.RemoveWhere({ $domain.EndsWith(".$_") }) | Out-Null
+                        $uniqueRules.Add($domain) | Out-Null
+                    }
                 }
-                # 匹配 Dnsmasq 格式的规则
                 elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
                     $domain = $Matches[1]
-                    $uniqueRules.Add($domain) | Out-Null
+
+                    $isSubdomainPresent = $uniqueRules | Where-Object { $domain -eq $_ -or $_.EndsWith(".$domain") }
+                    
+                    if (-not $isSubdomainPresent) {
+                        $uniqueRules.RemoveWhere({ $domain.EndsWith(".$_") }) | Out-Null
+                        $uniqueRules.Add($domain) | Out-Null
+                    }
                 }
-                # 匹配通配符匹配格式的规则
                 elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                     $domain = $Matches[1]
-                    $uniqueRules.Add($domain) | Out-Null
+
+                    $isSubdomainPresent = $uniqueRules | Where-Object { $domain -eq $_ -or $_.EndsWith(".$domain") }
+                    
+                    if (-not $isSubdomainPresent) {
+                        $uniqueRules.RemoveWhere({ $domain.EndsWith(".$_") }) | Out-Null
+                        $uniqueRules.Add($domain) | Out-Null
+                    }
                 }
             }
         }
@@ -171,14 +195,9 @@ foreach ($url in $urlList) {
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
+
 # 排除以 @@|| 开头规则中提取的域名
 $finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
-
-# 如果有更具体的子域名存在，则排除顶级域名
-$finalRules = $finalRules | Where-Object {
-    $domain = $_
-    -not ($finalRules | Where-Object { $_ -ne $domain -and $_.EndsWith($domain) })
-}
 
 # 对规则进行排序并格式化
 $formattedRules = $finalRules | Sort-Object | ForEach-Object {"- '+.$_'"}
