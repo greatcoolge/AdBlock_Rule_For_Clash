@@ -137,39 +137,30 @@ foreach ($url in $urlList) {
         foreach ($line in $lines) 
         {
             # 匹配所有以 @@|| 开头的规则，并提取域名
-            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^.*$') {
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})') {
                 $excludedDomain = $Matches[1]
                 $excludedDomains.Add($excludedDomain) | Out-Null
             }
-        }
-
-        foreach ($line in $lines) 
-        {
-            # 匹配 Adblock/Easylist 格式的规则
-            if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                $domain = $Matches[1]
-                if (-not $excludedDomains.Contains($domain)) {
+            else 
+            {
+                # 匹配 Adblock/Easylist 格式的规则
+                if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                    $domain = $Matches[1]
                     $uniqueRules.Add($domain) | Out-Null
                 }
-            }
-            # 匹配 Hosts 文件格式的规则
-            elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
-                $domain = $Matches[2]
-                if (-not $excludedDomains.Contains($domain)) {
+                # 匹配 Hosts 文件格式的规则
+                elseif ($line -match '^(0\.0\.0\.0|127\.0\.0\.1)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$') {
+                    $domain = $Matches[2]
                     $uniqueRules.Add($domain) | Out-Null
                 }
-            }
-            # 匹配 Dnsmasq 格式的规则
-            elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
-                $domain = $Matches[1]
-                if (-not $excludedDomains.Contains($domain)) {
+                # 匹配 Dnsmasq 格式的规则
+                elseif ($line -match '^address=/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/$') {
+                    $domain = $Matches[1]
                     $uniqueRules.Add($domain) | Out-Null
                 }
-            }
-            # 匹配通配符匹配格式的规则
-            elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                $domain = $Matches[1]
-                if (-not $excludedDomains.Contains($domain)) {
+                # 匹配通配符匹配格式的规则
+                elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                    $domain = $Matches[1]
                     $uniqueRules.Add($domain) | Out-Null
                 }
             }
@@ -181,21 +172,8 @@ foreach ($url in $urlList) {
     }
 }
 
-# 最终规则集合已自动排除 excludedDomains 列表中的域名
+# 排除以 @@|| 开头规则中提取的域名
 $finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
-
-
-# 检查是否某个域名应该被排除
-function IsExcluded($domain, $excludedDomains) {
-    foreach ($excludedDomain in $excludedDomains) {
-        # 这里我们用 \Q 和 \E 处理转义字符，以确保排除规则可以匹配到主域名及其子域名
-        if ($domain -match "\Q$excludedDomain\E$") {
-            return $true
-        }
-    }
-    return $false
-}
-
 
 # 对规则进行排序并格式化
 $formattedRules = $finalRules | Sort-Object | ForEach-Object {"- '+.$_'"}
