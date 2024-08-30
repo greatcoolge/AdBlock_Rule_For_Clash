@@ -129,6 +129,7 @@ $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) 
 foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
+    
     try 
     {
         $content = $webClient.DownloadString($url)
@@ -137,13 +138,13 @@ foreach ($url in $urlList) {
         foreach ($line in $lines) 
         {
             # 匹配所有以 @@|| 开头的规则，并提取域名
-            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})') {
+            if ($line -match '^@@\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^.*$') {
                 $excludedDomain = $Matches[1]
                 $excludedDomains.Add($excludedDomain) | Out-Null
             }
             else 
             {
-                # 匹配 Adblock/Easylist 格式的规则
+                # 匹配 Adblock/Easylist 格式的规则，只包括没有修饰符的规则
                 if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                     $domain = $Matches[1]
                     $uniqueRules.Add($domain) | Out-Null
@@ -158,11 +159,6 @@ foreach ($url in $urlList) {
                     $domain = $Matches[1]
                     $uniqueRules.Add($domain) | Out-Null
                 }
-                # 匹配通配符匹配格式的规则
-                elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
-                    $domain = $Matches[1]
-                    $uniqueRules.Add($domain) | Out-Null
-                }
             }
         }
     }
@@ -172,8 +168,20 @@ foreach ($url in $urlList) {
     }
 }
 
-# 排除以 @@|| 开头规则中提取的域名
-$finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
+# 排除所有涉及到的域名
+$finalRules = $uniqueRules | Where-Object { -not (IsExcluded $_ $excludedDomains) }
+
+# 检查是否某个域名应该被排除
+function IsExcluded($domain, $excludedDomains) {
+    foreach ($excludedDomain in $excludedDomains) {
+        # 这里我们用 \Q 和 \E 处理转义字符，以确保排除规则可以匹配到主域名及其子域名
+        if ($domain -match "\Q$excludedDomain\E$") {
+            return $true
+        }
+    }
+    return $false
+}
+
 
 # 对规则进行排序并格式化
 $formattedRules = $finalRules | Sort-Object | ForEach-Object {"- '+.$_'"}
