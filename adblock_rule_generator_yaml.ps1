@@ -171,9 +171,16 @@ foreach ($url in $urlList) {
         Add-Content -Path $logFilePath -Value "处理 $url 时出错: $_"
     }
 }
+# 排除非拦截域名
+$finalRules = $uniqueRules | Where-Object {
+    $domainToCheck = $_
+    $excludedDomainsNotContainSubdomains = $excludedDomains | Where-Object {
+        $excludedDomain = $_
+        $excludedDomain -eq $domainToCheck -or $domainToCheck -like "*.$excludedDomain"
+    } | Measure-Object | Select-Object -ExpandProperty Count
 
-# 排除以 @@|| 开头规则中提取的域名
-$finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
+    $excludedDomainsNotContainSubdomains -eq 0
+}
 
 # 对规则进行排序并格式化
 $formattedRules = $finalRules | Sort-Object | ForEach-Object {"- '+.$_'"}
