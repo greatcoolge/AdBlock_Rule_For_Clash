@@ -129,7 +129,6 @@ $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) 
 foreach ($url in $urlList) {
     Write-Host "正在处理: $url"
     Add-Content -Path $logFilePath -Value "正在处理: $url"
-    
     try 
     {
         $content = $webClient.DownloadString($url)
@@ -144,7 +143,7 @@ foreach ($url in $urlList) {
             }
             else 
             {
-                # 匹配 Adblock/Easylist 格式的规则，只包括没有修饰符的规则
+                # 匹配 Adblock/Easylist 格式的规则
                 if ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
                     $domain = $Matches[1]
                     $uniqueRules.Add($domain) | Out-Null
@@ -159,6 +158,11 @@ foreach ($url in $urlList) {
                     $domain = $Matches[1]
                     $uniqueRules.Add($domain) | Out-Null
                 }
+                # 匹配通配符匹配格式的规则
+                elseif ($line -match '^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\^$') {
+                    $domain = $Matches[1]
+                    $uniqueRules.Add($domain) | Out-Null
+                }
             }
         }
     }
@@ -168,8 +172,8 @@ foreach ($url in $urlList) {
     }
 }
 
-# 排除所有涉及到的域名
-$finalRules = $uniqueRules | Where-Object { -not (IsExcluded $_ $excludedDomains) }
+# 排除以 @@|| 开头规则中提取的域名
+$finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
 
 # 检查是否某个域名应该被排除
 function IsExcluded($domain, $excludedDomains) {
