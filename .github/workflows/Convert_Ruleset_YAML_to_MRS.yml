@@ -104,7 +104,7 @@ jobs:
       - name: Push changes
         shell: powershell
         env:
-          TOKEN: ${{ secrets.TOKEN }}  # 从 GitHub Secrets 中获取 TOKEN
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 从 GitHub Secrets 中获取 TOKEN
         run: |
           $maxAttempts = 5  # 定义最大重试次数
           
@@ -113,7 +113,7 @@ jobs:
               git config user.email "action@github.com"  # 配置 Git 用户邮箱
               git config user.name "GitHub Action"  # 配置 Git 用户名
               
-              git pull https://${{ secrets.TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --rebase  # 尝试拉取最新更改
+              git pull https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --rebase  # 尝试拉取最新更改
               break
             } catch {
               Write-Host "git pull attempt $attempt failed. Error: $_"
@@ -133,7 +133,7 @@ jobs:
             for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
               try {
                 Write-Host "Attempting to push changes (Attempt $attempt of $maxAttempts)..."
-                git push https://${{ secrets.TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force  # 强制推送更改
+                git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force  # 强制推送更改
                 Write-Host "Changes successfully pushed."  # 如果成功，输出成功信息
                 break
               } catch {
