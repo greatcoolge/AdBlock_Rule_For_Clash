@@ -32,14 +32,14 @@ jobs:
           git commit -m "Forced update of adblock files and timestamp"
           git push origin main --force
         env: 
-          TOKEN: ${{ secrets.TOKEN }} # 使用存储在仓库密钥中的 TOKEN
+          TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用存储在仓库密钥中的 TOKEN
 
       # 步骤5：创建新的发布
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env: 
-          GITHUB_TOKEN: ${{ secrets.TOKEN }} # 使用 TOKEN 进行身份验证
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用 TOKEN 进行身份验证
         with:
           tag_name: release-${{ env.time }} # 使用时间戳作为标签名
           release_name: Release ${{ env.time }} # 使用时间戳作为发布名称
@@ -50,7 +50,7 @@ jobs:
       - name: Upload adblock_reject.yaml
         uses: actions/upload-release-asset@v1
         env: 
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./adblock_reject.yaml
@@ -61,7 +61,7 @@ jobs:
       - name: Upload adblock_reject.txt
         uses: actions/upload-release-asset@v1
         env: 
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./adblock_reject.txt
@@ -72,7 +72,7 @@ jobs:
       - name: Upload adblock_reject.mrs
         uses: actions/upload-release-asset@v1
         env: 
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./adblock_reject.mrs
