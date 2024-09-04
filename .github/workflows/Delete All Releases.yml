@@ -19,7 +19,7 @@ jobs:
 
           # 获取所有分页中的release ID
           while true; do
-            result=$(curl -s -H "Authorization: token ${{ secrets.TOKEN }}" \
+            result=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100&page=$page" | jq -r '.[].id')
 
             if [ -z "$result" ]; then
@@ -39,7 +39,7 @@ jobs:
           # 删除每个 release
           for id in $releases; do
             echo "Deleting release ID: $id"
-            curl -s -X DELETE -H "Authorization: token ${{ secrets.TOKEN }}" \
+            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/releases/$id"
           done
 
