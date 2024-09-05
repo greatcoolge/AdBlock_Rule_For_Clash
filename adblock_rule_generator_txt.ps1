@@ -14,8 +14,6 @@ $urlList = @(
     "https://raw.githubusercontent.com/8680/GOODBYEADS/master/allow.txt",
     "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/allow.txt",
     "https://raw.githubusercontent.com/jerryn70/GoodbyeAds/master/Formats/GoodbyeAds-AdBlock-Filter.txt",
-    "https://raw.githubusercontent.com/jerryn70/GoodbyeAds/master/Formats/GoodbyeAds-Ultra-AdBlock-Filter.txt",
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/multi.txt",
     "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/multi.txt",
     "https://raw.githubusercontent.com/neodevpro/neodevhost/master/lite_host",
     "https://raw.githubusercontent.com/neodevpro/neodevhost/master/lite_adblocker"
