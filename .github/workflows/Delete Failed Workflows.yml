@@ -1,6 +1,5 @@
 name: Delete Failed Workflows
 
-# 触发方式
 on:
   workflow_dispatch:  # 手动触发
   schedule:           # 定时触发，每天午夜运行一次
@@ -19,10 +18,14 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: Install requests package
+      run: pip install requests
+
     - name: Delete failed workflows
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       run: |
+        python - <<EOF
         import requests
         import os
 
@@ -70,3 +73,4 @@ jobs:
             for workflow in failed_workflows:
                 print(f"Deleting workflow run {workflow['id']} (name: {workflow['name']})")
                 delete_workflow(workflow['id'])
+        EOF
