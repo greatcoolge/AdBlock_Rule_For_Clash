@@ -19,20 +19,20 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Get current time and time 1 day ago
+        # 获取当前时间和一天前的时间
         now=$(date +%s)
         one_day_ago=$((now - 86400))
 
-        # Delete expired releases
+        # 删除过期的发布版本
         releases=$(gh release list --limit 100 --json tagName,createdAt --jq '.[] | select((now - (.createdAt | fromdate)) > 86400) | .tagName')
         for tag in $releases; do
           gh release delete "$tag" -y
         done
 
-        # Delete expired tags
+        # 删除过期的标签
         tags=$(gh tag list --limit 100)
         for tag in $tags; do
-          # Check if the tag was created more than 1 day ago
+          # 检查标签是否在一天之前创建
           tag_date=$(gh tag view "$tag" --json createdAt -q '.createdAt' | xargs -I {} date -d {} +%s)
           if [ $tag_date -lt $one_day_ago ]; then
             gh repo delete-tag "$tag"
