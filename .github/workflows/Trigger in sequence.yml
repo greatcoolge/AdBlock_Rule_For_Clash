@@ -1,9 +1,9 @@
-name: Trigger in sequence
+name: Trigger Workflows in Sequence
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/20 * * * *'  # 每6小时触发一次
+    - cron: '0 */6 * * *'  # 每6小时触发一次
 
 jobs:
   trigger_adblock_rule_generator_yaml:
@@ -43,7 +43,6 @@ jobs:
             fi
           done
 
-
           # 等待90秒后开始下一个工作流
           echo "Waiting for 90 seconds before starting the next workflow..."
           sleep 90
@@ -63,7 +62,7 @@ jobs:
           # 触发工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
@@ -71,7 +70,7 @@ jobs:
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
 
             if [[ "$status" == "success" ]]; then
@@ -105,7 +104,7 @@ jobs:
           # 触发工作流
           response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+            "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
@@ -113,7 +112,7 @@ jobs:
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
 
             if [[ "$status" == "success" ]]; then
@@ -146,18 +145,18 @@ jobs:
     #    run: |
     #      workflow_id="Release_ADblock_file.yml"
     #      ref="main"
-          # 触发工作流
+    #      # 触发工作流
     #      response=$(curl -X POST -H "Authorization: token $TOKEN" \
     #        -H "Accept: application/vnd.github.v3+json" \
-    #        "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+    #        "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
     #        -d "{\"ref\":\"$ref\"}")
     #      echo "Triggered workflow $workflow_id: $response"
 
-          # 验证工作流成功触发和完成
+    #      # 验证工作流成功触发和完成
     #      while : ; do
     #        status=$(curl -s -H "Authorization: token $TOKEN" \
     #          -H "Accept: application/vnd.github.v3+json" \
-    #          "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+    #          "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
     #          | jq -r '.workflow_runs[0].conclusion')
 
     #        if [[ "$status" == "success" ]]; then
