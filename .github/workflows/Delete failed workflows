@@ -1,4 +1,4 @@
-name: Delete Workflows
+name: Delete failed workflows
 
 on:
   schedule:
