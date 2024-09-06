@@ -40,6 +40,7 @@ jobs:
 
         if [ -z "$failed_runs" ]; then
           echo "No failed workflow runs found."
+          exit 0
         else
           echo "$failed_runs" > failed_workflows.txt
           echo "All failed workflow runs: $failed_runs"
@@ -49,7 +50,7 @@ jobs:
       run: cat failed_workflows.txt
 
     - name: Delete Failed Workflow Runs
-      if: success() && steps.list_failed_workflows.outputs.failed_runs != ''
+      if: success()
       run: |
         echo "Deleting failed workflow runs..."
         while read -r run_id; do
