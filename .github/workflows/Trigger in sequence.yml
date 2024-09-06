@@ -18,7 +18,7 @@ jobs:
           workflow_id="Run_AdBlock_Rule_Generator_YAML.yml"
           ref="main"
           # 触发工作流
-          response=$(curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+          response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
@@ -26,7 +26,7 @@ jobs:
 
           # 验证工作流成功触发和完成
           while : ; do
-            status=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/REIJI007/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
@@ -61,7 +61,7 @@ jobs:
           workflow_id="Run_AdBlock_Rule_Generator_TXT.yml"
           ref="main"
           # 触发工作流
-          response=$(curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+          response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
@@ -69,7 +69,7 @@ jobs:
 
           # 验证工作流成功触发和完成
           while : ; do
-            status=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
@@ -103,7 +103,7 @@ jobs:
           workflow_id="Convert_Ruleset_YAML_to_MRS.yml"
           ref="main"
           # 触发工作流
-          response=$(curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+          response=$(curl -X POST -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
             -d "{\"ref\":\"$ref\"}")
@@ -111,7 +111,7 @@ jobs:
 
           # 验证工作流成功触发和完成
           while : ; do
-            status=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
               | jq -r '.workflow_runs[0].conclusion')
