@@ -138,34 +138,36 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Trigger and verify Release_ADblock_file
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          workflow_id="Release_ADblock_file.yml"
-          ref="main"
+      - name: Skip Release Step
+        run: echo "Skipping the release of Adblock file."
+    #  - name: Trigger and verify Release_ADblock_file
+    #    env:
+    #      TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #    run: |
+    #      workflow_id="Release_ADblock_file.yml"
+    #      ref="main"
           # 触发工作流
-          response=$(curl -X POST -H "Authorization: token $TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
-            -d "{\"ref\":\"$ref\"}")
-          echo "Triggered workflow $workflow_id: $response"
+    #      response=$(curl -X POST -H "Authorization: token $TOKEN" \
+    #        -H "Accept: application/vnd.github.v3+json" \
+    #        "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/workflows/$workflow_id/dispatches" \
+    #        -d "{\"ref\":\"$ref\"}")
+    #      echo "Triggered workflow $workflow_id: $response"
 
           # 验证工作流成功触发和完成
-          while : ; do
-            status=$(curl -s -H "Authorization: token $TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
-              | jq -r '.workflow_runs[0].conclusion')
+    #      while : ; do
+    #        status=$(curl -s -H "Authorization: token $TOKEN" \
+    #          -H "Accept: application/vnd.github.v3+json" \
+    #          "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+    #          | jq -r '.workflow_runs[0].conclusion')
 
-            if [[ "$status" == "success" ]]; then
-              echo "Workflow $workflow_id completed successfully."
-              break
-            elif [[ "$status" == "failure" ]]; then
-              echo "Workflow $workflow_id failed."
-              exit 1
-            else
-              echo "Waiting for workflow $workflow_id to complete..."
-              sleep 30
-            fi
-          done
+    #        if [[ "$status" == "success" ]]; then
+    #          echo "Workflow $workflow_id completed successfully."
+    #          break
+    #        elif [[ "$status" == "failure" ]]; then
+    #          echo "Workflow $workflow_id failed."
+    #          exit 1
+    #        else
+    #          echo "Waiting for workflow $workflow_id to complete..."
+    #          sleep 30
+    #        fi
+    #      done
