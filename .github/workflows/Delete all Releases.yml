@@ -1,7 +1,7 @@
 name: Delete All Releases and Tags Except Latest
 
 on:
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   clean-up:
@@ -12,13 +12,27 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Fetch all releases
-        releases=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/releases?per_page=100")
+        # Fetch all releases with pagination
+        releases=""
+        page=1
+        while true; do
+          response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/releases?per_page=100&page=$page")
+          releases+="$response"
+          [ "$(echo "$response" | jq -r '. | length')" -lt 100 ] && break
+          page=$((page + 1))
+        done
 
-        # Fetch all tags
-        tags=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/tags?per_page=100")
+        # Fetch all tags with pagination
+        tags=""
+        page=1
+        while true; do
+          response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/tags?per_page=100&page=$page")
+          tags+="$response"
+          [ "$(echo "$response" | jq -r '. | length')" -lt 100 ] && break
+          page=$((page + 1))
+        done
 
         # Get the latest release ID and tag name
         latest_release_id=$(echo "$releases" | jq -r '.[0].id')
