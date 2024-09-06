@@ -1,0 +1,20 @@
+name: Delete Workflows
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天午夜运行
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  delete-failed-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Delete workflow runs 
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
