@@ -12,7 +12,7 @@ $urlList = @(
     "https://raw.githubusercontent.com/8680/GOODBYEADS/master/rules.txt",
     "https://raw.githubusercontent.com/8680/GOODBYEADS/master/dns.txt",
     "https://raw.githubusercontent.com/8680/GOODBYEADS/master/allow.txt",
-    "https://raw.githubusercontent.com/Lynricsy/HyperADRules/master/allow.txt",
+    "https://raw.githubusercontent.com/greatcoolge/HyperADRules/master/allow.txt",
     "https://raw.githubusercontent.com/Bibaiji/ad-rules/main/rule/local-rule.txt",
     "https://raw.githubusercontent.com/jerryn70/GoodbyeAds/master/Formats/GoodbyeAds-AdBlock-Filter.txt",
     "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/multi.txt",
