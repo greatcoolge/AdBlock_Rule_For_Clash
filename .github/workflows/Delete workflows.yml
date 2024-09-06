@@ -2,7 +2,7 @@ name: Delete Workflows
 
 on:
   schedule:
-    - cron: '*/20 * * * *'  
+    - cron: '*/0 */6 * * *'  #6小时
   workflow_dispatch:  # 允许手动触发
 
 jobs:
