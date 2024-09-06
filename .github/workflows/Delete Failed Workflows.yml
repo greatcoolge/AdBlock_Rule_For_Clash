@@ -1,8 +1,8 @@
 name: Delete Failed Workflows
 
 on:
-  workflow_dispatch:  # 手动触发
-  schedule:           # 定时触发，每天午夜运行一次
+  workflow_dispatch:
+  schedule:
     - cron: '0 0 * * *'
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
         import json
 
         BASE_URL = "https://api.github.com"
-        REPO = "REIJI007/AdBlock_Rule_For_Clash"  # 直接指定仓库
+        REPO = "REIJI007/AdBlock_Rule_For_Clash"
         TOKEN = os.getenv('GITHUB_TOKEN')
 
         headers = {
@@ -39,25 +39,31 @@ jobs:
             "Accept": "application/vnd.github.v3+json"
         }
 
-        def get_failed_workflows():
+        def get_all_workflows():
             url = f"{BASE_URL}/repos/{REPO}/actions/runs"
-            response = requests.get(url, headers=headers)
-            
-            print(f"Status Code: {response.status_code}")
-            print(f"Response JSON: {response.text}")
+            all_workflows = []
+            while url:
+                response = requests.get(url, headers=headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    all_workflows.extend(data.get('workflow_runs', []))
+                    url = data.get('next')  # Handle pagination if needed
+                else:
+                    print(f"Failed to fetch workflows: {response.status_code} - {response.text}")
+                    url = None
+            return all_workflows
 
-            if response.status_code == 200:
-                workflows = response.json().get('workflow_runs', [])
-                failed_workflows = [wf for wf in workflows if wf.get('conclusion') == 'failure']
-                return failed_workflows
-            else:
-                print(f"Failed to fetch workflows: {response.status_code} - {response.text}")
-                return []
+        def get_failed_workflows():
+            workflows = get_all_workflows()
+            print(f"Total workflows fetched: {len(workflows)}")
+            print(f"Workflow data: {json.dumps(workflows, indent=2)}")
+            
+            failed_workflows = [wf for wf in workflows if wf.get('conclusion') == 'failure']
+            return failed_workflows
 
         def delete_workflow(run_id):
             url = f"{BASE_URL}/repos/{REPO}/actions/runs/{run_id}"
             response = requests.delete(url, headers=headers)
-
             if response.status_code == 204:
                 print(f"Successfully deleted workflow run {run_id}")
             else:
