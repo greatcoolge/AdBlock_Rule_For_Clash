@@ -1,0 +1,72 @@
+name: Delete Failed Workflows
+
+# 触发方式
+on:
+  workflow_dispatch:  # 手动触发
+  schedule:           # 定时触发，每天午夜运行一次
+    - cron: '0 0 * * *'
+
+jobs:
+  delete-failed-workflows:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Delete failed workflows
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      run: |
+        import requests
+        import os
+
+        # GitHub API 的基础URL
+        BASE_URL = "https://api.github.com"
+        REPO = os.getenv('GITHUB_REPOSITORY')  # 获取仓库名称，如 "owner/repo"
+        TOKEN = os.getenv('GITHUB_TOKEN')      # 获取GitHub Token
+
+        # 请求头，包含认证信息
+        headers = {
+            "Authorization": f"Bearer {TOKEN}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+
+        # 获取所有 workflow 运行的记录
+        def get_failed_workflows():
+            url = f"{BASE_URL}/repos/{REPO}/actions/runs"
+            response = requests.get(url, headers=headers)
+
+            if response.status_code == 200:
+                workflows = response.json()['workflow_runs']
+                # 过滤出所有失败的工作流
+                failed_workflows = [wf for wf in workflows if wf['conclusion'] == 'failure']
+                return failed_workflows
+            else:
+                print(f"Failed to fetch workflows: {response.status_code} - {response.text}")
+                return []
+
+        # 删除指定的 workflow
+        def delete_workflow(run_id):
+            url = f"{BASE_URL}/repos/{REPO}/actions/runs/{run_id}"
+            response = requests.delete(url, headers=headers)
+
+            if response.status_code == 204:
+                print(f"Successfully deleted workflow run {run_id}")
+            else:
+                print(f"Failed to delete workflow run {run_id}: {response.status_code} - {response.text}")
+
+        # 主逻辑
+        failed_workflows = get_failed_workflows()
+
+        if not failed_workflows:
+            print("No failed workflows found.")
+        else:
+            for workflow in failed_workflows:
+                print(f"Deleting workflow run {workflow['id']} (name: {workflow['name']})")
+                delete_workflow(workflow['id'])
