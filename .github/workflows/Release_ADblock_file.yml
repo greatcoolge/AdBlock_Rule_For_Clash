@@ -89,3 +89,11 @@ jobs:
           asset_path: ./adblock_reject.mrs
           asset_name: adblock_reject.mrs
           asset_content_type: text/plain
+     
+      - name: Delete old workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 1
+          keep_minimum_runs: 1
