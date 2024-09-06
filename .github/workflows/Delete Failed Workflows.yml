@@ -1,0 +1,34 @@
+name: Delete Failed Workflows
+
+on:
+  workflow_dispatch: # 手动触发
+
+jobs:
+  delete_failed_workflows:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up GitHub CLI
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
+    - name: Install GitHub CLI
+      run: sudo apt-get install -y gh
+
+    - name: Authenticate GitHub CLI
+      run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
+    - name: List Failed Workflow Runs
+      run: |
+        gh run list --limit 100 --json databaseId,conclusion | jq '.[] | select(.conclusion == "failure") | .databaseId' > failed_workflows.txt
+
+    - name: Delete Failed Workflow Runs
+      run: |
+        while read -r run_id; do
+          echo "Deleting workflow run: $run_id"
+          gh run delete "$run_id" -y
+        done < failed_workflows.txt
