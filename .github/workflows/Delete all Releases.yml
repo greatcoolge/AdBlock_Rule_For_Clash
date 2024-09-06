@@ -14,11 +14,11 @@ jobs:
       run: |
         # Fetch all releases
         releases=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/owner/repo/releases?per_page=100")
+          "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/releases?per_page=100")
 
         # Fetch all tags
         tags=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/owner/repo/tags?per_page=100")
+          "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/tags?per_page=100")
 
         # Get the latest release ID and tag name
         latest_release_id=$(echo "$releases" | jq -r '.[0].id')
@@ -35,7 +35,7 @@ jobs:
           if [ "$release_id" != "$latest_release_id" ]; then
             echo "Deleting release $tag_name (ID: $release_id)..."
             curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
-              "https://api.github.com/repos/owner/repo/releases/$release_id"
+              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/releases/$release_id"
           fi
         done
 
@@ -45,6 +45,6 @@ jobs:
           if [ "$tag_name" != "$latest_tag_name" ]; then
             echo "Deleting tag $tag_name..."
             curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
-              "https://api.github.com/repos/owner/repo/git/refs/tags/$tag_name"
+              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/git/refs/tags/$tag_name"
           fi
         done
