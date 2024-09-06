@@ -31,6 +31,7 @@ jobs:
 
           # 获取失败的工作流运行 ID 并追加到 failed_runs 变量
           run_ids=$(echo "$response" | jq -r '.workflow_runs[].id')
+          echo "Page $page: Found failed workflow run IDs: $run_ids"
           failed_runs+="$run_ids"$'\n'
 
           # 下一页
@@ -41,8 +42,11 @@ jobs:
           echo "No failed workflow runs found."
         else
           echo "$failed_runs" > failed_workflows.txt
-          echo "Found failed workflow runs: $failed_runs"
+          echo "All failed workflow runs: $failed_runs"
         fi
+
+    - name: Debug: Output failed workflows
+      run: cat failed_workflows.txt
 
     - name: Delete Failed Workflow Runs
       if: success() && steps.list_failed_workflows.outputs.failed_runs != ''
@@ -50,6 +54,8 @@ jobs:
         echo "Deleting failed workflow runs..."
         while read -r run_id; do
           echo "Deleting workflow run: $run_id"
-          curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id"
+          response=$(curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id")
+
+          echo "Response for deleting $run_id: $response"
         done < failed_workflows.txt
