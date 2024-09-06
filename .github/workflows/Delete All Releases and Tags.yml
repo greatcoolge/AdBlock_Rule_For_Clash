@@ -1,0 +1,78 @@
+name: Delete All Releases and Tags
+
+on:
+  workflow_dispatch: # 手动触发
+
+jobs:
+  clean-up:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch and Delete Old Releases and Tags
+        run: |
+          # 初始化
+          latest_release_id=""
+          latest_tag_name=""
+
+          # 获取最新发布
+          latest_release=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+          latest_release_id=$(echo "$latest_release" | jq -r '.id')
+          latest_tag_name=$(echo "$latest_release" | jq -r '.tag_name')
+
+          echo "Latest Release ID: $latest_release_id"
+          echo "Latest Tag Name: $latest_tag_name"
+
+          # 删除旧的发布（保留最新）
+          page=1
+          releases=""
+          while true; do
+            result=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100&page=$page" | jq -r '.[].id')
+            
+            if [ -z "$result" ]; then
+              break
+            fi
+
+            releases="$releases $result"
+            page=$((page + 1))
+            sleep 1 # 控制请求频率
+          done
+
+          for id in $releases; do
+            if [ "$id" != "$latest_release_id" ]; then
+              echo "Deleting release ID: $id"
+              curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/$id"
+              sleep 1 # 控制请求频率
+            fi
+          done
+
+          echo "Old releases deleted."
+
+          # 删除旧的标签（保留最新）
+          page=1
+          tags=""
+          while true; do
+            result=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/tags?per_page=100&page=$page" | jq -r '.[].name')
+            
+            if [ -z "$result" ]; then
+              break
+            fi
+
+            tags="$tags $result"
+            page=$((page + 1))
+            sleep 1 # 控制请求频率
+          done
+
+          for tag in $tags; do
+            if [ "$tag" != "$latest_tag_name" ]; then
+              echo "Deleting tag: $tag"
+              curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$tag"
+              sleep 1 # 控制请求频率
+            fi
+          done
+
+          echo "Old tags deleted."
