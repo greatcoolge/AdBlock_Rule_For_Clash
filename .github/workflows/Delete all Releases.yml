@@ -1,40 +1,48 @@
-name: Delete Releases and Tags Older Than 1 Day
+name: Delete All Releases and Tags Except Latest
 
 on:
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch: # 允许手动触发
 
 jobs:
-  cleanup:
+  clean-up:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-
-    - name: Install GitHub CLI
-      run: |
-        sudo apt-get install gh
-
-    - name: Delete Releases and Tags Older Than 1 Day
+    - name: Fetch Releases and Tags
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # 获取当前时间和一天前的时间
-        now=$(date +%s)
-        one_day_ago=$((now - 86400))
+        # 获取所有发布版本
+        releases=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/owner/repo/releases")
 
-        # 删除过期的发布版本
-        releases=$(gh release list --limit 100 --json tagName,createdAt --jq '.[] | select((now - (.createdAt | fromdate)) > 86400) | .tagName')
-        for tag in $releases; do
-          gh release delete "$tag" -y
+        # 获取所有标签
+        tags=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/owner/repo/tags")
+
+        # 获取最新的发布版本 ID
+        latest_release_id=$(echo "$releases" | jq -r '.[0].id')
+
+        # 获取最新的标签名称
+        latest_tag_name=$(echo "$tags" | jq -r '.[0].name')
+
+        # 删除除最新发布版本之外的所有发布版本
+        echo "$releases" | jq -c '.[]' | while IFS= read -r release; do
+          release_id=$(echo "$release" | jq -r '.id')
+          tag_name=$(echo "$release" | jq -r '.tag_name')
+          if [ "$release_id" != "$latest_release_id" ]; then
+            echo "Deleting release $tag_name (ID: $release_id)..."
+            curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
+              "https://api.github.com/repos/owner/repo/releases/$release_id"
+          fi
         done
 
-        # 删除过期的标签
-        tags=$(gh tag list --limit 100)
-        for tag in $tags; do
-          # 检查标签是否在一天之前创建
-          tag_date=$(gh tag view "$tag" --json createdAt -q '.createdAt' | xargs -I {} date -d {} +%s)
-          if [ $tag_date -lt $one_day_ago ]; then
-            gh repo delete-tag "$tag"
+        # 删除除最新标签之外的所有标签
+        echo "$tags" | jq -c '.[]' | while IFS= read -r tag; do
+          tag_name=$(echo "$tag" | jq -r '.name')
+          if [ "$tag_name" != "$latest_tag_name" ]; then
+            echo "Deleting tag $tag_name..."
+            curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
+              "https://api.github.com/repos/owner/repo/git/refs/tags/$tag_name"
           fi
         done
