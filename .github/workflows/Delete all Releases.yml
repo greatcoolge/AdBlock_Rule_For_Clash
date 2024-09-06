@@ -1,0 +1,40 @@
+name: Delete Releases and Tags Older Than 1 Day
+
+on:
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Install GitHub CLI
+      run: |
+        sudo apt-get install gh
+
+    - name: Delete Releases and Tags Older Than 1 Day
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Get current time and time 1 day ago
+        now=$(date +%s)
+        one_day_ago=$((now - 86400))
+
+        # Delete expired releases
+        releases=$(gh release list --limit 100 --json tagName,createdAt --jq '.[] | select((now - (.createdAt | fromdate)) > 86400) | .tagName')
+        for tag in $releases; do
+          gh release delete "$tag" -y
+        done
+
+        # Delete expired tags
+        tags=$(gh tag list --limit 100)
+        for tag in $tags; do
+          # Check if the tag was created more than 1 day ago
+          tag_date=$(gh tag view "$tag" --json createdAt -q '.createdAt' | xargs -I {} date -d {} +%s)
+          if [ $tag_date -lt $one_day_ago ]; then
+            gh repo delete-tag "$tag"
+          fi
+        done
