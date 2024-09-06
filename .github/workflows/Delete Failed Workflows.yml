@@ -21,40 +21,39 @@ jobs:
     - name: Install requests package
       run: pip install requests
 
-    - name: Delete failed workflows
+    - name: Run Python script to delete failed workflows
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         python - <<EOF
         import requests
         import os
+        import json
 
-        # GitHub API 的基础URL
         BASE_URL = "https://api.github.com"
-        REPO = os.getenv('GITHUB_REPOSITORY')  # 获取仓库名称，如 "owner/repo"
-        TOKEN = os.getenv('GITHUB_TOKEN')      # 获取GitHub Token
+        REPO = "REIJI007/AdBlock_Rule_For_Clash"  # 直接指定仓库
+        TOKEN = os.getenv('GITHUB_TOKEN')
 
-        # 请求头，包含认证信息
         headers = {
             "Authorization": f"Bearer {TOKEN}",
             "Accept": "application/vnd.github.v3+json"
         }
 
-        # 获取所有 workflow 运行的记录
         def get_failed_workflows():
             url = f"{BASE_URL}/repos/{REPO}/actions/runs"
             response = requests.get(url, headers=headers)
+            
+            print(f"Status Code: {response.status_code}")
+            print(f"Response JSON: {response.text}")
 
             if response.status_code == 200:
-                workflows = response.json()['workflow_runs']
-                # 过滤出所有失败的工作流
-                failed_workflows = [wf for wf in workflows if wf['conclusion'] == 'failure']
+                workflows = response.json().get('workflow_runs', [])
+                failed_workflows = [wf for wf in workflows if wf.get('conclusion') == 'failure']
                 return failed_workflows
             else:
                 print(f"Failed to fetch workflows: {response.status_code} - {response.text}")
                 return []
 
-        # 删除指定的 workflow
         def delete_workflow(run_id):
             url = f"{BASE_URL}/repos/{REPO}/actions/runs/{run_id}"
             response = requests.delete(url, headers=headers)
@@ -64,7 +63,6 @@ jobs:
             else:
                 print(f"Failed to delete workflow run {run_id}: {response.status_code} - {response.text}")
 
-        # 主逻辑
         failed_workflows = get_failed_workflows()
 
         if not failed_workflows:
