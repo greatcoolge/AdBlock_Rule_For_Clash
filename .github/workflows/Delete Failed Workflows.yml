@@ -23,7 +23,7 @@ jobs:
 
     - name: Run Python script to delete failed workflows
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
       run: |
         python - <<EOF
         import requests
@@ -32,7 +32,7 @@ jobs:
 
         BASE_URL = "https://api.github.com"
         REPO = "REIJI007/AdBlock_Rule_For_Clash"
-        TOKEN = os.getenv('GITHUB_TOKEN')
+        TOKEN = os.getenv('TOKEN')
 
         headers = {
             "Authorization": f"Bearer {TOKEN}",
@@ -56,8 +56,8 @@ jobs:
         def get_failed_workflows():
             workflows = get_all_workflows()
             print(f"Total workflows fetched: {len(workflows)}")
-            print(f"Workflow data: {json.dumps(workflows, indent=2)}")
-            
+            for workflow in workflows:
+                print(f"Workflow ID: {workflow.get('id')}, Status: {workflow.get('conclusion')}, Name: {workflow.get('name')}")
             failed_workflows = [wf for wf in workflows if wf.get('conclusion') == 'failure']
             return failed_workflows
 
