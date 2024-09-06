@@ -1,4 +1,4 @@
-name: Delete Failed Workflows
+name: Delete All Failed Workflows
 
 on:
   workflow_dispatch: # 手动触发
@@ -11,24 +11,45 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up GitHub CLI
-      uses: actions/setup-node@v3
-      with:
-        node-version: '14'
-
-    - name: Install GitHub CLI
-      run: sudo apt-get install -y gh
-
-    - name: Authenticate GitHub CLI
-      run: gh auth login --with-token <<< "${{ secrets.TOKEN }}"
-
-    - name: List Failed Workflow Runs
+    - name: List All Failed Workflow Runs
+      id: list_failed_workflows
       run: |
-        gh run list --limit 100 --json databaseId,conclusion | jq '.[] | select(.conclusion == "failure") | .databaseId' > failed_workflows.txt
+        echo "Listing all failed workflow runs..."
+        page=1
+        failed_runs=""
+
+        while true; do
+          # 获取每一页的失败工作流运行
+          response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/runs?status=failure&per_page=100&page=$page")
+
+          # 检查是否还有更多结果
+          count=$(echo "$response" | jq '.workflow_runs | length')
+          if [ "$count" -eq "0" ]; then
+            break
+          fi
+
+          # 获取失败的工作流运行 ID 并追加到 failed_runs 变量
+          run_ids=$(echo "$response" | jq -r '.workflow_runs[].id')
+          failed_runs+="$run_ids"$'\n'
+
+          # 下一页
+          ((page++))
+        done
+
+        if [ -z "$failed_runs" ]; then
+          echo "No failed workflow runs found."
+        else
+          echo "$failed_runs" > failed_workflows.txt
+          echo "Found failed workflow runs: $failed_runs"
+        fi
 
     - name: Delete Failed Workflow Runs
+      if: success() && steps.list_failed_workflows.outputs.failed_runs != ''
       run: |
+        echo "Deleting failed workflow runs..."
         while read -r run_id; do
           echo "Deleting workflow run: $run_id"
-          gh run delete "$run_id" -y
+          curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id"
         done < failed_workflows.txt
