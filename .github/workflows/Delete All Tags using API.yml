@@ -1,0 +1,24 @@
+name: Delete All Tags using API
+
+on:
+  workflow_dispatch:  # 手动触发此工作流
+
+jobs:
+  delete-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate with GitHub Token
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          # 获取所有 tags
+          tags=$(curl -s -H "Authorization: token $TOKEN" \
+            https://api.github.com/repos/${{ github.repository }}/tags \
+            | jq -r '.[].name')
+          
+          # 循环删除每个 tag
+          for tag in $tags; do
+            echo "Deleting tag: $tag"
+            curl -X DELETE -H "Authorization: token $TOKEN" \
+              https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$tag
+          done
