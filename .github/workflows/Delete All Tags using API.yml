@@ -7,9 +7,9 @@ jobs:
   delete-tags:
     runs-on: ubuntu-latest
     steps:
-      - name: Authenticate with GitHub Token
+      - name: Authenticate and delete all tags using TOKEN
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          TOKEN: ${{ secrets.TOKEN }}  # 使用自定义的 TOKEN
         run: |
           # 获取所有 tags
           tags=$(curl -s -H "Authorization: token $TOKEN" \
