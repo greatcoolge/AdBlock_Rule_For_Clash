@@ -145,7 +145,6 @@ foreach ($url in $urlList) {
                 # 提取所有匹配的域名部分
                 $domains = $line -replace '^@@\|\|', '' -split '\|'
                 foreach ($domain in $domains) {
-                    # 处理通配符
                     if ($domain.StartsWith('*')) {
                         $domain = $domain.Substring(1)
                     }
@@ -154,10 +153,8 @@ foreach ($url in $urlList) {
             }
             # 接着匹配所有以 @@| 开头的规则，并提取域名
             elseif ($line -match '^@@\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})*$') {
-                # 提取所有匹配的域名部分
                 $domains = $line -replace '^@@\|', '' -split '\|'
                 foreach ($domain in $domains) {
-                    # 处理通配符
                     if ($domain.StartsWith('*')) {
                         $domain = $domain.Substring(1)
                     }
@@ -166,10 +163,8 @@ foreach ($url in $urlList) {
             }
             # 最后匹配所有以 @@ 开头的规则，并提取域名
             elseif ($line -match '^@@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})*$') {
-                # 提取所有匹配的域名部分
                 $domains = $line -replace '^@@', '' -split '\|'
                 foreach ($domain in $domains) {
-                    # 处理通配符
                     if ($domain.StartsWith('*')) {
                         $domain = $domain.Substring(1)
                     }
@@ -207,14 +202,11 @@ foreach ($url in $urlList) {
 }
 
 # 排除以 @@||、@@| 和 @@ 开头规则中提取的域名
-$finalRules = $uniqueRules | Where-Object {
-    $domainToCheck = $_
-    # Check domain against all excluded domains
-    -not ($excludedDomains | Where-Object { $domainToCheck -like "*$_*" })
-}
+$finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
 
 # 输出最终规则
 $finalRules | ForEach-Object { Write-Host $_ }
+
 
 
 # 对规则进行排序并格式化
