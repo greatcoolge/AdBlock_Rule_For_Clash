@@ -3,7 +3,7 @@ name: Trigger in sequence
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0,6,12,18 * * *'  # 每20分钟触发一次
+    - cron: '0 0,6,12,18 * * *'  # 每6小时触发一次
 
 jobs:
   trigger_adblock_rule_generator_yaml:
@@ -24,12 +24,18 @@ jobs:
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
+          # 增加等待时间，确保工作流被触发
+          sleep 60
+
           # 验证工作流成功触发和完成
           while : ; do
+            # 获取最近一次工作流运行的状态
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&branch=$ref&per_page=1" \
               | jq -r '.workflow_runs[0].conclusion')
+
+            echo "Current workflow status: $status"
 
             if [[ "$status" == "success" ]]; then
               echo "Workflow $workflow_id completed successfully."
@@ -38,11 +44,10 @@ jobs:
               echo "Workflow $workflow_id failed."
               exit 1
             else
-              echo "Waiting for workflow $workflow_id to complete..."
+              echo "Workflow is still running or queued. Waiting for workflow $workflow_id to complete..."
               sleep 30
             fi
           done
-
 
           # 等待90秒后开始下一个工作流
           echo "Waiting for 90 seconds before starting the next workflow..."
@@ -67,12 +72,15 @@ jobs:
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
-          # 验证工作流成功触发和完成
+          sleep 60
+
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&branch=$ref&per_page=1" \
               | jq -r '.workflow_runs[0].conclusion')
+
+            echo "Current workflow status: $status"
 
             if [[ "$status" == "success" ]]; then
               echo "Workflow $workflow_id completed successfully."
@@ -81,12 +89,11 @@ jobs:
               echo "Workflow $workflow_id failed."
               exit 1
             else
-              echo "Waiting for workflow $workflow_id to complete..."
+              echo "Workflow is still running or queued. Waiting for workflow $workflow_id to complete..."
               sleep 30
             fi
           done
 
-          # 等待90秒后开始下一个工作流
           echo "Waiting for 90 seconds before starting the next workflow..."
           sleep 90
 
@@ -109,12 +116,15 @@ jobs:
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
-          # 验证工作流成功触发和完成
+          sleep 60
+
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&branch=$ref&per_page=1" \
               | jq -r '.workflow_runs[0].conclusion')
+
+            echo "Current workflow status: $status"
 
             if [[ "$status" == "success" ]]; then
               echo "Workflow $workflow_id completed successfully."
@@ -123,12 +133,11 @@ jobs:
               echo "Workflow $workflow_id failed."
               exit 1
             else
-              echo "Waiting for workflow $workflow_id to complete..."
+              echo "Workflow is still running or queued. Waiting for workflow $workflow_id to complete..."
               sleep 30
             fi
           done
 
-          # 等待90秒后开始下一个工作流
           echo "Waiting for 90 seconds before starting the next workflow..."
           sleep 90
 
@@ -151,12 +160,15 @@ jobs:
             -d "{\"ref\":\"$ref\"}")
           echo "Triggered workflow $workflow_id: $response"
 
-          # 验证工作流成功触发和完成
+          sleep 60
+
           while : ; do
             status=$(curl -s -H "Authorization: token $TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&status=completed&branch=$ref" \
+              "https://api.github.com/repos/greatcoolge/AdBlock_Rule_For_Clash/actions/runs?workflow_id=$workflow_id&branch=$ref&per_page=1" \
               | jq -r '.workflow_runs[0].conclusion')
+
+            echo "Current workflow status: $status"
 
             if [[ "$status" == "success" ]]; then
               echo "Workflow $workflow_id completed successfully."
@@ -165,7 +177,10 @@ jobs:
               echo "Workflow $workflow_id failed."
               exit 1
             else
-              echo "Waiting for workflow $workflow_id to complete..."
+              echo "Workflow is still running or queued. Waiting for workflow $workflow_id to complete..."
               sleep 30
             fi
           done
+
+          echo "Waiting for 90 seconds before starting the next workflow..."
+          sleep 90
