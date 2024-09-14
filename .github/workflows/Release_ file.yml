@@ -1,6 +1,8 @@
 name: Release_ADblock file
 
 on:
+  schedule:
+    - cron: '0 0,6,12,18 * * *' # 每天凌晨 12 点、6 点、12 点和 18 点运行
   workflow_dispatch: # 允许手动触发
 
 jobs:
@@ -12,17 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 步骤2：拉取最新的 main 分支
-      - name: Pull and merge latest main
-        run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@users.noreply.github.com'
-          git fetch origin main
-          git merge origin/main --no-edit || echo "Merge failed, skipping merge"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # 步骤3：清理所有发布和标签
+      # 步骤2：清理所有发布和标签
       - name: Clean up all releases and tags
         run: |
           echo "Cleaning up all releases..."
@@ -51,9 +43,13 @@ jobs:
             sleep 1
           done
 
-      # 步骤4：清理残留的工作目录文件
+      # 步骤3：清理工作目录中的残留文件
       - name: Clean up residual files
         run: |
+          # 配置 Git
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
           # 删除不需要的文件
           find . -type f -name "*.tmp" -exec git rm --cached {} \; || true
           find . -type f -name "*.bak" -exec git rm --cached {} \; || true
@@ -62,6 +58,12 @@ jobs:
           # 提交并推送更改
           git commit -m "Clean up residual files" || echo "No changes to commit"
           git push origin main --force
+
+      # 步骤4：拉取最新的 main 分支
+      - name: Pull latest main branch
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
 
       # 步骤5：创建新的发布
       - name: Create New Release
