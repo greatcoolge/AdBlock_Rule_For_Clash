@@ -1,0 +1,107 @@
+name: Release_ADblock file
+
+on:
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  clean-up:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 步骤1：检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 步骤2：拉取最新的 main 分支
+      - name: Pull and merge latest main
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git merge origin/main --no-edit || echo "Merge failed, skipping merge"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 步骤3：清理所有发布和标签
+      - name: Clean up all releases and tags
+        run: |
+          echo "Cleaning up all releases..."
+          
+          # 获取所有发布 ID
+          releases=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100" | jq -r '.[].id')
+
+          for id in $releases; do
+            echo "Deleting release ID: $id"
+            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/$id"
+            sleep 1
+          done
+
+          echo "Cleaning up all tags..."
+
+          # 获取所有标签
+          tags=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/tags?per_page=100" | jq -r '.[].name')
+
+          for tag in $tags; do
+            echo "Deleting tag: $tag"
+            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$tag"
+            sleep 1
+          done
+
+      # 步骤4：清理残留的工作目录文件
+      - name: Clean up residual files
+        run: |
+          # 删除不需要的文件
+          find . -type f -name "*.tmp" -exec git rm --cached {} \; || true
+          find . -type f -name "*.bak" -exec git rm --cached {} \; || true
+          find . -type f -name "*.log" -exec git rm --cached {} \; || true
+
+          # 提交并推送更改
+          git commit -m "Clean up residual files" || echo "No changes to commit"
+          git push origin main --force
+
+      # 步骤5：创建新的发布
+      - name: Create New Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "release-${{ github.run_id }}" # 使用 GitHub Actions 运行 ID 作为标签名称
+          release_name: "Release ${{ github.run_id }}" # 使用运行 ID 作为发布名称
+          body: "New release after cleaning up old releases, tags, and residual files."
+          draft: false
+
+      # 步骤6：上传新文件（如果有）
+      - name: Upload adblock_reject.yaml
+        uses: actions/upload-release-asset@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./adblock_reject.yaml
+          asset_name: adblock_reject.yaml
+          asset_content_type: application/x-yaml
+
+      - name: Upload adblock_reject.txt
+        uses: actions/upload-release-asset@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./adblock_reject.txt
+          asset_name: adblock_reject.txt
+          asset_content_type: text/plain
+
+      - name: Upload adblock_reject.mrs
+        uses: actions/upload-release-asset@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./adblock_reject.mrs
+          asset_name: adblock_reject.mrs
+          asset_content_type: text/plain
