@@ -69,6 +69,9 @@ foreach ($url in $urlList) {
 # 排除以 @@|| 开头规则中提取的域名
 $finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
 
+# 去掉注释行（以 # 开头）
+$finalRules = $finalRules | Where-Object { $_.Trim() -ne "" -and -not $_.Trim().StartsWith("#") }
+
 # 对规则进行排序并格式化
 $formattedRules = $finalRules | Sort-Object | ForEach-Object {"- '+.$_'"}
 
