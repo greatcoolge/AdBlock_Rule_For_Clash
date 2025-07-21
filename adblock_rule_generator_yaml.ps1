@@ -6,9 +6,10 @@
 
 # 定义广告过滤器URL列表
 $urlList = @(
-    "https://raw.githubusercontent.com/greatcoolge/adblockfilters1/main/rules/adblockdnslite.txt"
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.mini.txt"
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt"
+    "https://raw.githubusercontent.com/greatcoolge/HyperADRules/refs/heads/master/final-rules.txt",
+    "https://raw.githubusercontent.com/greatcoolge/adblockfilters1/main/rules/adblockdnslite.txt",
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.mini.txt",
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt",
     "https://raw.githubusercontent.com/greatcoolge/GFWIP/refs/heads/main/blacklist_adblock.txt"
 )
 
