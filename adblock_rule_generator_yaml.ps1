@@ -6,7 +6,7 @@
 
 # 定义广告过滤器URL列表
 $urlList = @(
-    "https://raw.githubusercontent.com/greatcoolge/adblockfilters1/main/rules/adblockdns.txt"
+    "https://raw.githubusercontent.com/greatcoolge/adblockfilters1/main/rules/adblockdomainlite.txt"
 )
 
 # 日志文件路径
