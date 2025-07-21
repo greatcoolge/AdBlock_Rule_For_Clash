@@ -17,6 +17,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Pull latest changes first
+        shell: powershell
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git pull https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+      
       # 步骤2：检查并下载 mihomo（仅在第一次运行时）
       - name: Check and download mihomo v1.18.7 if needed
         shell: powershell
@@ -61,6 +68,7 @@ jobs:
             Write-Host "mihomo.exe and .mihomo_downloaded already exist."  # 如果文件已存在，跳过下载
           }
 
+
       # 步骤3：转换规则集（依赖于 mihomo.exe）
       - name: Convert ruleset
         shell: powershell
@@ -100,6 +108,14 @@ jobs:
             exit 1
           }
 
+      - name: Check git diff after conversion  # ✅ 插入这个新步骤
+        shell: bash
+        run: |
+          echo "===== Git Status ====="
+          git status
+          echo "===== Git Diff ====="
+          git diff adblock_reject.mrs || echo "No diff"
+      
       # 步骤4：提交并推送更改（包括 mihomo.exe 和标记文件）
       - name: Push changes
         shell: powershell
