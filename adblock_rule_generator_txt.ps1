@@ -74,8 +74,9 @@ foreach ($url in $urlList) {
 $finalRules = $uniqueRules | Where-Object { -not $excludedDomains.Contains($_) }
 
 # 对规则进行排序并格式化
-$formattedRules = $finalRules | Sort-Object | ForEach-Object {"- '+.$_'"}
-
+# $formattedRules = $finalRules | Sort-Object | ForEach-Object {"- '+.$_'"}
+# 假设 $finalRules 是你的域名数组
+$finalRules | Sort-Object | ForEach-Object { $_ }
 # 统计生成的规则条目数量
 $ruleCount = $finalRules.Count
 
