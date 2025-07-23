@@ -6,20 +6,11 @@
 
 # 定义广告过滤器URL列表
 $urlList = @(
-    "https://big.oisd.nl/",
-    "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock_plus.txt",
-    "https://raw.githubusercontent.com/Cats-Team/AdRules/main/dns.txt",
-    "https://raw.githubusercontent.com/8680/GOODBYEADS/master/rules.txt",
-    "https://raw.githubusercontent.com/8680/GOODBYEADS/master/dns.txt",
-    "https://raw.githubusercontent.com/8680/GOODBYEADS/master/allow.txt",
-    "https://raw.githubusercontent.com/greatcoolge/HyperADRules/master/list/allow1.txt",
-    "https://raw.githubusercontent.com/Bibaiji/ad-rules/main/rule/local-rule.txt",
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/whitelist-referral.txt",
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/whitelist-urlshortener.txt"
-    "https://raw.githubusercontent.com/jerryn70/GoodbyeAds/master/Formats/GoodbyeAds-AdBlock-Filter.txt",
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/multi.txt",
-    "https://raw.githubusercontent.com/neodevpro/neodevhost/master/lite_host",
-    "https://raw.githubusercontent.com/neodevpro/neodevhost/master/lite_adblocker"
+    "https://raw.githubusercontent.com/greatcoolge/HyperADRules/refs/heads/master/final-rules.txt",
+    "https://raw.githubusercontent.com/greatcoolge/adblockfilters1/main/rules/adblockdnslite.txt",
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.mini.txt",
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt",
+    "https://raw.githubusercontent.com/greatcoolge/GFWIP/refs/heads/main/blacklist_adblock.txt"
 )
 
 # 日志文件路径
