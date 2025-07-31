@@ -3,9 +3,9 @@
 # Homepage: https://github.com/greatcoolge/AdBlock_Rule_For_Clash
 # LICENSE1: https://github.com/greatcoolge/AdBlock_Rule_For_Clash/blob/main/LICENSE-GPL3.0
 # LICENSE2: https://github.com/greatcoolge/AdBlock_Rule_For_Clash/blob/main/LICENSE-CC%20BY-NC-SA%204.0
-# Generated on: 2025-07-31 20:32:20
+# Generated on: 2025-08-01 02:24:00
 # Generated AdBlock rules
-# Total entries: 176114
+# Total entries: 176082
 
 payload:
 0-7l45.cfd
@@ -25657,7 +25657,6 @@ bilinire-tamlayan-acilari-birazda-su-serpmeye-geliriz.com
 bilinos.click
 bilkenterbil.org
 bill-54356.top
-bill.agent.56.com
 bill.drillmmcsnk.top
 bill.remote-otp.com
 billabong-turkiye.com
@@ -26327,7 +26326,6 @@ biz.coface.com
 biz.gexing.com
 biz.weibo.com
 biz4.cash
-biz5.sandai.net
 bizarrekingfisher.pro
 bizarto.com
 bizasvanicar.webcindario.com
@@ -27186,7 +27184,6 @@ bm-bluemoon.com
 bm-okta.com
 bm-okta.net
 bm-rx.atatus.com
-bm.alimama.cn
 bm.h576.com
 bmallzki.shop
 bmatdoctors.com
@@ -27243,7 +27240,6 @@ bmtmicro.com
 bmtracks.com
 bmttx.net
 bmvgroup.site
-bmvip.alimama.cn
 bmw4i428.su
 bmwag.tt.omtrdc.net
 bmwebm.org
@@ -32298,7 +32294,6 @@ cb-dd.info
 cb-loginportal.cloud
 cb-secure-server.com
 cb-wise.com
-cb.alimama.cn
 cb.baidu.com
 cb.hardyforges.com
 cb132ab714653894.com
@@ -43342,7 +43337,6 @@ d-uni-wealth.top
 d-will.net
 d.14yaa.com
 d.batelcpoint.cc
-d.cntv.cn
 d.dgzj.com
 d.diamondartclub.com
 d.email.forbes.com
@@ -49762,7 +49756,6 @@ dr-chihebzakhama.com
 dr-community.online
 dr-rhythm.com
 dr-sapuri.jp
-dr.soso.com
 dr22.biz
 dr3ivepro.space
 dr5.biz
@@ -56969,7 +56962,6 @@ f-w-d.net
 f.convertkit.com
 f.convertkit.com.cdn.cloudflare.net
 f.neko.pe
-f.qstatic.com
 f.wummi.at
 f.yourl.jp
 f012.huozhongkeji.org
@@ -60906,8 +60898,6 @@ focusforwardyoga.com
 focusgame.top
 focusnourish.com
 fod-nr4282436.org
-fodder.qq.com
-fodder.tc.qq.com
 fodjx.com
 fodonio.com
 fodsoack.com
@@ -63073,7 +63063,6 @@ fvzeitvz.shop
 fvzuwt.com
 fw-mi.com
 fw.matteryshou.com
-fw.qq.com
 fwcdn1.com
 fwcdn3.com
 fwd-mtg.jobrad-loop.com
@@ -76161,7 +76150,6 @@ images-graphics-pics.com
 images-pw.secureserver.net
 images-searcher.com
 images.autonomyinfo.hp.com
-images.bluetime.com
 images.bravenet.com
 images.briansmallwood.com
 images.business.lenovo.com
@@ -76179,7 +76167,6 @@ images.pinduoduo.com
 images.revtrax.com
 images.service.ubmsinoexpo.com
 images.smbdirect.lenovo.com
-images.sohu.com
 images.southsideblackancestry.com
 images.totalav.com
 imagesbyjulie.net
@@ -82877,7 +82864,6 @@ jz3366.top
 jz9phl.lat
 jzat-oil.com
 jzazxb.com
-jzclick.soso.com
 jzdgn.cn
 jzdwl4.cn
 jzgains.com
@@ -95605,7 +95591,6 @@ mcedinc.com
 mcetg.sbs
 mceyecenter.com
 mcffu.com
-mcfg.sandai.net
 mcfilmes.online
 mcfolazsg.pro
 mcft-uk.com
@@ -107567,7 +107552,6 @@ oarsmantaxing.rest
 oartouglemt.com
 oartoushux.net
 oas.repubblica.it
-oascentral.inq7.net
 oascentral.sina.com
 oasis.com
 oasis.top
@@ -108837,7 +108821,6 @@ oilsandstoday.ca
 oiltraderai.com
 oilyishbabbage.cfd
 oimagea2.ydstatic.com
-oimsgad.qq.com
 oinbase-staking.vip
 oindesdesk.shop
 ointmentapathetic.com
@@ -112109,7 +112092,6 @@ p4fzo3.sbs
 p4gdt4um6.com
 p4man.com.br
 p4p.sina.com.cn
-p4psearch.china.alibaba.com
 p4r6oc264.bkt.clouddn.com
 p5.zbjimg.com
 p52rxkv6.odoo.com
@@ -123137,7 +123119,6 @@ qslyvkgugvc.com
 qsnbl.com
 qspowersystemspr.com
 qsqhcjrg.com
-qss-client.qq.com
 qsshc.xyz
 qssjr.farmrio.com
 qsstats.com
@@ -127205,7 +127186,6 @@ rgxuywpc.shop
 rgxwcm.cn
 rgyh.asia
 rh.downloads.enigmasoft.net
-rh.qq.com
 rh7rte.top
 rhagitefeud.digital
 rhapsodyadventures.com
@@ -136428,7 +136408,6 @@ shouteraristas.help
 shovedeserveup.xyz
 shovelrecalled.com
 show-creative1.com
-show-msgch.qq.com
 show-production.com
 show.look.360.cn
 show.ssports.com
@@ -139509,7 +139488,6 @@ soapierrejolt.top
 soaptranscription.com
 soarcrane.com
 soariz.com
-soarpower.com
 soasdesign.com
 soatensuralinea.com
 soathutaivu.net
@@ -142637,7 +142615,6 @@ stat-y.xywy.com
 stat-z.xywy.com
 stat.24liveplus.com
 stat.360safe.com
-stat.56.com
 stat.aastocks.com
 stat.adbyte.de
 stat.alibaba.com
@@ -145330,7 +145307,6 @@ survey-na2.hsforms.com
 survey-now.cyou
 survey-online.digital
 survey-smiles.com
-survey.china.alibaba.com
 survey.news.ifeng.com
 survey.vleeuepoxy.com
 survey.zigpoll.com
@@ -153664,7 +153640,6 @@ toolbar.avg.com
 toolbar.baidu.com
 toolbar.google.com
 toolbar.msn.com
-toolbar.soso.com
 toolce.cn
 tooledin.app
 toolguyltd.com
@@ -159181,7 +159156,6 @@ uninetplus.webcindario.com
 union-anhanger.com
 union.360.cn
 union.55haitao.com
-union.56.com
 union.6.cn
 union.baidu.cn
 union.baidu.com
@@ -160962,7 +160936,6 @@ uvgaamfvwsgaa.online
 uvhash.top
 uvifewktmtbck.store
 uvihixi.top
-uvimage.56.com
 uvk.3hentai.net
 uvkbjfypmoqf.xyz
 uvkqo1.us
@@ -161197,7 +161170,6 @@ v12groupinc.com
 v15-ad.ap4r.com
 v16-ad.ap4r.com
 v16-ad.byteoversea.com
-v16.56.com
 v1and1-ionos-info-2hyeo.ondigitalocean.app
 v1aviationservices.com
 v1iwog.top
@@ -169900,16 +169872,12 @@ www-wm.top
 www-xnxx-live.rest
 www-youporn.com
 www.1ting.com
-www.31d.net
 www.37cs.com
 www.3aym.cn
-www.3qqq.net
 www.51link.com
-www.56.com
 www.588yw.com
 www.6998cdn.com
 www.6kwan.com
-www.805m.com
 www.8zcr.nthnba.cn
 www.a.ewps.cn
 www.adoringirl.net
